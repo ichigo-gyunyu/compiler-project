@@ -3,6 +3,9 @@
 
 #include "Utils/utils.h"
 
+#define TKSTATUS_EOF 1
+#define TKSTATUS_ERR 2
+
 typedef enum TokenType {
     TK_ASSIGNOP,
     TK_COMMENT,

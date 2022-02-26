@@ -1,6 +1,7 @@
 #include "lexer.h"
 
-#define BLOCK_SIZE 8
+#define BLOCK_SIZE 12
+
 
 static FILE *fp; // pointer to the src file
 static char  twin_buff[2][BLOCK_SIZE];
@@ -11,6 +12,10 @@ static char *begin;   // pointer to the start of a lexeme
 static char *forward; // lookahead pointer
 
 static uint line_number = 1;
+
+uint initBuffer(int buff_no);
+char nextChar();
+void retract();
 
 uint initBuffer(int buff_no) {
     uint bytes_read = fread(twin_buff[buff_no], 1, BLOCK_SIZE, fp);
@@ -63,21 +68,22 @@ void retract() {
         fseek(fp, -buff_size[curr_buff_no], SEEK_CUR);
         curr_buff_no = !curr_buff_no;
         forward      = twin_buff[curr_buff_no] + buff_size[curr_buff_no] - 1;
-
     } else {
         forward--;
     }
 }
 
-void l_test() {
-    int i = 20;
-    while (i--) {
-        char c = nextChar();
-        if (c == '\n')
-            printf("new : ascii %d\n", c);
-        else
-            printf("%c : ascii %d\n", c, c);
-        if (c == EOF)
-            break;
-    }
+TokenInfo getNextToken(int *status) {
+    // few things
+    // 1. how to handle no more tokens (eof)?
+    // 2. how to handle errors?
+    // im thinking have a status variable that is passed as an out param
+    // other way would be to modify TokenInfo to accomodate these
+    // but that would likely cause more problems
+}
+
+// handled independently of other functions in lexer
+// (just for demonstration probably)
+void removeComments(char *testcaseFile, char *cleanFile) {
+
 }
