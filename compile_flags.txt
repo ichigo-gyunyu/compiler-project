@@ -1,3 +1,4 @@
 c
 -Wall
 -I./src
+-g

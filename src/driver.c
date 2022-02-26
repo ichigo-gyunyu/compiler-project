@@ -1,9 +1,10 @@
 #include <stdio.h>
 
 #include "Lexer/lexer.h"
+#include "Parser/parser.h"
 
 int main(int argc, char **argv) {
-    FILE *fp = fopen("data/a.txt", "r");
+    /* FILE *fp = fopen("data/a.txt", "r");
     if (fp == NULL) {
         printf("noooo\n");
         return 1;
@@ -12,7 +13,9 @@ int main(int argc, char **argv) {
     initLexer(fp);
     l_test();
 
-    fclose(fp);
+    fclose(fp); */
+
+    printf("%d\n", TOKEN_COUNT);
 
     /* while (1) {
         char ch = fgetc(fp);

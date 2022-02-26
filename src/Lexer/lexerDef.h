@@ -65,10 +65,10 @@ typedef enum TokenType {
     TK_GE,
     TK_NE,
 
-    END
+    END_TOKENTYPE
 } TokenType;
 
-static const unsigned int TOKEN_COUNT = END - TK_ASSIGNOP;
+static const unsigned int TOKEN_COUNT = END_TOKENTYPE - TK_ASSIGNOP;
 
 typedef struct TokenInfo {
     TokenType tk_type;

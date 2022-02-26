@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 INC = -I./src
 EXE = $(wildcard *.exe)
 OBJ = driver.o lexer.o
