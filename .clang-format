@@ -4,6 +4,7 @@ IndentWidth: 4
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveDeclarations: Consecutive
 AlignConsecutiveMacros: Consecutive
 AlignOperands: Align
 AlignTrailingComments: true
