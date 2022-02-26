@@ -65,6 +65,8 @@ typedef enum TokenType {
     TK_GE,
     TK_NE,
 
+    TK_EOF, // extra
+
     END_TOKENTYPE
 } TokenType;
 
