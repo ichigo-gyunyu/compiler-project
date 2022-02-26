@@ -9,4 +9,4 @@ void ht_print(hashtable ht) {}
 
 int ht_insert(hashtable ht, data d) {}
 
-int ht_lookup(hashtable ht, data d) {}
+int ht_lookup(hashtable ht, char *key) {}

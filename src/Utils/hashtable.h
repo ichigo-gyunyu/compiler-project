@@ -31,9 +31,9 @@ int ht_insert(hashtable ht, data d);
 
 /**
  * Checks if the data is in the hashtable
- * Returns 0 if data is not in hashtable
- * Returns 1 if data is in
+ * Returns -1 if data is not in hashtable
+ * Returns the kay if data is in
  */
-int ht_lookup(hashtable ht, data d);
+int ht_lookup(hashtable ht, char *key);
 
 #endif
