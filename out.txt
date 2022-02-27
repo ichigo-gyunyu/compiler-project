@@ -1,0 +1,3707 @@
+TK_ASSIGNOP --> 0
+TK_COMMENT --> 1
+TK_FIELDID --> 2
+TK_ID --> 3
+TK_NUM --> 4
+TK_RNUM --> 5
+TK_FUNID --> 6
+TK_RUID --> 7
+TK_WITH --> 8
+TK_PARAMETERS --> 9
+TK_END --> 10
+TK_WHILE --> 11
+TK_UNION --> 12
+TK_ENDUNION --> 13
+TK_DEFINETYPE --> 14
+TK_AS --> 15
+TK_TYPE --> 16
+TK_MAIN --> 17
+TK_GLOBAL --> 18
+TK_PARAMETER --> 19
+TK_LIST --> 20
+TK_SQL --> 21
+TK_SQR --> 22
+TK_INPUT --> 23
+TK_OUTPUT --> 24
+TK_INT --> 25
+TK_REAL --> 26
+TK_COMMA --> 27
+TK_SEM --> 28
+TK_COLON --> 29
+TK_DOT --> 30
+TK_ENDWHILE --> 31
+TK_OP --> 32
+TK_CL --> 33
+TK_IF --> 34
+TK_THEN --> 35
+TK_ENDIF --> 36
+TK_READ --> 37
+TK_WRITE --> 38
+TK_RETURN --> 39
+TK_PLUS --> 40
+TK_MINUS --> 41
+TK_MUL --> 42
+TK_DIV --> 43
+TK_CALL --> 44
+TK_RECORD --> 45
+TK_ENDRECORD --> 46
+TK_ELSE --> 47
+TK_AND --> 48
+TK_OR --> 49
+TK_NOT --> 50
+TK_LT --> 51
+TK_LE --> 52
+TK_EQ --> 53
+TK_GT --> 54
+TK_GE --> 55
+TK_NE --> 56
+TK_EOF --> 57
+---
+actualOrRedefined --> 0
+arithmeticExpression --> 1
+assignmentStmt --> 2
+booleanExpression --> 3
+conditionalStmt --> 4
+constructedDatatype --> 5
+dataType --> 6
+declaration --> 7
+declarations --> 8
+definetypestmt --> 9
+elsePart --> 10
+expPrime --> 11
+factor --> 12
+fieldDefinition --> 13
+fieldDefinitions --> 14
+fieldType --> 15
+funCallStmt --> 16
+function --> 17
+global_or_not --> 18
+highPrecedenceOperators --> 19
+idList --> 20
+input_par --> 21
+inputParameters --> 22
+ioStmt --> 23
+iterativeStmt --> 24
+logicalOp --> 25
+lowPrecedenceOperators --> 26
+mainFunction --> 27
+moreExpansions --> 28
+moreFields --> 29
+more_ids --> 30
+oneExpansion --> 31
+optionalReturn --> 32
+option_single_constructed --> 33
+otherFunctions --> 34
+otherStmts --> 35
+output_par --> 36
+outputParameters --> 37
+parameter_list --> 38
+primitiveDatatype --> 39
+program --> 40
+recOrUnion --> 41
+relationalOp --> 42
+remaining_list --> 43
+returnStmt --> 44
+singleOrRecId --> 45
+stmt --> 46
+stmts --> 47
+term --> 48
+termPrime --> 49
+typeDefinition --> 50
+typeDefinitions --> 51
+var --> 52
+
+0. LHS: actualOrRedefined
+RHS: 2 rules
+Rule Length: 1-> typeDefinition 
+Rule Length: 1-> definetypestmt 
+
+1. LHS: arithmeticExpression
+RHS: 1 rules
+Rule Length: 2-> term expPrime 
+
+2. LHS: assignmentStmt
+RHS: 1 rules
+Rule Length: 4-> singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM 
+
+3. LHS: booleanExpression
+RHS: 3 rules
+Rule Length: 7-> TK_OP booleanExpression TK_CL logicalOp TK_OP booleanExpression TK_CL 
+Rule Length: 3-> var relationalOp var 
+Rule Length: 4-> TK_NOT TK_OP booleanExpression TK_CL 
+
+4. LHS: conditionalStmt
+RHS: 1 rules
+Rule Length: 8-> TK_IF TK_OP booleanExpression TK_CL TK_THEN stmt otherStmts elsePart 
+
+5. LHS: constructedDatatype
+RHS: 3 rules
+Rule Length: 2-> TK_RECORD TK_RUID 
+Rule Length: 2-> TK_UNION TK_RUID 
+Rule Length: 1-> TK_RUID 
+
+6. LHS: dataType
+RHS: 2 rules
+Rule Length: 1-> primitiveDatatype 
+Rule Length: 1-> constructedDatatype 
+
+7. LHS: declaration
+RHS: 1 rules
+Rule Length: 6-> TK_TYPE dataType TK_COLON TK_ID global_or_not TK_SEM 
+
+8. LHS: declarations
+RHS: 2 rules
+Rule Length: 2-> declaration declarations 
+Rule Length: 0-> epsilon
+
+9. LHS: definetypestmt
+RHS: 1 rules
+Rule Length: 5-> TK_DEFINETYPE recOrUnion TK_RUID TK_AS TK_RUID 
+
+10. LHS: elsePart
+RHS: 2 rules
+Rule Length: 4-> TK_ELSE stmt otherStmts TK_ENDIF 
+Rule Length: 1-> TK_ENDIF 
+
+11. LHS: expPrime
+RHS: 2 rules
+Rule Length: 3-> lowPrecedenceOperators term expPrime 
+Rule Length: 0-> epsilon
+
+12. LHS: factor
+RHS: 2 rules
+Rule Length: 3-> TK_OP arithmeticExpression TK_CL 
+Rule Length: 1-> var 
+
+13. LHS: fieldDefinition
+RHS: 1 rules
+Rule Length: 5-> TK_TYPE fieldType TK_COLON TK_FIELDID TK_SEM 
+
+14. LHS: fieldDefinitions
+RHS: 1 rules
+Rule Length: 3-> fieldDefinition fieldDefinition moreFields 
+
+15. LHS: fieldType
+RHS: 2 rules
+Rule Length: 1-> primitiveDatatype 
+Rule Length: 1-> TK_RUID 
+
+16. LHS: funCallStmt
+RHS: 1 rules
+Rule Length: 7-> outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM 
+
+17. LHS: function
+RHS: 1 rules
+Rule Length: 6-> TK_FUNID input_par output_par TK_SEM stmts TK_END 
+
+18. LHS: global_or_not
+RHS: 2 rules
+Rule Length: 2-> TK_COLON TK_GLOBAL 
+Rule Length: 0-> epsilon
+
+19. LHS: highPrecedenceOperators
+RHS: 2 rules
+Rule Length: 1-> TK_MUL 
+Rule Length: 1-> TK_DIV 
+
+20. LHS: idList
+RHS: 1 rules
+Rule Length: 2-> TK_ID more_ids 
+
+21. LHS: input_par
+RHS: 1 rules
+Rule Length: 6-> TK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
+
+22. LHS: inputParameters
+RHS: 1 rules
+Rule Length: 3-> TK_SQL idList TK_SQR 
+
+23. LHS: ioStmt
+RHS: 2 rules
+Rule Length: 5-> TK_READ TK_OP var TK_CL TK_SEM 
+Rule Length: 5-> TK_WRITE TK_OP var TK_CL TK_SEM 
+
+24. LHS: iterativeStmt
+RHS: 1 rules
+Rule Length: 7-> TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE 
+
+25. LHS: logicalOp
+RHS: 2 rules
+Rule Length: 1-> TK_AND 
+Rule Length: 1-> TK_OR 
+
+26. LHS: lowPrecedenceOperators
+RHS: 2 rules
+Rule Length: 1-> TK_PLUS 
+Rule Length: 1-> TK_MINUS 
+
+27. LHS: mainFunction
+RHS: 1 rules
+Rule Length: 3-> TK_MAIN stmts TK_END 
+
+28. LHS: moreExpansions
+RHS: 2 rules
+Rule Length: 2-> oneExpansion moreExpansions 
+Rule Length: 0-> epsilon
+
+29. LHS: moreFields
+RHS: 2 rules
+Rule Length: 2-> fieldDefinition moreFields 
+Rule Length: 0-> epsilon
+
+30. LHS: more_ids
+RHS: 2 rules
+Rule Length: 2-> TK_COMMA idList 
+Rule Length: 0-> epsilon
+
+31. LHS: oneExpansion
+RHS: 1 rules
+Rule Length: 2-> TK_DOT TK_FIELDID 
+
+32. LHS: optionalReturn
+RHS: 2 rules
+Rule Length: 3-> TK_SQL idList TK_SQR 
+Rule Length: 0-> epsilon
+
+33. LHS: option_single_constructed
+RHS: 2 rules
+Rule Length: 2-> oneExpansion moreExpansions 
+Rule Length: 0-> epsilon
+
+34. LHS: otherFunctions
+RHS: 2 rules
+Rule Length: 2-> function otherFunctions 
+Rule Length: 0-> epsilon
+
+35. LHS: otherStmts
+RHS: 2 rules
+Rule Length: 2-> stmt otherStmts 
+Rule Length: 0-> epsilon
+
+36. LHS: output_par
+RHS: 2 rules
+Rule Length: 6-> TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
+Rule Length: 0-> epsilon
+
+37. LHS: outputParameters
+RHS: 2 rules
+Rule Length: 4-> TK_SQL idList TK_SQR TK_ASSIGNOP 
+Rule Length: 0-> epsilon
+
+38. LHS: parameter_list
+RHS: 1 rules
+Rule Length: 3-> dataType TK_ID remaining_list 
+
+39. LHS: primitiveDatatype
+RHS: 2 rules
+Rule Length: 1-> TK_INT 
+Rule Length: 1-> TK_REAL 
+
+40. LHS: program
+RHS: 1 rules
+Rule Length: 2-> otherFunctions mainFunction 
+
+41. LHS: recOrUnion
+RHS: 2 rules
+Rule Length: 1-> TK_RECORD 
+Rule Length: 1-> TK_UNION 
+
+42. LHS: relationalOp
+RHS: 6 rules
+Rule Length: 1-> TK_LT 
+Rule Length: 1-> TK_LE 
+Rule Length: 1-> TK_EQ 
+Rule Length: 1-> TK_GT 
+Rule Length: 1-> TK_GE 
+Rule Length: 1-> TK_NE 
+
+43. LHS: remaining_list
+RHS: 2 rules
+Rule Length: 2-> TK_COMMA parameter_list 
+Rule Length: 0-> epsilon
+
+44. LHS: returnStmt
+RHS: 1 rules
+Rule Length: 3-> TK_RETURN optionalReturn TK_SEM 
+
+45. LHS: singleOrRecId
+RHS: 1 rules
+Rule Length: 2-> TK_ID option_single_constructed 
+
+46. LHS: stmt
+RHS: 5 rules
+Rule Length: 1-> assignmentStmt 
+Rule Length: 1-> iterativeStmt 
+Rule Length: 1-> conditionalStmt 
+Rule Length: 1-> ioStmt 
+Rule Length: 1-> funCallStmt 
+
+47. LHS: stmts
+RHS: 1 rules
+Rule Length: 4-> typeDefinitions declarations otherStmts returnStmt 
+
+48. LHS: term
+RHS: 1 rules
+Rule Length: 2-> factor termPrime 
+
+49. LHS: termPrime
+RHS: 2 rules
+Rule Length: 3-> highPrecedenceOperators factor termPrime 
+Rule Length: 0-> epsilon
+
+50. LHS: typeDefinition
+RHS: 2 rules
+Rule Length: 4-> TK_RECORD TK_RUID fieldDefinitions TK_ENDRECORD 
+Rule Length: 4-> TK_UNION TK_RUID fieldDefinitions TK_ENDUNION 
+
+51. LHS: typeDefinitions
+RHS: 2 rules
+Rule Length: 2-> actualOrRedefined typeDefinitions 
+Rule Length: 0-> epsilon
+
+52. LHS: var
+RHS: 3 rules
+Rule Length: 1-> singleOrRecId 
+Rule Length: 1-> TK_NUM 
+Rule Length: 1-> TK_RNUM 
+-----------------------------------------------------
+
+Non Terminal: actualOrRedefined
+First Set:  TK_UNION TK_DEFINETYPE TK_RECORD 
+Follow Set: TK_UNION TK_DEFINETYPE TK_RECORD 
+
+Non Terminal: arithmeticExpression
+First Set:  TK_ID TK_NUM TK_RNUM TK_OP 
+Follow Set: TK_SEM TK_CL 
+
+Non Terminal: assignmentStmt
+First Set:  TK_ID 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: booleanExpression
+First Set:  TK_ID TK_NUM TK_RNUM TK_OP TK_NOT 
+Follow Set: TK_CL 
+
+Non Terminal: conditionalStmt
+First Set:  TK_IF 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: constructedDatatype
+First Set:  TK_RUID TK_UNION TK_RECORD 
+Follow Set: TK_ID TK_COLON 
+
+Non Terminal: dataType
+First Set:  TK_RUID TK_UNION TK_INT TK_REAL TK_RECORD 
+Follow Set: TK_ID TK_COLON 
+
+Non Terminal: declaration
+First Set:  TK_TYPE 
+Follow Set: TK_TYPE 
+
+Non Terminal: declarations
+First Set:  TK_TYPE 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: definetypestmt
+First Set:  TK_DEFINETYPE 
+Follow Set: TK_UNION TK_DEFINETYPE TK_RECORD 
+
+Non Terminal: elsePart
+First Set:  TK_ENDIF TK_ELSE 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: expPrime
+First Set:  TK_PLUS TK_MINUS 
+Follow Set: TK_SEM TK_CL 
+
+Non Terminal: factor
+First Set:  TK_ID TK_NUM TK_RNUM TK_OP 
+Follow Set: TK_MUL TK_DIV 
+
+Non Terminal: fieldDefinition
+First Set:  TK_TYPE 
+Follow Set: TK_TYPE 
+
+Non Terminal: fieldDefinitions
+First Set:  TK_TYPE 
+Follow Set: TK_ENDUNION TK_ENDRECORD 
+
+Non Terminal: fieldType
+First Set:  TK_RUID TK_INT TK_REAL 
+Follow Set: TK_COLON 
+
+Non Terminal: funCallStmt
+First Set:  TK_SQL 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: function
+First Set:  TK_FUNID 
+Follow Set: TK_FUNID 
+
+Non Terminal: global_or_not
+First Set:  TK_COLON 
+Follow Set: TK_SEM 
+
+Non Terminal: highPrecedenceOperators
+First Set:  TK_MUL TK_DIV 
+Follow Set: TK_ID TK_NUM TK_RNUM TK_OP 
+
+Non Terminal: idList
+First Set:  TK_ID 
+Follow Set: TK_SQR 
+
+Non Terminal: input_par
+First Set:  TK_INPUT 
+Follow Set: TK_OUTPUT 
+
+Non Terminal: inputParameters
+First Set:  TK_SQL 
+Follow Set: TK_SEM 
+
+Non Terminal: ioStmt
+First Set:  TK_READ TK_WRITE 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: iterativeStmt
+First Set:  TK_WHILE 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: logicalOp
+First Set:  TK_AND TK_OR 
+Follow Set: TK_OP 
+
+Non Terminal: lowPrecedenceOperators
+First Set:  TK_PLUS TK_MINUS 
+Follow Set: TK_ID TK_NUM TK_RNUM TK_OP 
+
+Non Terminal: mainFunction
+First Set:  TK_MAIN 
+Follow Set: TK_EOF 
+
+Non Terminal: moreExpansions
+First Set:  TK_DOT 
+Follow Set: TK_ASSIGNOP TK_CL TK_MUL TK_DIV TK_LT TK_LE TK_EQ TK_GT TK_GE TK_NE 
+
+Non Terminal: moreFields
+First Set:  TK_TYPE 
+Follow Set: TK_ENDUNION TK_ENDRECORD 
+
+Non Terminal: more_ids
+First Set:  TK_COMMA 
+Follow Set: TK_SQR 
+
+Non Terminal: oneExpansion
+First Set:  TK_DOT 
+Follow Set: TK_DOT 
+
+Non Terminal: optionalReturn
+First Set:  TK_SQL 
+Follow Set: TK_SEM 
+
+Non Terminal: option_single_constructed
+First Set:  TK_DOT 
+Follow Set: TK_ASSIGNOP TK_CL TK_MUL TK_DIV TK_LT TK_LE TK_EQ TK_GT TK_GE TK_NE 
+
+Non Terminal: otherFunctions
+First Set:  TK_FUNID 
+Follow Set: TK_MAIN 
+
+Non Terminal: otherStmts
+First Set:  TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+Follow Set: TK_ENDWHILE TK_ENDIF TK_RETURN TK_ELSE 
+
+Non Terminal: output_par
+First Set:  TK_OUTPUT 
+Follow Set: TK_SEM 
+
+Non Terminal: outputParameters
+First Set:  TK_SQL 
+Follow Set: TK_CALL 
+
+Non Terminal: parameter_list
+First Set:  TK_RUID TK_UNION TK_INT TK_REAL TK_RECORD 
+Follow Set: TK_SQR 
+
+Non Terminal: primitiveDatatype
+First Set:  TK_INT TK_REAL 
+Follow Set: TK_ID TK_COLON 
+
+Non Terminal: program
+First Set:  TK_FUNID 
+Follow Set: TK_EOF 
+
+Non Terminal: recOrUnion
+First Set:  TK_UNION TK_RECORD 
+Follow Set: TK_RUID 
+
+Non Terminal: relationalOp
+First Set:  TK_LT TK_LE TK_EQ TK_GT TK_GE TK_NE 
+Follow Set: TK_ID TK_NUM TK_RNUM 
+
+Non Terminal: remaining_list
+First Set:  TK_COMMA 
+Follow Set: TK_SQR 
+
+Non Terminal: returnStmt
+First Set:  TK_RETURN 
+Follow Set: TK_END 
+
+Non Terminal: singleOrRecId
+First Set:  TK_ID 
+Follow Set: TK_ASSIGNOP TK_CL TK_MUL TK_DIV TK_LT TK_LE TK_EQ TK_GT TK_GE TK_NE 
+
+Non Terminal: stmt
+First Set:  TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+Follow Set: TK_ID TK_WHILE TK_SQL TK_IF TK_READ TK_WRITE 
+
+Non Terminal: stmts
+First Set:  TK_UNION TK_DEFINETYPE TK_RECORD 
+Follow Set: TK_END 
+
+Non Terminal: term
+First Set:  TK_ID TK_NUM TK_RNUM TK_OP 
+Follow Set: TK_PLUS TK_MINUS 
+
+Non Terminal: termPrime
+First Set:  TK_MUL TK_DIV 
+Follow Set: TK_PLUS TK_MINUS 
+
+Non Terminal: typeDefinition
+First Set:  TK_UNION TK_RECORD 
+Follow Set: TK_UNION TK_DEFINETYPE TK_RECORD 
+
+Non Terminal: typeDefinitions
+First Set:  TK_UNION TK_DEFINETYPE TK_RECORD 
+Follow Set: TK_TYPE 
+
+Non Terminal: var
+First Set:  TK_ID TK_NUM TK_RNUM 
+Follow Set: TK_CL TK_MUL TK_DIV TK_LT TK_LE TK_EQ TK_GT TK_GE TK_NE 
+-----------------------------------------------------
+----------------------------------
+[actualOrRedefined, TK_ASSIGNOP]: 
+[actualOrRedefined, TK_COMMENT]: 
+[actualOrRedefined, TK_FIELDID]: 
+[actualOrRedefined, TK_ID]: 
+[actualOrRedefined, TK_NUM]: 
+[actualOrRedefined, TK_RNUM]: 
+[actualOrRedefined, TK_FUNID]: 
+[actualOrRedefined, TK_RUID]: 
+[actualOrRedefined, TK_WITH]: 
+[actualOrRedefined, TK_PARAMETERS]: 
+[actualOrRedefined, TK_END]: 
+[actualOrRedefined, TK_WHILE]: 
+[actualOrRedefined, TK_UNION]: actualOrRedefined -> typeDefinition 
+[actualOrRedefined, TK_ENDUNION]: 
+[actualOrRedefined, TK_DEFINETYPE]: actualOrRedefined -> definetypestmt 
+[actualOrRedefined, TK_AS]: 
+[actualOrRedefined, TK_TYPE]: 
+[actualOrRedefined, TK_MAIN]: 
+[actualOrRedefined, TK_GLOBAL]: 
+[actualOrRedefined, TK_PARAMETER]: 
+[actualOrRedefined, TK_LIST]: 
+[actualOrRedefined, TK_SQL]: 
+[actualOrRedefined, TK_SQR]: 
+[actualOrRedefined, TK_INPUT]: 
+[actualOrRedefined, TK_OUTPUT]: 
+[actualOrRedefined, TK_INT]: 
+[actualOrRedefined, TK_REAL]: 
+[actualOrRedefined, TK_COMMA]: 
+[actualOrRedefined, TK_SEM]: 
+[actualOrRedefined, TK_COLON]: 
+[actualOrRedefined, TK_DOT]: 
+[actualOrRedefined, TK_ENDWHILE]: 
+[actualOrRedefined, TK_OP]: 
+[actualOrRedefined, TK_CL]: 
+[actualOrRedefined, TK_IF]: 
+[actualOrRedefined, TK_THEN]: 
+[actualOrRedefined, TK_ENDIF]: 
+[actualOrRedefined, TK_READ]: 
+[actualOrRedefined, TK_WRITE]: 
+[actualOrRedefined, TK_RETURN]: 
+[actualOrRedefined, TK_PLUS]: 
+[actualOrRedefined, TK_MINUS]: 
+[actualOrRedefined, TK_MUL]: 
+[actualOrRedefined, TK_DIV]: 
+[actualOrRedefined, TK_CALL]: 
+[actualOrRedefined, TK_RECORD]: actualOrRedefined -> typeDefinition 
+[actualOrRedefined, TK_ENDRECORD]: 
+[actualOrRedefined, TK_ELSE]: 
+[actualOrRedefined, TK_AND]: 
+[actualOrRedefined, TK_OR]: 
+[actualOrRedefined, TK_NOT]: 
+[actualOrRedefined, TK_LT]: 
+[actualOrRedefined, TK_LE]: 
+[actualOrRedefined, TK_EQ]: 
+[actualOrRedefined, TK_GT]: 
+[actualOrRedefined, TK_GE]: 
+[actualOrRedefined, TK_NE]: 
+[actualOrRedefined, TK_EOF]: 
+----------------------------------
+[arithmeticExpression, TK_ASSIGNOP]: 
+[arithmeticExpression, TK_COMMENT]: 
+[arithmeticExpression, TK_FIELDID]: 
+[arithmeticExpression, TK_ID]: arithmeticExpression -> term expPrime 
+[arithmeticExpression, TK_NUM]: arithmeticExpression -> term expPrime 
+[arithmeticExpression, TK_RNUM]: arithmeticExpression -> term expPrime 
+[arithmeticExpression, TK_FUNID]: 
+[arithmeticExpression, TK_RUID]: 
+[arithmeticExpression, TK_WITH]: 
+[arithmeticExpression, TK_PARAMETERS]: 
+[arithmeticExpression, TK_END]: 
+[arithmeticExpression, TK_WHILE]: 
+[arithmeticExpression, TK_UNION]: 
+[arithmeticExpression, TK_ENDUNION]: 
+[arithmeticExpression, TK_DEFINETYPE]: 
+[arithmeticExpression, TK_AS]: 
+[arithmeticExpression, TK_TYPE]: 
+[arithmeticExpression, TK_MAIN]: 
+[arithmeticExpression, TK_GLOBAL]: 
+[arithmeticExpression, TK_PARAMETER]: 
+[arithmeticExpression, TK_LIST]: 
+[arithmeticExpression, TK_SQL]: 
+[arithmeticExpression, TK_SQR]: 
+[arithmeticExpression, TK_INPUT]: 
+[arithmeticExpression, TK_OUTPUT]: 
+[arithmeticExpression, TK_INT]: 
+[arithmeticExpression, TK_REAL]: 
+[arithmeticExpression, TK_COMMA]: 
+[arithmeticExpression, TK_SEM]: 
+[arithmeticExpression, TK_COLON]: 
+[arithmeticExpression, TK_DOT]: 
+[arithmeticExpression, TK_ENDWHILE]: 
+[arithmeticExpression, TK_OP]: arithmeticExpression -> term expPrime 
+[arithmeticExpression, TK_CL]: 
+[arithmeticExpression, TK_IF]: 
+[arithmeticExpression, TK_THEN]: 
+[arithmeticExpression, TK_ENDIF]: 
+[arithmeticExpression, TK_READ]: 
+[arithmeticExpression, TK_WRITE]: 
+[arithmeticExpression, TK_RETURN]: 
+[arithmeticExpression, TK_PLUS]: 
+[arithmeticExpression, TK_MINUS]: 
+[arithmeticExpression, TK_MUL]: 
+[arithmeticExpression, TK_DIV]: 
+[arithmeticExpression, TK_CALL]: 
+[arithmeticExpression, TK_RECORD]: 
+[arithmeticExpression, TK_ENDRECORD]: 
+[arithmeticExpression, TK_ELSE]: 
+[arithmeticExpression, TK_AND]: 
+[arithmeticExpression, TK_OR]: 
+[arithmeticExpression, TK_NOT]: 
+[arithmeticExpression, TK_LT]: 
+[arithmeticExpression, TK_LE]: 
+[arithmeticExpression, TK_EQ]: 
+[arithmeticExpression, TK_GT]: 
+[arithmeticExpression, TK_GE]: 
+[arithmeticExpression, TK_NE]: 
+[arithmeticExpression, TK_EOF]: 
+----------------------------------
+[assignmentStmt, TK_ASSIGNOP]: 
+[assignmentStmt, TK_COMMENT]: 
+[assignmentStmt, TK_FIELDID]: 
+[assignmentStmt, TK_ID]: assignmentStmt -> singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM 
+[assignmentStmt, TK_NUM]: 
+[assignmentStmt, TK_RNUM]: 
+[assignmentStmt, TK_FUNID]: 
+[assignmentStmt, TK_RUID]: 
+[assignmentStmt, TK_WITH]: 
+[assignmentStmt, TK_PARAMETERS]: 
+[assignmentStmt, TK_END]: 
+[assignmentStmt, TK_WHILE]: 
+[assignmentStmt, TK_UNION]: 
+[assignmentStmt, TK_ENDUNION]: 
+[assignmentStmt, TK_DEFINETYPE]: 
+[assignmentStmt, TK_AS]: 
+[assignmentStmt, TK_TYPE]: 
+[assignmentStmt, TK_MAIN]: 
+[assignmentStmt, TK_GLOBAL]: 
+[assignmentStmt, TK_PARAMETER]: 
+[assignmentStmt, TK_LIST]: 
+[assignmentStmt, TK_SQL]: 
+[assignmentStmt, TK_SQR]: 
+[assignmentStmt, TK_INPUT]: 
+[assignmentStmt, TK_OUTPUT]: 
+[assignmentStmt, TK_INT]: 
+[assignmentStmt, TK_REAL]: 
+[assignmentStmt, TK_COMMA]: 
+[assignmentStmt, TK_SEM]: 
+[assignmentStmt, TK_COLON]: 
+[assignmentStmt, TK_DOT]: 
+[assignmentStmt, TK_ENDWHILE]: 
+[assignmentStmt, TK_OP]: 
+[assignmentStmt, TK_CL]: 
+[assignmentStmt, TK_IF]: 
+[assignmentStmt, TK_THEN]: 
+[assignmentStmt, TK_ENDIF]: 
+[assignmentStmt, TK_READ]: 
+[assignmentStmt, TK_WRITE]: 
+[assignmentStmt, TK_RETURN]: 
+[assignmentStmt, TK_PLUS]: 
+[assignmentStmt, TK_MINUS]: 
+[assignmentStmt, TK_MUL]: 
+[assignmentStmt, TK_DIV]: 
+[assignmentStmt, TK_CALL]: 
+[assignmentStmt, TK_RECORD]: 
+[assignmentStmt, TK_ENDRECORD]: 
+[assignmentStmt, TK_ELSE]: 
+[assignmentStmt, TK_AND]: 
+[assignmentStmt, TK_OR]: 
+[assignmentStmt, TK_NOT]: 
+[assignmentStmt, TK_LT]: 
+[assignmentStmt, TK_LE]: 
+[assignmentStmt, TK_EQ]: 
+[assignmentStmt, TK_GT]: 
+[assignmentStmt, TK_GE]: 
+[assignmentStmt, TK_NE]: 
+[assignmentStmt, TK_EOF]: 
+----------------------------------
+[booleanExpression, TK_ASSIGNOP]: 
+[booleanExpression, TK_COMMENT]: 
+[booleanExpression, TK_FIELDID]: 
+[booleanExpression, TK_ID]: booleanExpression -> var relationalOp var 
+[booleanExpression, TK_NUM]: booleanExpression -> var relationalOp var 
+[booleanExpression, TK_RNUM]: booleanExpression -> var relationalOp var 
+[booleanExpression, TK_FUNID]: 
+[booleanExpression, TK_RUID]: 
+[booleanExpression, TK_WITH]: 
+[booleanExpression, TK_PARAMETERS]: 
+[booleanExpression, TK_END]: 
+[booleanExpression, TK_WHILE]: 
+[booleanExpression, TK_UNION]: 
+[booleanExpression, TK_ENDUNION]: 
+[booleanExpression, TK_DEFINETYPE]: 
+[booleanExpression, TK_AS]: 
+[booleanExpression, TK_TYPE]: 
+[booleanExpression, TK_MAIN]: 
+[booleanExpression, TK_GLOBAL]: 
+[booleanExpression, TK_PARAMETER]: 
+[booleanExpression, TK_LIST]: 
+[booleanExpression, TK_SQL]: 
+[booleanExpression, TK_SQR]: 
+[booleanExpression, TK_INPUT]: 
+[booleanExpression, TK_OUTPUT]: 
+[booleanExpression, TK_INT]: 
+[booleanExpression, TK_REAL]: 
+[booleanExpression, TK_COMMA]: 
+[booleanExpression, TK_SEM]: 
+[booleanExpression, TK_COLON]: 
+[booleanExpression, TK_DOT]: 
+[booleanExpression, TK_ENDWHILE]: 
+[booleanExpression, TK_OP]: booleanExpression -> TK_OP booleanExpression TK_CL logicalOp TK_OP booleanExpression TK_CL 
+[booleanExpression, TK_CL]: 
+[booleanExpression, TK_IF]: 
+[booleanExpression, TK_THEN]: 
+[booleanExpression, TK_ENDIF]: 
+[booleanExpression, TK_READ]: 
+[booleanExpression, TK_WRITE]: 
+[booleanExpression, TK_RETURN]: 
+[booleanExpression, TK_PLUS]: 
+[booleanExpression, TK_MINUS]: 
+[booleanExpression, TK_MUL]: 
+[booleanExpression, TK_DIV]: 
+[booleanExpression, TK_CALL]: 
+[booleanExpression, TK_RECORD]: 
+[booleanExpression, TK_ENDRECORD]: 
+[booleanExpression, TK_ELSE]: 
+[booleanExpression, TK_AND]: 
+[booleanExpression, TK_OR]: 
+[booleanExpression, TK_NOT]: booleanExpression -> TK_NOT TK_OP booleanExpression TK_CL 
+[booleanExpression, TK_LT]: 
+[booleanExpression, TK_LE]: 
+[booleanExpression, TK_EQ]: 
+[booleanExpression, TK_GT]: 
+[booleanExpression, TK_GE]: 
+[booleanExpression, TK_NE]: 
+[booleanExpression, TK_EOF]: 
+----------------------------------
+[conditionalStmt, TK_ASSIGNOP]: 
+[conditionalStmt, TK_COMMENT]: 
+[conditionalStmt, TK_FIELDID]: 
+[conditionalStmt, TK_ID]: 
+[conditionalStmt, TK_NUM]: 
+[conditionalStmt, TK_RNUM]: 
+[conditionalStmt, TK_FUNID]: 
+[conditionalStmt, TK_RUID]: 
+[conditionalStmt, TK_WITH]: 
+[conditionalStmt, TK_PARAMETERS]: 
+[conditionalStmt, TK_END]: 
+[conditionalStmt, TK_WHILE]: 
+[conditionalStmt, TK_UNION]: 
+[conditionalStmt, TK_ENDUNION]: 
+[conditionalStmt, TK_DEFINETYPE]: 
+[conditionalStmt, TK_AS]: 
+[conditionalStmt, TK_TYPE]: 
+[conditionalStmt, TK_MAIN]: 
+[conditionalStmt, TK_GLOBAL]: 
+[conditionalStmt, TK_PARAMETER]: 
+[conditionalStmt, TK_LIST]: 
+[conditionalStmt, TK_SQL]: 
+[conditionalStmt, TK_SQR]: 
+[conditionalStmt, TK_INPUT]: 
+[conditionalStmt, TK_OUTPUT]: 
+[conditionalStmt, TK_INT]: 
+[conditionalStmt, TK_REAL]: 
+[conditionalStmt, TK_COMMA]: 
+[conditionalStmt, TK_SEM]: 
+[conditionalStmt, TK_COLON]: 
+[conditionalStmt, TK_DOT]: 
+[conditionalStmt, TK_ENDWHILE]: 
+[conditionalStmt, TK_OP]: 
+[conditionalStmt, TK_CL]: 
+[conditionalStmt, TK_IF]: conditionalStmt -> TK_IF TK_OP booleanExpression TK_CL TK_THEN stmt otherStmts elsePart 
+[conditionalStmt, TK_THEN]: 
+[conditionalStmt, TK_ENDIF]: 
+[conditionalStmt, TK_READ]: 
+[conditionalStmt, TK_WRITE]: 
+[conditionalStmt, TK_RETURN]: 
+[conditionalStmt, TK_PLUS]: 
+[conditionalStmt, TK_MINUS]: 
+[conditionalStmt, TK_MUL]: 
+[conditionalStmt, TK_DIV]: 
+[conditionalStmt, TK_CALL]: 
+[conditionalStmt, TK_RECORD]: 
+[conditionalStmt, TK_ENDRECORD]: 
+[conditionalStmt, TK_ELSE]: 
+[conditionalStmt, TK_AND]: 
+[conditionalStmt, TK_OR]: 
+[conditionalStmt, TK_NOT]: 
+[conditionalStmt, TK_LT]: 
+[conditionalStmt, TK_LE]: 
+[conditionalStmt, TK_EQ]: 
+[conditionalStmt, TK_GT]: 
+[conditionalStmt, TK_GE]: 
+[conditionalStmt, TK_NE]: 
+[conditionalStmt, TK_EOF]: 
+----------------------------------
+[constructedDatatype, TK_ASSIGNOP]: 
+[constructedDatatype, TK_COMMENT]: 
+[constructedDatatype, TK_FIELDID]: 
+[constructedDatatype, TK_ID]: 
+[constructedDatatype, TK_NUM]: 
+[constructedDatatype, TK_RNUM]: 
+[constructedDatatype, TK_FUNID]: 
+[constructedDatatype, TK_RUID]: constructedDatatype -> TK_RUID 
+[constructedDatatype, TK_WITH]: 
+[constructedDatatype, TK_PARAMETERS]: 
+[constructedDatatype, TK_END]: 
+[constructedDatatype, TK_WHILE]: 
+[constructedDatatype, TK_UNION]: constructedDatatype -> TK_UNION TK_RUID 
+[constructedDatatype, TK_ENDUNION]: 
+[constructedDatatype, TK_DEFINETYPE]: 
+[constructedDatatype, TK_AS]: 
+[constructedDatatype, TK_TYPE]: 
+[constructedDatatype, TK_MAIN]: 
+[constructedDatatype, TK_GLOBAL]: 
+[constructedDatatype, TK_PARAMETER]: 
+[constructedDatatype, TK_LIST]: 
+[constructedDatatype, TK_SQL]: 
+[constructedDatatype, TK_SQR]: 
+[constructedDatatype, TK_INPUT]: 
+[constructedDatatype, TK_OUTPUT]: 
+[constructedDatatype, TK_INT]: 
+[constructedDatatype, TK_REAL]: 
+[constructedDatatype, TK_COMMA]: 
+[constructedDatatype, TK_SEM]: 
+[constructedDatatype, TK_COLON]: 
+[constructedDatatype, TK_DOT]: 
+[constructedDatatype, TK_ENDWHILE]: 
+[constructedDatatype, TK_OP]: 
+[constructedDatatype, TK_CL]: 
+[constructedDatatype, TK_IF]: 
+[constructedDatatype, TK_THEN]: 
+[constructedDatatype, TK_ENDIF]: 
+[constructedDatatype, TK_READ]: 
+[constructedDatatype, TK_WRITE]: 
+[constructedDatatype, TK_RETURN]: 
+[constructedDatatype, TK_PLUS]: 
+[constructedDatatype, TK_MINUS]: 
+[constructedDatatype, TK_MUL]: 
+[constructedDatatype, TK_DIV]: 
+[constructedDatatype, TK_CALL]: 
+[constructedDatatype, TK_RECORD]: constructedDatatype -> TK_RECORD TK_RUID 
+[constructedDatatype, TK_ENDRECORD]: 
+[constructedDatatype, TK_ELSE]: 
+[constructedDatatype, TK_AND]: 
+[constructedDatatype, TK_OR]: 
+[constructedDatatype, TK_NOT]: 
+[constructedDatatype, TK_LT]: 
+[constructedDatatype, TK_LE]: 
+[constructedDatatype, TK_EQ]: 
+[constructedDatatype, TK_GT]: 
+[constructedDatatype, TK_GE]: 
+[constructedDatatype, TK_NE]: 
+[constructedDatatype, TK_EOF]: 
+----------------------------------
+[dataType, TK_ASSIGNOP]: 
+[dataType, TK_COMMENT]: 
+[dataType, TK_FIELDID]: 
+[dataType, TK_ID]: 
+[dataType, TK_NUM]: 
+[dataType, TK_RNUM]: 
+[dataType, TK_FUNID]: 
+[dataType, TK_RUID]: dataType -> constructedDatatype 
+[dataType, TK_WITH]: 
+[dataType, TK_PARAMETERS]: 
+[dataType, TK_END]: 
+[dataType, TK_WHILE]: 
+[dataType, TK_UNION]: dataType -> constructedDatatype 
+[dataType, TK_ENDUNION]: 
+[dataType, TK_DEFINETYPE]: 
+[dataType, TK_AS]: 
+[dataType, TK_TYPE]: 
+[dataType, TK_MAIN]: 
+[dataType, TK_GLOBAL]: 
+[dataType, TK_PARAMETER]: 
+[dataType, TK_LIST]: 
+[dataType, TK_SQL]: 
+[dataType, TK_SQR]: 
+[dataType, TK_INPUT]: 
+[dataType, TK_OUTPUT]: 
+[dataType, TK_INT]: dataType -> primitiveDatatype 
+[dataType, TK_REAL]: dataType -> primitiveDatatype 
+[dataType, TK_COMMA]: 
+[dataType, TK_SEM]: 
+[dataType, TK_COLON]: 
+[dataType, TK_DOT]: 
+[dataType, TK_ENDWHILE]: 
+[dataType, TK_OP]: 
+[dataType, TK_CL]: 
+[dataType, TK_IF]: 
+[dataType, TK_THEN]: 
+[dataType, TK_ENDIF]: 
+[dataType, TK_READ]: 
+[dataType, TK_WRITE]: 
+[dataType, TK_RETURN]: 
+[dataType, TK_PLUS]: 
+[dataType, TK_MINUS]: 
+[dataType, TK_MUL]: 
+[dataType, TK_DIV]: 
+[dataType, TK_CALL]: 
+[dataType, TK_RECORD]: dataType -> constructedDatatype 
+[dataType, TK_ENDRECORD]: 
+[dataType, TK_ELSE]: 
+[dataType, TK_AND]: 
+[dataType, TK_OR]: 
+[dataType, TK_NOT]: 
+[dataType, TK_LT]: 
+[dataType, TK_LE]: 
+[dataType, TK_EQ]: 
+[dataType, TK_GT]: 
+[dataType, TK_GE]: 
+[dataType, TK_NE]: 
+[dataType, TK_EOF]: 
+----------------------------------
+[declaration, TK_ASSIGNOP]: 
+[declaration, TK_COMMENT]: 
+[declaration, TK_FIELDID]: 
+[declaration, TK_ID]: 
+[declaration, TK_NUM]: 
+[declaration, TK_RNUM]: 
+[declaration, TK_FUNID]: 
+[declaration, TK_RUID]: 
+[declaration, TK_WITH]: 
+[declaration, TK_PARAMETERS]: 
+[declaration, TK_END]: 
+[declaration, TK_WHILE]: 
+[declaration, TK_UNION]: 
+[declaration, TK_ENDUNION]: 
+[declaration, TK_DEFINETYPE]: 
+[declaration, TK_AS]: 
+[declaration, TK_TYPE]: declaration -> TK_TYPE dataType TK_COLON TK_ID global_or_not TK_SEM 
+[declaration, TK_MAIN]: 
+[declaration, TK_GLOBAL]: 
+[declaration, TK_PARAMETER]: 
+[declaration, TK_LIST]: 
+[declaration, TK_SQL]: 
+[declaration, TK_SQR]: 
+[declaration, TK_INPUT]: 
+[declaration, TK_OUTPUT]: 
+[declaration, TK_INT]: 
+[declaration, TK_REAL]: 
+[declaration, TK_COMMA]: 
+[declaration, TK_SEM]: 
+[declaration, TK_COLON]: 
+[declaration, TK_DOT]: 
+[declaration, TK_ENDWHILE]: 
+[declaration, TK_OP]: 
+[declaration, TK_CL]: 
+[declaration, TK_IF]: 
+[declaration, TK_THEN]: 
+[declaration, TK_ENDIF]: 
+[declaration, TK_READ]: 
+[declaration, TK_WRITE]: 
+[declaration, TK_RETURN]: 
+[declaration, TK_PLUS]: 
+[declaration, TK_MINUS]: 
+[declaration, TK_MUL]: 
+[declaration, TK_DIV]: 
+[declaration, TK_CALL]: 
+[declaration, TK_RECORD]: 
+[declaration, TK_ENDRECORD]: 
+[declaration, TK_ELSE]: 
+[declaration, TK_AND]: 
+[declaration, TK_OR]: 
+[declaration, TK_NOT]: 
+[declaration, TK_LT]: 
+[declaration, TK_LE]: 
+[declaration, TK_EQ]: 
+[declaration, TK_GT]: 
+[declaration, TK_GE]: 
+[declaration, TK_NE]: 
+[declaration, TK_EOF]: 
+----------------------------------
+[declarations, TK_ASSIGNOP]: 
+[declarations, TK_COMMENT]: 
+[declarations, TK_FIELDID]: 
+[declarations, TK_ID]: declarations -> 
+[declarations, TK_NUM]: 
+[declarations, TK_RNUM]: 
+[declarations, TK_FUNID]: 
+[declarations, TK_RUID]: 
+[declarations, TK_WITH]: 
+[declarations, TK_PARAMETERS]: 
+[declarations, TK_END]: 
+[declarations, TK_WHILE]: declarations -> 
+[declarations, TK_UNION]: 
+[declarations, TK_ENDUNION]: 
+[declarations, TK_DEFINETYPE]: 
+[declarations, TK_AS]: 
+[declarations, TK_TYPE]: declarations -> declaration declarations 
+[declarations, TK_MAIN]: 
+[declarations, TK_GLOBAL]: 
+[declarations, TK_PARAMETER]: 
+[declarations, TK_LIST]: 
+[declarations, TK_SQL]: declarations -> 
+[declarations, TK_SQR]: 
+[declarations, TK_INPUT]: 
+[declarations, TK_OUTPUT]: 
+[declarations, TK_INT]: 
+[declarations, TK_REAL]: 
+[declarations, TK_COMMA]: 
+[declarations, TK_SEM]: 
+[declarations, TK_COLON]: 
+[declarations, TK_DOT]: 
+[declarations, TK_ENDWHILE]: 
+[declarations, TK_OP]: 
+[declarations, TK_CL]: 
+[declarations, TK_IF]: declarations -> 
+[declarations, TK_THEN]: 
+[declarations, TK_ENDIF]: 
+[declarations, TK_READ]: declarations -> 
+[declarations, TK_WRITE]: declarations -> 
+[declarations, TK_RETURN]: 
+[declarations, TK_PLUS]: 
+[declarations, TK_MINUS]: 
+[declarations, TK_MUL]: 
+[declarations, TK_DIV]: 
+[declarations, TK_CALL]: 
+[declarations, TK_RECORD]: 
+[declarations, TK_ENDRECORD]: 
+[declarations, TK_ELSE]: 
+[declarations, TK_AND]: 
+[declarations, TK_OR]: 
+[declarations, TK_NOT]: 
+[declarations, TK_LT]: 
+[declarations, TK_LE]: 
+[declarations, TK_EQ]: 
+[declarations, TK_GT]: 
+[declarations, TK_GE]: 
+[declarations, TK_NE]: 
+[declarations, TK_EOF]: 
+----------------------------------
+[definetypestmt, TK_ASSIGNOP]: 
+[definetypestmt, TK_COMMENT]: 
+[definetypestmt, TK_FIELDID]: 
+[definetypestmt, TK_ID]: 
+[definetypestmt, TK_NUM]: 
+[definetypestmt, TK_RNUM]: 
+[definetypestmt, TK_FUNID]: 
+[definetypestmt, TK_RUID]: 
+[definetypestmt, TK_WITH]: 
+[definetypestmt, TK_PARAMETERS]: 
+[definetypestmt, TK_END]: 
+[definetypestmt, TK_WHILE]: 
+[definetypestmt, TK_UNION]: 
+[definetypestmt, TK_ENDUNION]: 
+[definetypestmt, TK_DEFINETYPE]: definetypestmt -> TK_DEFINETYPE recOrUnion TK_RUID TK_AS TK_RUID 
+[definetypestmt, TK_AS]: 
+[definetypestmt, TK_TYPE]: 
+[definetypestmt, TK_MAIN]: 
+[definetypestmt, TK_GLOBAL]: 
+[definetypestmt, TK_PARAMETER]: 
+[definetypestmt, TK_LIST]: 
+[definetypestmt, TK_SQL]: 
+[definetypestmt, TK_SQR]: 
+[definetypestmt, TK_INPUT]: 
+[definetypestmt, TK_OUTPUT]: 
+[definetypestmt, TK_INT]: 
+[definetypestmt, TK_REAL]: 
+[definetypestmt, TK_COMMA]: 
+[definetypestmt, TK_SEM]: 
+[definetypestmt, TK_COLON]: 
+[definetypestmt, TK_DOT]: 
+[definetypestmt, TK_ENDWHILE]: 
+[definetypestmt, TK_OP]: 
+[definetypestmt, TK_CL]: 
+[definetypestmt, TK_IF]: 
+[definetypestmt, TK_THEN]: 
+[definetypestmt, TK_ENDIF]: 
+[definetypestmt, TK_READ]: 
+[definetypestmt, TK_WRITE]: 
+[definetypestmt, TK_RETURN]: 
+[definetypestmt, TK_PLUS]: 
+[definetypestmt, TK_MINUS]: 
+[definetypestmt, TK_MUL]: 
+[definetypestmt, TK_DIV]: 
+[definetypestmt, TK_CALL]: 
+[definetypestmt, TK_RECORD]: 
+[definetypestmt, TK_ENDRECORD]: 
+[definetypestmt, TK_ELSE]: 
+[definetypestmt, TK_AND]: 
+[definetypestmt, TK_OR]: 
+[definetypestmt, TK_NOT]: 
+[definetypestmt, TK_LT]: 
+[definetypestmt, TK_LE]: 
+[definetypestmt, TK_EQ]: 
+[definetypestmt, TK_GT]: 
+[definetypestmt, TK_GE]: 
+[definetypestmt, TK_NE]: 
+[definetypestmt, TK_EOF]: 
+----------------------------------
+[elsePart, TK_ASSIGNOP]: 
+[elsePart, TK_COMMENT]: 
+[elsePart, TK_FIELDID]: 
+[elsePart, TK_ID]: 
+[elsePart, TK_NUM]: 
+[elsePart, TK_RNUM]: 
+[elsePart, TK_FUNID]: 
+[elsePart, TK_RUID]: 
+[elsePart, TK_WITH]: 
+[elsePart, TK_PARAMETERS]: 
+[elsePart, TK_END]: 
+[elsePart, TK_WHILE]: 
+[elsePart, TK_UNION]: 
+[elsePart, TK_ENDUNION]: 
+[elsePart, TK_DEFINETYPE]: 
+[elsePart, TK_AS]: 
+[elsePart, TK_TYPE]: 
+[elsePart, TK_MAIN]: 
+[elsePart, TK_GLOBAL]: 
+[elsePart, TK_PARAMETER]: 
+[elsePart, TK_LIST]: 
+[elsePart, TK_SQL]: 
+[elsePart, TK_SQR]: 
+[elsePart, TK_INPUT]: 
+[elsePart, TK_OUTPUT]: 
+[elsePart, TK_INT]: 
+[elsePart, TK_REAL]: 
+[elsePart, TK_COMMA]: 
+[elsePart, TK_SEM]: 
+[elsePart, TK_COLON]: 
+[elsePart, TK_DOT]: 
+[elsePart, TK_ENDWHILE]: 
+[elsePart, TK_OP]: 
+[elsePart, TK_CL]: 
+[elsePart, TK_IF]: 
+[elsePart, TK_THEN]: 
+[elsePart, TK_ENDIF]: elsePart -> TK_ENDIF 
+[elsePart, TK_READ]: 
+[elsePart, TK_WRITE]: 
+[elsePart, TK_RETURN]: 
+[elsePart, TK_PLUS]: 
+[elsePart, TK_MINUS]: 
+[elsePart, TK_MUL]: 
+[elsePart, TK_DIV]: 
+[elsePart, TK_CALL]: 
+[elsePart, TK_RECORD]: 
+[elsePart, TK_ENDRECORD]: 
+[elsePart, TK_ELSE]: elsePart -> TK_ELSE stmt otherStmts TK_ENDIF 
+[elsePart, TK_AND]: 
+[elsePart, TK_OR]: 
+[elsePart, TK_NOT]: 
+[elsePart, TK_LT]: 
+[elsePart, TK_LE]: 
+[elsePart, TK_EQ]: 
+[elsePart, TK_GT]: 
+[elsePart, TK_GE]: 
+[elsePart, TK_NE]: 
+[elsePart, TK_EOF]: 
+----------------------------------
+[expPrime, TK_ASSIGNOP]: 
+[expPrime, TK_COMMENT]: 
+[expPrime, TK_FIELDID]: 
+[expPrime, TK_ID]: 
+[expPrime, TK_NUM]: 
+[expPrime, TK_RNUM]: 
+[expPrime, TK_FUNID]: 
+[expPrime, TK_RUID]: 
+[expPrime, TK_WITH]: 
+[expPrime, TK_PARAMETERS]: 
+[expPrime, TK_END]: 
+[expPrime, TK_WHILE]: 
+[expPrime, TK_UNION]: 
+[expPrime, TK_ENDUNION]: 
+[expPrime, TK_DEFINETYPE]: 
+[expPrime, TK_AS]: 
+[expPrime, TK_TYPE]: 
+[expPrime, TK_MAIN]: 
+[expPrime, TK_GLOBAL]: 
+[expPrime, TK_PARAMETER]: 
+[expPrime, TK_LIST]: 
+[expPrime, TK_SQL]: 
+[expPrime, TK_SQR]: 
+[expPrime, TK_INPUT]: 
+[expPrime, TK_OUTPUT]: 
+[expPrime, TK_INT]: 
+[expPrime, TK_REAL]: 
+[expPrime, TK_COMMA]: 
+[expPrime, TK_SEM]: expPrime -> 
+[expPrime, TK_COLON]: 
+[expPrime, TK_DOT]: 
+[expPrime, TK_ENDWHILE]: 
+[expPrime, TK_OP]: 
+[expPrime, TK_CL]: expPrime -> 
+[expPrime, TK_IF]: 
+[expPrime, TK_THEN]: 
+[expPrime, TK_ENDIF]: 
+[expPrime, TK_READ]: 
+[expPrime, TK_WRITE]: 
+[expPrime, TK_RETURN]: 
+[expPrime, TK_PLUS]: expPrime -> lowPrecedenceOperators term expPrime 
+[expPrime, TK_MINUS]: expPrime -> lowPrecedenceOperators term expPrime 
+[expPrime, TK_MUL]: 
+[expPrime, TK_DIV]: 
+[expPrime, TK_CALL]: 
+[expPrime, TK_RECORD]: 
+[expPrime, TK_ENDRECORD]: 
+[expPrime, TK_ELSE]: 
+[expPrime, TK_AND]: 
+[expPrime, TK_OR]: 
+[expPrime, TK_NOT]: 
+[expPrime, TK_LT]: 
+[expPrime, TK_LE]: 
+[expPrime, TK_EQ]: 
+[expPrime, TK_GT]: 
+[expPrime, TK_GE]: 
+[expPrime, TK_NE]: 
+[expPrime, TK_EOF]: 
+----------------------------------
+[factor, TK_ASSIGNOP]: 
+[factor, TK_COMMENT]: 
+[factor, TK_FIELDID]: 
+[factor, TK_ID]: factor -> var 
+[factor, TK_NUM]: factor -> var 
+[factor, TK_RNUM]: factor -> var 
+[factor, TK_FUNID]: 
+[factor, TK_RUID]: 
+[factor, TK_WITH]: 
+[factor, TK_PARAMETERS]: 
+[factor, TK_END]: 
+[factor, TK_WHILE]: 
+[factor, TK_UNION]: 
+[factor, TK_ENDUNION]: 
+[factor, TK_DEFINETYPE]: 
+[factor, TK_AS]: 
+[factor, TK_TYPE]: 
+[factor, TK_MAIN]: 
+[factor, TK_GLOBAL]: 
+[factor, TK_PARAMETER]: 
+[factor, TK_LIST]: 
+[factor, TK_SQL]: 
+[factor, TK_SQR]: 
+[factor, TK_INPUT]: 
+[factor, TK_OUTPUT]: 
+[factor, TK_INT]: 
+[factor, TK_REAL]: 
+[factor, TK_COMMA]: 
+[factor, TK_SEM]: 
+[factor, TK_COLON]: 
+[factor, TK_DOT]: 
+[factor, TK_ENDWHILE]: 
+[factor, TK_OP]: factor -> TK_OP arithmeticExpression TK_CL 
+[factor, TK_CL]: 
+[factor, TK_IF]: 
+[factor, TK_THEN]: 
+[factor, TK_ENDIF]: 
+[factor, TK_READ]: 
+[factor, TK_WRITE]: 
+[factor, TK_RETURN]: 
+[factor, TK_PLUS]: 
+[factor, TK_MINUS]: 
+[factor, TK_MUL]: 
+[factor, TK_DIV]: 
+[factor, TK_CALL]: 
+[factor, TK_RECORD]: 
+[factor, TK_ENDRECORD]: 
+[factor, TK_ELSE]: 
+[factor, TK_AND]: 
+[factor, TK_OR]: 
+[factor, TK_NOT]: 
+[factor, TK_LT]: 
+[factor, TK_LE]: 
+[factor, TK_EQ]: 
+[factor, TK_GT]: 
+[factor, TK_GE]: 
+[factor, TK_NE]: 
+[factor, TK_EOF]: 
+----------------------------------
+[fieldDefinition, TK_ASSIGNOP]: 
+[fieldDefinition, TK_COMMENT]: 
+[fieldDefinition, TK_FIELDID]: 
+[fieldDefinition, TK_ID]: 
+[fieldDefinition, TK_NUM]: 
+[fieldDefinition, TK_RNUM]: 
+[fieldDefinition, TK_FUNID]: 
+[fieldDefinition, TK_RUID]: 
+[fieldDefinition, TK_WITH]: 
+[fieldDefinition, TK_PARAMETERS]: 
+[fieldDefinition, TK_END]: 
+[fieldDefinition, TK_WHILE]: 
+[fieldDefinition, TK_UNION]: 
+[fieldDefinition, TK_ENDUNION]: 
+[fieldDefinition, TK_DEFINETYPE]: 
+[fieldDefinition, TK_AS]: 
+[fieldDefinition, TK_TYPE]: fieldDefinition -> TK_TYPE fieldType TK_COLON TK_FIELDID TK_SEM 
+[fieldDefinition, TK_MAIN]: 
+[fieldDefinition, TK_GLOBAL]: 
+[fieldDefinition, TK_PARAMETER]: 
+[fieldDefinition, TK_LIST]: 
+[fieldDefinition, TK_SQL]: 
+[fieldDefinition, TK_SQR]: 
+[fieldDefinition, TK_INPUT]: 
+[fieldDefinition, TK_OUTPUT]: 
+[fieldDefinition, TK_INT]: 
+[fieldDefinition, TK_REAL]: 
+[fieldDefinition, TK_COMMA]: 
+[fieldDefinition, TK_SEM]: 
+[fieldDefinition, TK_COLON]: 
+[fieldDefinition, TK_DOT]: 
+[fieldDefinition, TK_ENDWHILE]: 
+[fieldDefinition, TK_OP]: 
+[fieldDefinition, TK_CL]: 
+[fieldDefinition, TK_IF]: 
+[fieldDefinition, TK_THEN]: 
+[fieldDefinition, TK_ENDIF]: 
+[fieldDefinition, TK_READ]: 
+[fieldDefinition, TK_WRITE]: 
+[fieldDefinition, TK_RETURN]: 
+[fieldDefinition, TK_PLUS]: 
+[fieldDefinition, TK_MINUS]: 
+[fieldDefinition, TK_MUL]: 
+[fieldDefinition, TK_DIV]: 
+[fieldDefinition, TK_CALL]: 
+[fieldDefinition, TK_RECORD]: 
+[fieldDefinition, TK_ENDRECORD]: 
+[fieldDefinition, TK_ELSE]: 
+[fieldDefinition, TK_AND]: 
+[fieldDefinition, TK_OR]: 
+[fieldDefinition, TK_NOT]: 
+[fieldDefinition, TK_LT]: 
+[fieldDefinition, TK_LE]: 
+[fieldDefinition, TK_EQ]: 
+[fieldDefinition, TK_GT]: 
+[fieldDefinition, TK_GE]: 
+[fieldDefinition, TK_NE]: 
+[fieldDefinition, TK_EOF]: 
+----------------------------------
+[fieldDefinitions, TK_ASSIGNOP]: 
+[fieldDefinitions, TK_COMMENT]: 
+[fieldDefinitions, TK_FIELDID]: 
+[fieldDefinitions, TK_ID]: 
+[fieldDefinitions, TK_NUM]: 
+[fieldDefinitions, TK_RNUM]: 
+[fieldDefinitions, TK_FUNID]: 
+[fieldDefinitions, TK_RUID]: 
+[fieldDefinitions, TK_WITH]: 
+[fieldDefinitions, TK_PARAMETERS]: 
+[fieldDefinitions, TK_END]: 
+[fieldDefinitions, TK_WHILE]: 
+[fieldDefinitions, TK_UNION]: 
+[fieldDefinitions, TK_ENDUNION]: 
+[fieldDefinitions, TK_DEFINETYPE]: 
+[fieldDefinitions, TK_AS]: 
+[fieldDefinitions, TK_TYPE]: fieldDefinitions -> fieldDefinition fieldDefinition moreFields 
+[fieldDefinitions, TK_MAIN]: 
+[fieldDefinitions, TK_GLOBAL]: 
+[fieldDefinitions, TK_PARAMETER]: 
+[fieldDefinitions, TK_LIST]: 
+[fieldDefinitions, TK_SQL]: 
+[fieldDefinitions, TK_SQR]: 
+[fieldDefinitions, TK_INPUT]: 
+[fieldDefinitions, TK_OUTPUT]: 
+[fieldDefinitions, TK_INT]: 
+[fieldDefinitions, TK_REAL]: 
+[fieldDefinitions, TK_COMMA]: 
+[fieldDefinitions, TK_SEM]: 
+[fieldDefinitions, TK_COLON]: 
+[fieldDefinitions, TK_DOT]: 
+[fieldDefinitions, TK_ENDWHILE]: 
+[fieldDefinitions, TK_OP]: 
+[fieldDefinitions, TK_CL]: 
+[fieldDefinitions, TK_IF]: 
+[fieldDefinitions, TK_THEN]: 
+[fieldDefinitions, TK_ENDIF]: 
+[fieldDefinitions, TK_READ]: 
+[fieldDefinitions, TK_WRITE]: 
+[fieldDefinitions, TK_RETURN]: 
+[fieldDefinitions, TK_PLUS]: 
+[fieldDefinitions, TK_MINUS]: 
+[fieldDefinitions, TK_MUL]: 
+[fieldDefinitions, TK_DIV]: 
+[fieldDefinitions, TK_CALL]: 
+[fieldDefinitions, TK_RECORD]: 
+[fieldDefinitions, TK_ENDRECORD]: 
+[fieldDefinitions, TK_ELSE]: 
+[fieldDefinitions, TK_AND]: 
+[fieldDefinitions, TK_OR]: 
+[fieldDefinitions, TK_NOT]: 
+[fieldDefinitions, TK_LT]: 
+[fieldDefinitions, TK_LE]: 
+[fieldDefinitions, TK_EQ]: 
+[fieldDefinitions, TK_GT]: 
+[fieldDefinitions, TK_GE]: 
+[fieldDefinitions, TK_NE]: 
+[fieldDefinitions, TK_EOF]: 
+----------------------------------
+[fieldType, TK_ASSIGNOP]: 
+[fieldType, TK_COMMENT]: 
+[fieldType, TK_FIELDID]: 
+[fieldType, TK_ID]: 
+[fieldType, TK_NUM]: 
+[fieldType, TK_RNUM]: 
+[fieldType, TK_FUNID]: 
+[fieldType, TK_RUID]: fieldType -> TK_RUID 
+[fieldType, TK_WITH]: 
+[fieldType, TK_PARAMETERS]: 
+[fieldType, TK_END]: 
+[fieldType, TK_WHILE]: 
+[fieldType, TK_UNION]: 
+[fieldType, TK_ENDUNION]: 
+[fieldType, TK_DEFINETYPE]: 
+[fieldType, TK_AS]: 
+[fieldType, TK_TYPE]: 
+[fieldType, TK_MAIN]: 
+[fieldType, TK_GLOBAL]: 
+[fieldType, TK_PARAMETER]: 
+[fieldType, TK_LIST]: 
+[fieldType, TK_SQL]: 
+[fieldType, TK_SQR]: 
+[fieldType, TK_INPUT]: 
+[fieldType, TK_OUTPUT]: 
+[fieldType, TK_INT]: fieldType -> primitiveDatatype 
+[fieldType, TK_REAL]: fieldType -> primitiveDatatype 
+[fieldType, TK_COMMA]: 
+[fieldType, TK_SEM]: 
+[fieldType, TK_COLON]: 
+[fieldType, TK_DOT]: 
+[fieldType, TK_ENDWHILE]: 
+[fieldType, TK_OP]: 
+[fieldType, TK_CL]: 
+[fieldType, TK_IF]: 
+[fieldType, TK_THEN]: 
+[fieldType, TK_ENDIF]: 
+[fieldType, TK_READ]: 
+[fieldType, TK_WRITE]: 
+[fieldType, TK_RETURN]: 
+[fieldType, TK_PLUS]: 
+[fieldType, TK_MINUS]: 
+[fieldType, TK_MUL]: 
+[fieldType, TK_DIV]: 
+[fieldType, TK_CALL]: 
+[fieldType, TK_RECORD]: 
+[fieldType, TK_ENDRECORD]: 
+[fieldType, TK_ELSE]: 
+[fieldType, TK_AND]: 
+[fieldType, TK_OR]: 
+[fieldType, TK_NOT]: 
+[fieldType, TK_LT]: 
+[fieldType, TK_LE]: 
+[fieldType, TK_EQ]: 
+[fieldType, TK_GT]: 
+[fieldType, TK_GE]: 
+[fieldType, TK_NE]: 
+[fieldType, TK_EOF]: 
+----------------------------------
+[funCallStmt, TK_ASSIGNOP]: 
+[funCallStmt, TK_COMMENT]: 
+[funCallStmt, TK_FIELDID]: 
+[funCallStmt, TK_ID]: 
+[funCallStmt, TK_NUM]: 
+[funCallStmt, TK_RNUM]: 
+[funCallStmt, TK_FUNID]: 
+[funCallStmt, TK_RUID]: 
+[funCallStmt, TK_WITH]: 
+[funCallStmt, TK_PARAMETERS]: 
+[funCallStmt, TK_END]: 
+[funCallStmt, TK_WHILE]: 
+[funCallStmt, TK_UNION]: 
+[funCallStmt, TK_ENDUNION]: 
+[funCallStmt, TK_DEFINETYPE]: 
+[funCallStmt, TK_AS]: 
+[funCallStmt, TK_TYPE]: 
+[funCallStmt, TK_MAIN]: 
+[funCallStmt, TK_GLOBAL]: 
+[funCallStmt, TK_PARAMETER]: 
+[funCallStmt, TK_LIST]: 
+[funCallStmt, TK_SQL]: funCallStmt -> outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM 
+[funCallStmt, TK_SQR]: 
+[funCallStmt, TK_INPUT]: 
+[funCallStmt, TK_OUTPUT]: 
+[funCallStmt, TK_INT]: 
+[funCallStmt, TK_REAL]: 
+[funCallStmt, TK_COMMA]: 
+[funCallStmt, TK_SEM]: 
+[funCallStmt, TK_COLON]: 
+[funCallStmt, TK_DOT]: 
+[funCallStmt, TK_ENDWHILE]: 
+[funCallStmt, TK_OP]: 
+[funCallStmt, TK_CL]: 
+[funCallStmt, TK_IF]: 
+[funCallStmt, TK_THEN]: 
+[funCallStmt, TK_ENDIF]: 
+[funCallStmt, TK_READ]: 
+[funCallStmt, TK_WRITE]: 
+[funCallStmt, TK_RETURN]: 
+[funCallStmt, TK_PLUS]: 
+[funCallStmt, TK_MINUS]: 
+[funCallStmt, TK_MUL]: 
+[funCallStmt, TK_DIV]: 
+[funCallStmt, TK_CALL]: 
+[funCallStmt, TK_RECORD]: 
+[funCallStmt, TK_ENDRECORD]: 
+[funCallStmt, TK_ELSE]: 
+[funCallStmt, TK_AND]: 
+[funCallStmt, TK_OR]: 
+[funCallStmt, TK_NOT]: 
+[funCallStmt, TK_LT]: 
+[funCallStmt, TK_LE]: 
+[funCallStmt, TK_EQ]: 
+[funCallStmt, TK_GT]: 
+[funCallStmt, TK_GE]: 
+[funCallStmt, TK_NE]: 
+[funCallStmt, TK_EOF]: 
+----------------------------------
+[function, TK_ASSIGNOP]: 
+[function, TK_COMMENT]: 
+[function, TK_FIELDID]: 
+[function, TK_ID]: 
+[function, TK_NUM]: 
+[function, TK_RNUM]: 
+[function, TK_FUNID]: function -> TK_FUNID input_par output_par TK_SEM stmts TK_END 
+[function, TK_RUID]: 
+[function, TK_WITH]: 
+[function, TK_PARAMETERS]: 
+[function, TK_END]: 
+[function, TK_WHILE]: 
+[function, TK_UNION]: 
+[function, TK_ENDUNION]: 
+[function, TK_DEFINETYPE]: 
+[function, TK_AS]: 
+[function, TK_TYPE]: 
+[function, TK_MAIN]: 
+[function, TK_GLOBAL]: 
+[function, TK_PARAMETER]: 
+[function, TK_LIST]: 
+[function, TK_SQL]: 
+[function, TK_SQR]: 
+[function, TK_INPUT]: 
+[function, TK_OUTPUT]: 
+[function, TK_INT]: 
+[function, TK_REAL]: 
+[function, TK_COMMA]: 
+[function, TK_SEM]: 
+[function, TK_COLON]: 
+[function, TK_DOT]: 
+[function, TK_ENDWHILE]: 
+[function, TK_OP]: 
+[function, TK_CL]: 
+[function, TK_IF]: 
+[function, TK_THEN]: 
+[function, TK_ENDIF]: 
+[function, TK_READ]: 
+[function, TK_WRITE]: 
+[function, TK_RETURN]: 
+[function, TK_PLUS]: 
+[function, TK_MINUS]: 
+[function, TK_MUL]: 
+[function, TK_DIV]: 
+[function, TK_CALL]: 
+[function, TK_RECORD]: 
+[function, TK_ENDRECORD]: 
+[function, TK_ELSE]: 
+[function, TK_AND]: 
+[function, TK_OR]: 
+[function, TK_NOT]: 
+[function, TK_LT]: 
+[function, TK_LE]: 
+[function, TK_EQ]: 
+[function, TK_GT]: 
+[function, TK_GE]: 
+[function, TK_NE]: 
+[function, TK_EOF]: 
+----------------------------------
+[global_or_not, TK_ASSIGNOP]: 
+[global_or_not, TK_COMMENT]: 
+[global_or_not, TK_FIELDID]: 
+[global_or_not, TK_ID]: 
+[global_or_not, TK_NUM]: 
+[global_or_not, TK_RNUM]: 
+[global_or_not, TK_FUNID]: 
+[global_or_not, TK_RUID]: 
+[global_or_not, TK_WITH]: 
+[global_or_not, TK_PARAMETERS]: 
+[global_or_not, TK_END]: 
+[global_or_not, TK_WHILE]: 
+[global_or_not, TK_UNION]: 
+[global_or_not, TK_ENDUNION]: 
+[global_or_not, TK_DEFINETYPE]: 
+[global_or_not, TK_AS]: 
+[global_or_not, TK_TYPE]: 
+[global_or_not, TK_MAIN]: 
+[global_or_not, TK_GLOBAL]: 
+[global_or_not, TK_PARAMETER]: 
+[global_or_not, TK_LIST]: 
+[global_or_not, TK_SQL]: 
+[global_or_not, TK_SQR]: 
+[global_or_not, TK_INPUT]: 
+[global_or_not, TK_OUTPUT]: 
+[global_or_not, TK_INT]: 
+[global_or_not, TK_REAL]: 
+[global_or_not, TK_COMMA]: 
+[global_or_not, TK_SEM]: global_or_not -> 
+[global_or_not, TK_COLON]: global_or_not -> TK_COLON TK_GLOBAL 
+[global_or_not, TK_DOT]: 
+[global_or_not, TK_ENDWHILE]: 
+[global_or_not, TK_OP]: 
+[global_or_not, TK_CL]: 
+[global_or_not, TK_IF]: 
+[global_or_not, TK_THEN]: 
+[global_or_not, TK_ENDIF]: 
+[global_or_not, TK_READ]: 
+[global_or_not, TK_WRITE]: 
+[global_or_not, TK_RETURN]: 
+[global_or_not, TK_PLUS]: 
+[global_or_not, TK_MINUS]: 
+[global_or_not, TK_MUL]: 
+[global_or_not, TK_DIV]: 
+[global_or_not, TK_CALL]: 
+[global_or_not, TK_RECORD]: 
+[global_or_not, TK_ENDRECORD]: 
+[global_or_not, TK_ELSE]: 
+[global_or_not, TK_AND]: 
+[global_or_not, TK_OR]: 
+[global_or_not, TK_NOT]: 
+[global_or_not, TK_LT]: 
+[global_or_not, TK_LE]: 
+[global_or_not, TK_EQ]: 
+[global_or_not, TK_GT]: 
+[global_or_not, TK_GE]: 
+[global_or_not, TK_NE]: 
+[global_or_not, TK_EOF]: 
+----------------------------------
+[highPrecedenceOperators, TK_ASSIGNOP]: 
+[highPrecedenceOperators, TK_COMMENT]: 
+[highPrecedenceOperators, TK_FIELDID]: 
+[highPrecedenceOperators, TK_ID]: 
+[highPrecedenceOperators, TK_NUM]: 
+[highPrecedenceOperators, TK_RNUM]: 
+[highPrecedenceOperators, TK_FUNID]: 
+[highPrecedenceOperators, TK_RUID]: 
+[highPrecedenceOperators, TK_WITH]: 
+[highPrecedenceOperators, TK_PARAMETERS]: 
+[highPrecedenceOperators, TK_END]: 
+[highPrecedenceOperators, TK_WHILE]: 
+[highPrecedenceOperators, TK_UNION]: 
+[highPrecedenceOperators, TK_ENDUNION]: 
+[highPrecedenceOperators, TK_DEFINETYPE]: 
+[highPrecedenceOperators, TK_AS]: 
+[highPrecedenceOperators, TK_TYPE]: 
+[highPrecedenceOperators, TK_MAIN]: 
+[highPrecedenceOperators, TK_GLOBAL]: 
+[highPrecedenceOperators, TK_PARAMETER]: 
+[highPrecedenceOperators, TK_LIST]: 
+[highPrecedenceOperators, TK_SQL]: 
+[highPrecedenceOperators, TK_SQR]: 
+[highPrecedenceOperators, TK_INPUT]: 
+[highPrecedenceOperators, TK_OUTPUT]: 
+[highPrecedenceOperators, TK_INT]: 
+[highPrecedenceOperators, TK_REAL]: 
+[highPrecedenceOperators, TK_COMMA]: 
+[highPrecedenceOperators, TK_SEM]: 
+[highPrecedenceOperators, TK_COLON]: 
+[highPrecedenceOperators, TK_DOT]: 
+[highPrecedenceOperators, TK_ENDWHILE]: 
+[highPrecedenceOperators, TK_OP]: 
+[highPrecedenceOperators, TK_CL]: 
+[highPrecedenceOperators, TK_IF]: 
+[highPrecedenceOperators, TK_THEN]: 
+[highPrecedenceOperators, TK_ENDIF]: 
+[highPrecedenceOperators, TK_READ]: 
+[highPrecedenceOperators, TK_WRITE]: 
+[highPrecedenceOperators, TK_RETURN]: 
+[highPrecedenceOperators, TK_PLUS]: 
+[highPrecedenceOperators, TK_MINUS]: 
+[highPrecedenceOperators, TK_MUL]: highPrecedenceOperators -> TK_MUL 
+[highPrecedenceOperators, TK_DIV]: highPrecedenceOperators -> TK_DIV 
+[highPrecedenceOperators, TK_CALL]: 
+[highPrecedenceOperators, TK_RECORD]: 
+[highPrecedenceOperators, TK_ENDRECORD]: 
+[highPrecedenceOperators, TK_ELSE]: 
+[highPrecedenceOperators, TK_AND]: 
+[highPrecedenceOperators, TK_OR]: 
+[highPrecedenceOperators, TK_NOT]: 
+[highPrecedenceOperators, TK_LT]: 
+[highPrecedenceOperators, TK_LE]: 
+[highPrecedenceOperators, TK_EQ]: 
+[highPrecedenceOperators, TK_GT]: 
+[highPrecedenceOperators, TK_GE]: 
+[highPrecedenceOperators, TK_NE]: 
+[highPrecedenceOperators, TK_EOF]: 
+----------------------------------
+[idList, TK_ASSIGNOP]: 
+[idList, TK_COMMENT]: 
+[idList, TK_FIELDID]: 
+[idList, TK_ID]: idList -> TK_ID more_ids 
+[idList, TK_NUM]: 
+[idList, TK_RNUM]: 
+[idList, TK_FUNID]: 
+[idList, TK_RUID]: 
+[idList, TK_WITH]: 
+[idList, TK_PARAMETERS]: 
+[idList, TK_END]: 
+[idList, TK_WHILE]: 
+[idList, TK_UNION]: 
+[idList, TK_ENDUNION]: 
+[idList, TK_DEFINETYPE]: 
+[idList, TK_AS]: 
+[idList, TK_TYPE]: 
+[idList, TK_MAIN]: 
+[idList, TK_GLOBAL]: 
+[idList, TK_PARAMETER]: 
+[idList, TK_LIST]: 
+[idList, TK_SQL]: 
+[idList, TK_SQR]: 
+[idList, TK_INPUT]: 
+[idList, TK_OUTPUT]: 
+[idList, TK_INT]: 
+[idList, TK_REAL]: 
+[idList, TK_COMMA]: 
+[idList, TK_SEM]: 
+[idList, TK_COLON]: 
+[idList, TK_DOT]: 
+[idList, TK_ENDWHILE]: 
+[idList, TK_OP]: 
+[idList, TK_CL]: 
+[idList, TK_IF]: 
+[idList, TK_THEN]: 
+[idList, TK_ENDIF]: 
+[idList, TK_READ]: 
+[idList, TK_WRITE]: 
+[idList, TK_RETURN]: 
+[idList, TK_PLUS]: 
+[idList, TK_MINUS]: 
+[idList, TK_MUL]: 
+[idList, TK_DIV]: 
+[idList, TK_CALL]: 
+[idList, TK_RECORD]: 
+[idList, TK_ENDRECORD]: 
+[idList, TK_ELSE]: 
+[idList, TK_AND]: 
+[idList, TK_OR]: 
+[idList, TK_NOT]: 
+[idList, TK_LT]: 
+[idList, TK_LE]: 
+[idList, TK_EQ]: 
+[idList, TK_GT]: 
+[idList, TK_GE]: 
+[idList, TK_NE]: 
+[idList, TK_EOF]: 
+----------------------------------
+[input_par, TK_ASSIGNOP]: 
+[input_par, TK_COMMENT]: 
+[input_par, TK_FIELDID]: 
+[input_par, TK_ID]: 
+[input_par, TK_NUM]: 
+[input_par, TK_RNUM]: 
+[input_par, TK_FUNID]: 
+[input_par, TK_RUID]: 
+[input_par, TK_WITH]: 
+[input_par, TK_PARAMETERS]: 
+[input_par, TK_END]: 
+[input_par, TK_WHILE]: 
+[input_par, TK_UNION]: 
+[input_par, TK_ENDUNION]: 
+[input_par, TK_DEFINETYPE]: 
+[input_par, TK_AS]: 
+[input_par, TK_TYPE]: 
+[input_par, TK_MAIN]: 
+[input_par, TK_GLOBAL]: 
+[input_par, TK_PARAMETER]: 
+[input_par, TK_LIST]: 
+[input_par, TK_SQL]: 
+[input_par, TK_SQR]: 
+[input_par, TK_INPUT]: input_par -> TK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
+[input_par, TK_OUTPUT]: 
+[input_par, TK_INT]: 
+[input_par, TK_REAL]: 
+[input_par, TK_COMMA]: 
+[input_par, TK_SEM]: 
+[input_par, TK_COLON]: 
+[input_par, TK_DOT]: 
+[input_par, TK_ENDWHILE]: 
+[input_par, TK_OP]: 
+[input_par, TK_CL]: 
+[input_par, TK_IF]: 
+[input_par, TK_THEN]: 
+[input_par, TK_ENDIF]: 
+[input_par, TK_READ]: 
+[input_par, TK_WRITE]: 
+[input_par, TK_RETURN]: 
+[input_par, TK_PLUS]: 
+[input_par, TK_MINUS]: 
+[input_par, TK_MUL]: 
+[input_par, TK_DIV]: 
+[input_par, TK_CALL]: 
+[input_par, TK_RECORD]: 
+[input_par, TK_ENDRECORD]: 
+[input_par, TK_ELSE]: 
+[input_par, TK_AND]: 
+[input_par, TK_OR]: 
+[input_par, TK_NOT]: 
+[input_par, TK_LT]: 
+[input_par, TK_LE]: 
+[input_par, TK_EQ]: 
+[input_par, TK_GT]: 
+[input_par, TK_GE]: 
+[input_par, TK_NE]: 
+[input_par, TK_EOF]: 
+----------------------------------
+[inputParameters, TK_ASSIGNOP]: 
+[inputParameters, TK_COMMENT]: 
+[inputParameters, TK_FIELDID]: 
+[inputParameters, TK_ID]: 
+[inputParameters, TK_NUM]: 
+[inputParameters, TK_RNUM]: 
+[inputParameters, TK_FUNID]: 
+[inputParameters, TK_RUID]: 
+[inputParameters, TK_WITH]: 
+[inputParameters, TK_PARAMETERS]: 
+[inputParameters, TK_END]: 
+[inputParameters, TK_WHILE]: 
+[inputParameters, TK_UNION]: 
+[inputParameters, TK_ENDUNION]: 
+[inputParameters, TK_DEFINETYPE]: 
+[inputParameters, TK_AS]: 
+[inputParameters, TK_TYPE]: 
+[inputParameters, TK_MAIN]: 
+[inputParameters, TK_GLOBAL]: 
+[inputParameters, TK_PARAMETER]: 
+[inputParameters, TK_LIST]: 
+[inputParameters, TK_SQL]: inputParameters -> TK_SQL idList TK_SQR 
+[inputParameters, TK_SQR]: 
+[inputParameters, TK_INPUT]: 
+[inputParameters, TK_OUTPUT]: 
+[inputParameters, TK_INT]: 
+[inputParameters, TK_REAL]: 
+[inputParameters, TK_COMMA]: 
+[inputParameters, TK_SEM]: 
+[inputParameters, TK_COLON]: 
+[inputParameters, TK_DOT]: 
+[inputParameters, TK_ENDWHILE]: 
+[inputParameters, TK_OP]: 
+[inputParameters, TK_CL]: 
+[inputParameters, TK_IF]: 
+[inputParameters, TK_THEN]: 
+[inputParameters, TK_ENDIF]: 
+[inputParameters, TK_READ]: 
+[inputParameters, TK_WRITE]: 
+[inputParameters, TK_RETURN]: 
+[inputParameters, TK_PLUS]: 
+[inputParameters, TK_MINUS]: 
+[inputParameters, TK_MUL]: 
+[inputParameters, TK_DIV]: 
+[inputParameters, TK_CALL]: 
+[inputParameters, TK_RECORD]: 
+[inputParameters, TK_ENDRECORD]: 
+[inputParameters, TK_ELSE]: 
+[inputParameters, TK_AND]: 
+[inputParameters, TK_OR]: 
+[inputParameters, TK_NOT]: 
+[inputParameters, TK_LT]: 
+[inputParameters, TK_LE]: 
+[inputParameters, TK_EQ]: 
+[inputParameters, TK_GT]: 
+[inputParameters, TK_GE]: 
+[inputParameters, TK_NE]: 
+[inputParameters, TK_EOF]: 
+----------------------------------
+[ioStmt, TK_ASSIGNOP]: 
+[ioStmt, TK_COMMENT]: 
+[ioStmt, TK_FIELDID]: 
+[ioStmt, TK_ID]: 
+[ioStmt, TK_NUM]: 
+[ioStmt, TK_RNUM]: 
+[ioStmt, TK_FUNID]: 
+[ioStmt, TK_RUID]: 
+[ioStmt, TK_WITH]: 
+[ioStmt, TK_PARAMETERS]: 
+[ioStmt, TK_END]: 
+[ioStmt, TK_WHILE]: 
+[ioStmt, TK_UNION]: 
+[ioStmt, TK_ENDUNION]: 
+[ioStmt, TK_DEFINETYPE]: 
+[ioStmt, TK_AS]: 
+[ioStmt, TK_TYPE]: 
+[ioStmt, TK_MAIN]: 
+[ioStmt, TK_GLOBAL]: 
+[ioStmt, TK_PARAMETER]: 
+[ioStmt, TK_LIST]: 
+[ioStmt, TK_SQL]: 
+[ioStmt, TK_SQR]: 
+[ioStmt, TK_INPUT]: 
+[ioStmt, TK_OUTPUT]: 
+[ioStmt, TK_INT]: 
+[ioStmt, TK_REAL]: 
+[ioStmt, TK_COMMA]: 
+[ioStmt, TK_SEM]: 
+[ioStmt, TK_COLON]: 
+[ioStmt, TK_DOT]: 
+[ioStmt, TK_ENDWHILE]: 
+[ioStmt, TK_OP]: 
+[ioStmt, TK_CL]: 
+[ioStmt, TK_IF]: 
+[ioStmt, TK_THEN]: 
+[ioStmt, TK_ENDIF]: 
+[ioStmt, TK_READ]: ioStmt -> TK_READ TK_OP var TK_CL TK_SEM 
+[ioStmt, TK_WRITE]: ioStmt -> TK_WRITE TK_OP var TK_CL TK_SEM 
+[ioStmt, TK_RETURN]: 
+[ioStmt, TK_PLUS]: 
+[ioStmt, TK_MINUS]: 
+[ioStmt, TK_MUL]: 
+[ioStmt, TK_DIV]: 
+[ioStmt, TK_CALL]: 
+[ioStmt, TK_RECORD]: 
+[ioStmt, TK_ENDRECORD]: 
+[ioStmt, TK_ELSE]: 
+[ioStmt, TK_AND]: 
+[ioStmt, TK_OR]: 
+[ioStmt, TK_NOT]: 
+[ioStmt, TK_LT]: 
+[ioStmt, TK_LE]: 
+[ioStmt, TK_EQ]: 
+[ioStmt, TK_GT]: 
+[ioStmt, TK_GE]: 
+[ioStmt, TK_NE]: 
+[ioStmt, TK_EOF]: 
+----------------------------------
+[iterativeStmt, TK_ASSIGNOP]: 
+[iterativeStmt, TK_COMMENT]: 
+[iterativeStmt, TK_FIELDID]: 
+[iterativeStmt, TK_ID]: 
+[iterativeStmt, TK_NUM]: 
+[iterativeStmt, TK_RNUM]: 
+[iterativeStmt, TK_FUNID]: 
+[iterativeStmt, TK_RUID]: 
+[iterativeStmt, TK_WITH]: 
+[iterativeStmt, TK_PARAMETERS]: 
+[iterativeStmt, TK_END]: 
+[iterativeStmt, TK_WHILE]: iterativeStmt -> TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE 
+[iterativeStmt, TK_UNION]: 
+[iterativeStmt, TK_ENDUNION]: 
+[iterativeStmt, TK_DEFINETYPE]: 
+[iterativeStmt, TK_AS]: 
+[iterativeStmt, TK_TYPE]: 
+[iterativeStmt, TK_MAIN]: 
+[iterativeStmt, TK_GLOBAL]: 
+[iterativeStmt, TK_PARAMETER]: 
+[iterativeStmt, TK_LIST]: 
+[iterativeStmt, TK_SQL]: 
+[iterativeStmt, TK_SQR]: 
+[iterativeStmt, TK_INPUT]: 
+[iterativeStmt, TK_OUTPUT]: 
+[iterativeStmt, TK_INT]: 
+[iterativeStmt, TK_REAL]: 
+[iterativeStmt, TK_COMMA]: 
+[iterativeStmt, TK_SEM]: 
+[iterativeStmt, TK_COLON]: 
+[iterativeStmt, TK_DOT]: 
+[iterativeStmt, TK_ENDWHILE]: 
+[iterativeStmt, TK_OP]: 
+[iterativeStmt, TK_CL]: 
+[iterativeStmt, TK_IF]: 
+[iterativeStmt, TK_THEN]: 
+[iterativeStmt, TK_ENDIF]: 
+[iterativeStmt, TK_READ]: 
+[iterativeStmt, TK_WRITE]: 
+[iterativeStmt, TK_RETURN]: 
+[iterativeStmt, TK_PLUS]: 
+[iterativeStmt, TK_MINUS]: 
+[iterativeStmt, TK_MUL]: 
+[iterativeStmt, TK_DIV]: 
+[iterativeStmt, TK_CALL]: 
+[iterativeStmt, TK_RECORD]: 
+[iterativeStmt, TK_ENDRECORD]: 
+[iterativeStmt, TK_ELSE]: 
+[iterativeStmt, TK_AND]: 
+[iterativeStmt, TK_OR]: 
+[iterativeStmt, TK_NOT]: 
+[iterativeStmt, TK_LT]: 
+[iterativeStmt, TK_LE]: 
+[iterativeStmt, TK_EQ]: 
+[iterativeStmt, TK_GT]: 
+[iterativeStmt, TK_GE]: 
+[iterativeStmt, TK_NE]: 
+[iterativeStmt, TK_EOF]: 
+----------------------------------
+[logicalOp, TK_ASSIGNOP]: 
+[logicalOp, TK_COMMENT]: 
+[logicalOp, TK_FIELDID]: 
+[logicalOp, TK_ID]: 
+[logicalOp, TK_NUM]: 
+[logicalOp, TK_RNUM]: 
+[logicalOp, TK_FUNID]: 
+[logicalOp, TK_RUID]: 
+[logicalOp, TK_WITH]: 
+[logicalOp, TK_PARAMETERS]: 
+[logicalOp, TK_END]: 
+[logicalOp, TK_WHILE]: 
+[logicalOp, TK_UNION]: 
+[logicalOp, TK_ENDUNION]: 
+[logicalOp, TK_DEFINETYPE]: 
+[logicalOp, TK_AS]: 
+[logicalOp, TK_TYPE]: 
+[logicalOp, TK_MAIN]: 
+[logicalOp, TK_GLOBAL]: 
+[logicalOp, TK_PARAMETER]: 
+[logicalOp, TK_LIST]: 
+[logicalOp, TK_SQL]: 
+[logicalOp, TK_SQR]: 
+[logicalOp, TK_INPUT]: 
+[logicalOp, TK_OUTPUT]: 
+[logicalOp, TK_INT]: 
+[logicalOp, TK_REAL]: 
+[logicalOp, TK_COMMA]: 
+[logicalOp, TK_SEM]: 
+[logicalOp, TK_COLON]: 
+[logicalOp, TK_DOT]: 
+[logicalOp, TK_ENDWHILE]: 
+[logicalOp, TK_OP]: 
+[logicalOp, TK_CL]: 
+[logicalOp, TK_IF]: 
+[logicalOp, TK_THEN]: 
+[logicalOp, TK_ENDIF]: 
+[logicalOp, TK_READ]: 
+[logicalOp, TK_WRITE]: 
+[logicalOp, TK_RETURN]: 
+[logicalOp, TK_PLUS]: 
+[logicalOp, TK_MINUS]: 
+[logicalOp, TK_MUL]: 
+[logicalOp, TK_DIV]: 
+[logicalOp, TK_CALL]: 
+[logicalOp, TK_RECORD]: 
+[logicalOp, TK_ENDRECORD]: 
+[logicalOp, TK_ELSE]: 
+[logicalOp, TK_AND]: logicalOp -> TK_AND 
+[logicalOp, TK_OR]: logicalOp -> TK_OR 
+[logicalOp, TK_NOT]: 
+[logicalOp, TK_LT]: 
+[logicalOp, TK_LE]: 
+[logicalOp, TK_EQ]: 
+[logicalOp, TK_GT]: 
+[logicalOp, TK_GE]: 
+[logicalOp, TK_NE]: 
+[logicalOp, TK_EOF]: 
+----------------------------------
+[lowPrecedenceOperators, TK_ASSIGNOP]: 
+[lowPrecedenceOperators, TK_COMMENT]: 
+[lowPrecedenceOperators, TK_FIELDID]: 
+[lowPrecedenceOperators, TK_ID]: 
+[lowPrecedenceOperators, TK_NUM]: 
+[lowPrecedenceOperators, TK_RNUM]: 
+[lowPrecedenceOperators, TK_FUNID]: 
+[lowPrecedenceOperators, TK_RUID]: 
+[lowPrecedenceOperators, TK_WITH]: 
+[lowPrecedenceOperators, TK_PARAMETERS]: 
+[lowPrecedenceOperators, TK_END]: 
+[lowPrecedenceOperators, TK_WHILE]: 
+[lowPrecedenceOperators, TK_UNION]: 
+[lowPrecedenceOperators, TK_ENDUNION]: 
+[lowPrecedenceOperators, TK_DEFINETYPE]: 
+[lowPrecedenceOperators, TK_AS]: 
+[lowPrecedenceOperators, TK_TYPE]: 
+[lowPrecedenceOperators, TK_MAIN]: 
+[lowPrecedenceOperators, TK_GLOBAL]: 
+[lowPrecedenceOperators, TK_PARAMETER]: 
+[lowPrecedenceOperators, TK_LIST]: 
+[lowPrecedenceOperators, TK_SQL]: 
+[lowPrecedenceOperators, TK_SQR]: 
+[lowPrecedenceOperators, TK_INPUT]: 
+[lowPrecedenceOperators, TK_OUTPUT]: 
+[lowPrecedenceOperators, TK_INT]: 
+[lowPrecedenceOperators, TK_REAL]: 
+[lowPrecedenceOperators, TK_COMMA]: 
+[lowPrecedenceOperators, TK_SEM]: 
+[lowPrecedenceOperators, TK_COLON]: 
+[lowPrecedenceOperators, TK_DOT]: 
+[lowPrecedenceOperators, TK_ENDWHILE]: 
+[lowPrecedenceOperators, TK_OP]: 
+[lowPrecedenceOperators, TK_CL]: 
+[lowPrecedenceOperators, TK_IF]: 
+[lowPrecedenceOperators, TK_THEN]: 
+[lowPrecedenceOperators, TK_ENDIF]: 
+[lowPrecedenceOperators, TK_READ]: 
+[lowPrecedenceOperators, TK_WRITE]: 
+[lowPrecedenceOperators, TK_RETURN]: 
+[lowPrecedenceOperators, TK_PLUS]: lowPrecedenceOperators -> TK_PLUS 
+[lowPrecedenceOperators, TK_MINUS]: lowPrecedenceOperators -> TK_MINUS 
+[lowPrecedenceOperators, TK_MUL]: 
+[lowPrecedenceOperators, TK_DIV]: 
+[lowPrecedenceOperators, TK_CALL]: 
+[lowPrecedenceOperators, TK_RECORD]: 
+[lowPrecedenceOperators, TK_ENDRECORD]: 
+[lowPrecedenceOperators, TK_ELSE]: 
+[lowPrecedenceOperators, TK_AND]: 
+[lowPrecedenceOperators, TK_OR]: 
+[lowPrecedenceOperators, TK_NOT]: 
+[lowPrecedenceOperators, TK_LT]: 
+[lowPrecedenceOperators, TK_LE]: 
+[lowPrecedenceOperators, TK_EQ]: 
+[lowPrecedenceOperators, TK_GT]: 
+[lowPrecedenceOperators, TK_GE]: 
+[lowPrecedenceOperators, TK_NE]: 
+[lowPrecedenceOperators, TK_EOF]: 
+----------------------------------
+[mainFunction, TK_ASSIGNOP]: 
+[mainFunction, TK_COMMENT]: 
+[mainFunction, TK_FIELDID]: 
+[mainFunction, TK_ID]: 
+[mainFunction, TK_NUM]: 
+[mainFunction, TK_RNUM]: 
+[mainFunction, TK_FUNID]: 
+[mainFunction, TK_RUID]: 
+[mainFunction, TK_WITH]: 
+[mainFunction, TK_PARAMETERS]: 
+[mainFunction, TK_END]: 
+[mainFunction, TK_WHILE]: 
+[mainFunction, TK_UNION]: 
+[mainFunction, TK_ENDUNION]: 
+[mainFunction, TK_DEFINETYPE]: 
+[mainFunction, TK_AS]: 
+[mainFunction, TK_TYPE]: 
+[mainFunction, TK_MAIN]: mainFunction -> TK_MAIN stmts TK_END 
+[mainFunction, TK_GLOBAL]: 
+[mainFunction, TK_PARAMETER]: 
+[mainFunction, TK_LIST]: 
+[mainFunction, TK_SQL]: 
+[mainFunction, TK_SQR]: 
+[mainFunction, TK_INPUT]: 
+[mainFunction, TK_OUTPUT]: 
+[mainFunction, TK_INT]: 
+[mainFunction, TK_REAL]: 
+[mainFunction, TK_COMMA]: 
+[mainFunction, TK_SEM]: 
+[mainFunction, TK_COLON]: 
+[mainFunction, TK_DOT]: 
+[mainFunction, TK_ENDWHILE]: 
+[mainFunction, TK_OP]: 
+[mainFunction, TK_CL]: 
+[mainFunction, TK_IF]: 
+[mainFunction, TK_THEN]: 
+[mainFunction, TK_ENDIF]: 
+[mainFunction, TK_READ]: 
+[mainFunction, TK_WRITE]: 
+[mainFunction, TK_RETURN]: 
+[mainFunction, TK_PLUS]: 
+[mainFunction, TK_MINUS]: 
+[mainFunction, TK_MUL]: 
+[mainFunction, TK_DIV]: 
+[mainFunction, TK_CALL]: 
+[mainFunction, TK_RECORD]: 
+[mainFunction, TK_ENDRECORD]: 
+[mainFunction, TK_ELSE]: 
+[mainFunction, TK_AND]: 
+[mainFunction, TK_OR]: 
+[mainFunction, TK_NOT]: 
+[mainFunction, TK_LT]: 
+[mainFunction, TK_LE]: 
+[mainFunction, TK_EQ]: 
+[mainFunction, TK_GT]: 
+[mainFunction, TK_GE]: 
+[mainFunction, TK_NE]: 
+[mainFunction, TK_EOF]: 
+----------------------------------
+[moreExpansions, TK_ASSIGNOP]: moreExpansions -> 
+[moreExpansions, TK_COMMENT]: 
+[moreExpansions, TK_FIELDID]: 
+[moreExpansions, TK_ID]: 
+[moreExpansions, TK_NUM]: 
+[moreExpansions, TK_RNUM]: 
+[moreExpansions, TK_FUNID]: 
+[moreExpansions, TK_RUID]: 
+[moreExpansions, TK_WITH]: 
+[moreExpansions, TK_PARAMETERS]: 
+[moreExpansions, TK_END]: 
+[moreExpansions, TK_WHILE]: 
+[moreExpansions, TK_UNION]: 
+[moreExpansions, TK_ENDUNION]: 
+[moreExpansions, TK_DEFINETYPE]: 
+[moreExpansions, TK_AS]: 
+[moreExpansions, TK_TYPE]: 
+[moreExpansions, TK_MAIN]: 
+[moreExpansions, TK_GLOBAL]: 
+[moreExpansions, TK_PARAMETER]: 
+[moreExpansions, TK_LIST]: 
+[moreExpansions, TK_SQL]: 
+[moreExpansions, TK_SQR]: 
+[moreExpansions, TK_INPUT]: 
+[moreExpansions, TK_OUTPUT]: 
+[moreExpansions, TK_INT]: 
+[moreExpansions, TK_REAL]: 
+[moreExpansions, TK_COMMA]: 
+[moreExpansions, TK_SEM]: 
+[moreExpansions, TK_COLON]: 
+[moreExpansions, TK_DOT]: moreExpansions -> oneExpansion moreExpansions 
+[moreExpansions, TK_ENDWHILE]: 
+[moreExpansions, TK_OP]: 
+[moreExpansions, TK_CL]: moreExpansions -> 
+[moreExpansions, TK_IF]: 
+[moreExpansions, TK_THEN]: 
+[moreExpansions, TK_ENDIF]: 
+[moreExpansions, TK_READ]: 
+[moreExpansions, TK_WRITE]: 
+[moreExpansions, TK_RETURN]: 
+[moreExpansions, TK_PLUS]: 
+[moreExpansions, TK_MINUS]: 
+[moreExpansions, TK_MUL]: moreExpansions -> 
+[moreExpansions, TK_DIV]: moreExpansions -> 
+[moreExpansions, TK_CALL]: 
+[moreExpansions, TK_RECORD]: 
+[moreExpansions, TK_ENDRECORD]: 
+[moreExpansions, TK_ELSE]: 
+[moreExpansions, TK_AND]: 
+[moreExpansions, TK_OR]: 
+[moreExpansions, TK_NOT]: 
+[moreExpansions, TK_LT]: moreExpansions -> 
+[moreExpansions, TK_LE]: moreExpansions -> 
+[moreExpansions, TK_EQ]: moreExpansions -> 
+[moreExpansions, TK_GT]: moreExpansions -> 
+[moreExpansions, TK_GE]: moreExpansions -> 
+[moreExpansions, TK_NE]: moreExpansions -> 
+[moreExpansions, TK_EOF]: 
+----------------------------------
+[moreFields, TK_ASSIGNOP]: 
+[moreFields, TK_COMMENT]: 
+[moreFields, TK_FIELDID]: 
+[moreFields, TK_ID]: 
+[moreFields, TK_NUM]: 
+[moreFields, TK_RNUM]: 
+[moreFields, TK_FUNID]: 
+[moreFields, TK_RUID]: 
+[moreFields, TK_WITH]: 
+[moreFields, TK_PARAMETERS]: 
+[moreFields, TK_END]: 
+[moreFields, TK_WHILE]: 
+[moreFields, TK_UNION]: 
+[moreFields, TK_ENDUNION]: moreFields -> 
+[moreFields, TK_DEFINETYPE]: 
+[moreFields, TK_AS]: 
+[moreFields, TK_TYPE]: moreFields -> fieldDefinition moreFields 
+[moreFields, TK_MAIN]: 
+[moreFields, TK_GLOBAL]: 
+[moreFields, TK_PARAMETER]: 
+[moreFields, TK_LIST]: 
+[moreFields, TK_SQL]: 
+[moreFields, TK_SQR]: 
+[moreFields, TK_INPUT]: 
+[moreFields, TK_OUTPUT]: 
+[moreFields, TK_INT]: 
+[moreFields, TK_REAL]: 
+[moreFields, TK_COMMA]: 
+[moreFields, TK_SEM]: 
+[moreFields, TK_COLON]: 
+[moreFields, TK_DOT]: 
+[moreFields, TK_ENDWHILE]: 
+[moreFields, TK_OP]: 
+[moreFields, TK_CL]: 
+[moreFields, TK_IF]: 
+[moreFields, TK_THEN]: 
+[moreFields, TK_ENDIF]: 
+[moreFields, TK_READ]: 
+[moreFields, TK_WRITE]: 
+[moreFields, TK_RETURN]: 
+[moreFields, TK_PLUS]: 
+[moreFields, TK_MINUS]: 
+[moreFields, TK_MUL]: 
+[moreFields, TK_DIV]: 
+[moreFields, TK_CALL]: 
+[moreFields, TK_RECORD]: 
+[moreFields, TK_ENDRECORD]: moreFields -> 
+[moreFields, TK_ELSE]: 
+[moreFields, TK_AND]: 
+[moreFields, TK_OR]: 
+[moreFields, TK_NOT]: 
+[moreFields, TK_LT]: 
+[moreFields, TK_LE]: 
+[moreFields, TK_EQ]: 
+[moreFields, TK_GT]: 
+[moreFields, TK_GE]: 
+[moreFields, TK_NE]: 
+[moreFields, TK_EOF]: 
+----------------------------------
+[more_ids, TK_ASSIGNOP]: 
+[more_ids, TK_COMMENT]: 
+[more_ids, TK_FIELDID]: 
+[more_ids, TK_ID]: 
+[more_ids, TK_NUM]: 
+[more_ids, TK_RNUM]: 
+[more_ids, TK_FUNID]: 
+[more_ids, TK_RUID]: 
+[more_ids, TK_WITH]: 
+[more_ids, TK_PARAMETERS]: 
+[more_ids, TK_END]: 
+[more_ids, TK_WHILE]: 
+[more_ids, TK_UNION]: 
+[more_ids, TK_ENDUNION]: 
+[more_ids, TK_DEFINETYPE]: 
+[more_ids, TK_AS]: 
+[more_ids, TK_TYPE]: 
+[more_ids, TK_MAIN]: 
+[more_ids, TK_GLOBAL]: 
+[more_ids, TK_PARAMETER]: 
+[more_ids, TK_LIST]: 
+[more_ids, TK_SQL]: 
+[more_ids, TK_SQR]: more_ids -> 
+[more_ids, TK_INPUT]: 
+[more_ids, TK_OUTPUT]: 
+[more_ids, TK_INT]: 
+[more_ids, TK_REAL]: 
+[more_ids, TK_COMMA]: more_ids -> TK_COMMA idList 
+[more_ids, TK_SEM]: 
+[more_ids, TK_COLON]: 
+[more_ids, TK_DOT]: 
+[more_ids, TK_ENDWHILE]: 
+[more_ids, TK_OP]: 
+[more_ids, TK_CL]: 
+[more_ids, TK_IF]: 
+[more_ids, TK_THEN]: 
+[more_ids, TK_ENDIF]: 
+[more_ids, TK_READ]: 
+[more_ids, TK_WRITE]: 
+[more_ids, TK_RETURN]: 
+[more_ids, TK_PLUS]: 
+[more_ids, TK_MINUS]: 
+[more_ids, TK_MUL]: 
+[more_ids, TK_DIV]: 
+[more_ids, TK_CALL]: 
+[more_ids, TK_RECORD]: 
+[more_ids, TK_ENDRECORD]: 
+[more_ids, TK_ELSE]: 
+[more_ids, TK_AND]: 
+[more_ids, TK_OR]: 
+[more_ids, TK_NOT]: 
+[more_ids, TK_LT]: 
+[more_ids, TK_LE]: 
+[more_ids, TK_EQ]: 
+[more_ids, TK_GT]: 
+[more_ids, TK_GE]: 
+[more_ids, TK_NE]: 
+[more_ids, TK_EOF]: 
+----------------------------------
+[oneExpansion, TK_ASSIGNOP]: 
+[oneExpansion, TK_COMMENT]: 
+[oneExpansion, TK_FIELDID]: 
+[oneExpansion, TK_ID]: 
+[oneExpansion, TK_NUM]: 
+[oneExpansion, TK_RNUM]: 
+[oneExpansion, TK_FUNID]: 
+[oneExpansion, TK_RUID]: 
+[oneExpansion, TK_WITH]: 
+[oneExpansion, TK_PARAMETERS]: 
+[oneExpansion, TK_END]: 
+[oneExpansion, TK_WHILE]: 
+[oneExpansion, TK_UNION]: 
+[oneExpansion, TK_ENDUNION]: 
+[oneExpansion, TK_DEFINETYPE]: 
+[oneExpansion, TK_AS]: 
+[oneExpansion, TK_TYPE]: 
+[oneExpansion, TK_MAIN]: 
+[oneExpansion, TK_GLOBAL]: 
+[oneExpansion, TK_PARAMETER]: 
+[oneExpansion, TK_LIST]: 
+[oneExpansion, TK_SQL]: 
+[oneExpansion, TK_SQR]: 
+[oneExpansion, TK_INPUT]: 
+[oneExpansion, TK_OUTPUT]: 
+[oneExpansion, TK_INT]: 
+[oneExpansion, TK_REAL]: 
+[oneExpansion, TK_COMMA]: 
+[oneExpansion, TK_SEM]: 
+[oneExpansion, TK_COLON]: 
+[oneExpansion, TK_DOT]: oneExpansion -> TK_DOT TK_FIELDID 
+[oneExpansion, TK_ENDWHILE]: 
+[oneExpansion, TK_OP]: 
+[oneExpansion, TK_CL]: 
+[oneExpansion, TK_IF]: 
+[oneExpansion, TK_THEN]: 
+[oneExpansion, TK_ENDIF]: 
+[oneExpansion, TK_READ]: 
+[oneExpansion, TK_WRITE]: 
+[oneExpansion, TK_RETURN]: 
+[oneExpansion, TK_PLUS]: 
+[oneExpansion, TK_MINUS]: 
+[oneExpansion, TK_MUL]: 
+[oneExpansion, TK_DIV]: 
+[oneExpansion, TK_CALL]: 
+[oneExpansion, TK_RECORD]: 
+[oneExpansion, TK_ENDRECORD]: 
+[oneExpansion, TK_ELSE]: 
+[oneExpansion, TK_AND]: 
+[oneExpansion, TK_OR]: 
+[oneExpansion, TK_NOT]: 
+[oneExpansion, TK_LT]: 
+[oneExpansion, TK_LE]: 
+[oneExpansion, TK_EQ]: 
+[oneExpansion, TK_GT]: 
+[oneExpansion, TK_GE]: 
+[oneExpansion, TK_NE]: 
+[oneExpansion, TK_EOF]: 
+----------------------------------
+[optionalReturn, TK_ASSIGNOP]: 
+[optionalReturn, TK_COMMENT]: 
+[optionalReturn, TK_FIELDID]: 
+[optionalReturn, TK_ID]: 
+[optionalReturn, TK_NUM]: 
+[optionalReturn, TK_RNUM]: 
+[optionalReturn, TK_FUNID]: 
+[optionalReturn, TK_RUID]: 
+[optionalReturn, TK_WITH]: 
+[optionalReturn, TK_PARAMETERS]: 
+[optionalReturn, TK_END]: 
+[optionalReturn, TK_WHILE]: 
+[optionalReturn, TK_UNION]: 
+[optionalReturn, TK_ENDUNION]: 
+[optionalReturn, TK_DEFINETYPE]: 
+[optionalReturn, TK_AS]: 
+[optionalReturn, TK_TYPE]: 
+[optionalReturn, TK_MAIN]: 
+[optionalReturn, TK_GLOBAL]: 
+[optionalReturn, TK_PARAMETER]: 
+[optionalReturn, TK_LIST]: 
+[optionalReturn, TK_SQL]: optionalReturn -> TK_SQL idList TK_SQR 
+[optionalReturn, TK_SQR]: 
+[optionalReturn, TK_INPUT]: 
+[optionalReturn, TK_OUTPUT]: 
+[optionalReturn, TK_INT]: 
+[optionalReturn, TK_REAL]: 
+[optionalReturn, TK_COMMA]: 
+[optionalReturn, TK_SEM]: optionalReturn -> 
+[optionalReturn, TK_COLON]: 
+[optionalReturn, TK_DOT]: 
+[optionalReturn, TK_ENDWHILE]: 
+[optionalReturn, TK_OP]: 
+[optionalReturn, TK_CL]: 
+[optionalReturn, TK_IF]: 
+[optionalReturn, TK_THEN]: 
+[optionalReturn, TK_ENDIF]: 
+[optionalReturn, TK_READ]: 
+[optionalReturn, TK_WRITE]: 
+[optionalReturn, TK_RETURN]: 
+[optionalReturn, TK_PLUS]: 
+[optionalReturn, TK_MINUS]: 
+[optionalReturn, TK_MUL]: 
+[optionalReturn, TK_DIV]: 
+[optionalReturn, TK_CALL]: 
+[optionalReturn, TK_RECORD]: 
+[optionalReturn, TK_ENDRECORD]: 
+[optionalReturn, TK_ELSE]: 
+[optionalReturn, TK_AND]: 
+[optionalReturn, TK_OR]: 
+[optionalReturn, TK_NOT]: 
+[optionalReturn, TK_LT]: 
+[optionalReturn, TK_LE]: 
+[optionalReturn, TK_EQ]: 
+[optionalReturn, TK_GT]: 
+[optionalReturn, TK_GE]: 
+[optionalReturn, TK_NE]: 
+[optionalReturn, TK_EOF]: 
+----------------------------------
+[option_single_constructed, TK_ASSIGNOP]: option_single_constructed -> 
+[option_single_constructed, TK_COMMENT]: 
+[option_single_constructed, TK_FIELDID]: 
+[option_single_constructed, TK_ID]: 
+[option_single_constructed, TK_NUM]: 
+[option_single_constructed, TK_RNUM]: 
+[option_single_constructed, TK_FUNID]: 
+[option_single_constructed, TK_RUID]: 
+[option_single_constructed, TK_WITH]: 
+[option_single_constructed, TK_PARAMETERS]: 
+[option_single_constructed, TK_END]: 
+[option_single_constructed, TK_WHILE]: 
+[option_single_constructed, TK_UNION]: 
+[option_single_constructed, TK_ENDUNION]: 
+[option_single_constructed, TK_DEFINETYPE]: 
+[option_single_constructed, TK_AS]: 
+[option_single_constructed, TK_TYPE]: 
+[option_single_constructed, TK_MAIN]: 
+[option_single_constructed, TK_GLOBAL]: 
+[option_single_constructed, TK_PARAMETER]: 
+[option_single_constructed, TK_LIST]: 
+[option_single_constructed, TK_SQL]: 
+[option_single_constructed, TK_SQR]: 
+[option_single_constructed, TK_INPUT]: 
+[option_single_constructed, TK_OUTPUT]: 
+[option_single_constructed, TK_INT]: 
+[option_single_constructed, TK_REAL]: 
+[option_single_constructed, TK_COMMA]: 
+[option_single_constructed, TK_SEM]: 
+[option_single_constructed, TK_COLON]: 
+[option_single_constructed, TK_DOT]: option_single_constructed -> oneExpansion moreExpansions 
+[option_single_constructed, TK_ENDWHILE]: 
+[option_single_constructed, TK_OP]: 
+[option_single_constructed, TK_CL]: option_single_constructed -> 
+[option_single_constructed, TK_IF]: 
+[option_single_constructed, TK_THEN]: 
+[option_single_constructed, TK_ENDIF]: 
+[option_single_constructed, TK_READ]: 
+[option_single_constructed, TK_WRITE]: 
+[option_single_constructed, TK_RETURN]: 
+[option_single_constructed, TK_PLUS]: 
+[option_single_constructed, TK_MINUS]: 
+[option_single_constructed, TK_MUL]: option_single_constructed -> 
+[option_single_constructed, TK_DIV]: option_single_constructed -> 
+[option_single_constructed, TK_CALL]: 
+[option_single_constructed, TK_RECORD]: 
+[option_single_constructed, TK_ENDRECORD]: 
+[option_single_constructed, TK_ELSE]: 
+[option_single_constructed, TK_AND]: 
+[option_single_constructed, TK_OR]: 
+[option_single_constructed, TK_NOT]: 
+[option_single_constructed, TK_LT]: option_single_constructed -> 
+[option_single_constructed, TK_LE]: option_single_constructed -> 
+[option_single_constructed, TK_EQ]: option_single_constructed -> 
+[option_single_constructed, TK_GT]: option_single_constructed -> 
+[option_single_constructed, TK_GE]: option_single_constructed -> 
+[option_single_constructed, TK_NE]: option_single_constructed -> 
+[option_single_constructed, TK_EOF]: 
+----------------------------------
+[otherFunctions, TK_ASSIGNOP]: 
+[otherFunctions, TK_COMMENT]: 
+[otherFunctions, TK_FIELDID]: 
+[otherFunctions, TK_ID]: 
+[otherFunctions, TK_NUM]: 
+[otherFunctions, TK_RNUM]: 
+[otherFunctions, TK_FUNID]: otherFunctions -> function otherFunctions 
+[otherFunctions, TK_RUID]: 
+[otherFunctions, TK_WITH]: 
+[otherFunctions, TK_PARAMETERS]: 
+[otherFunctions, TK_END]: 
+[otherFunctions, TK_WHILE]: 
+[otherFunctions, TK_UNION]: 
+[otherFunctions, TK_ENDUNION]: 
+[otherFunctions, TK_DEFINETYPE]: 
+[otherFunctions, TK_AS]: 
+[otherFunctions, TK_TYPE]: 
+[otherFunctions, TK_MAIN]: otherFunctions -> 
+[otherFunctions, TK_GLOBAL]: 
+[otherFunctions, TK_PARAMETER]: 
+[otherFunctions, TK_LIST]: 
+[otherFunctions, TK_SQL]: 
+[otherFunctions, TK_SQR]: 
+[otherFunctions, TK_INPUT]: 
+[otherFunctions, TK_OUTPUT]: 
+[otherFunctions, TK_INT]: 
+[otherFunctions, TK_REAL]: 
+[otherFunctions, TK_COMMA]: 
+[otherFunctions, TK_SEM]: 
+[otherFunctions, TK_COLON]: 
+[otherFunctions, TK_DOT]: 
+[otherFunctions, TK_ENDWHILE]: 
+[otherFunctions, TK_OP]: 
+[otherFunctions, TK_CL]: 
+[otherFunctions, TK_IF]: 
+[otherFunctions, TK_THEN]: 
+[otherFunctions, TK_ENDIF]: 
+[otherFunctions, TK_READ]: 
+[otherFunctions, TK_WRITE]: 
+[otherFunctions, TK_RETURN]: 
+[otherFunctions, TK_PLUS]: 
+[otherFunctions, TK_MINUS]: 
+[otherFunctions, TK_MUL]: 
+[otherFunctions, TK_DIV]: 
+[otherFunctions, TK_CALL]: 
+[otherFunctions, TK_RECORD]: 
+[otherFunctions, TK_ENDRECORD]: 
+[otherFunctions, TK_ELSE]: 
+[otherFunctions, TK_AND]: 
+[otherFunctions, TK_OR]: 
+[otherFunctions, TK_NOT]: 
+[otherFunctions, TK_LT]: 
+[otherFunctions, TK_LE]: 
+[otherFunctions, TK_EQ]: 
+[otherFunctions, TK_GT]: 
+[otherFunctions, TK_GE]: 
+[otherFunctions, TK_NE]: 
+[otherFunctions, TK_EOF]: 
+----------------------------------
+[otherStmts, TK_ASSIGNOP]: 
+[otherStmts, TK_COMMENT]: 
+[otherStmts, TK_FIELDID]: 
+[otherStmts, TK_ID]: otherStmts -> stmt otherStmts 
+[otherStmts, TK_NUM]: 
+[otherStmts, TK_RNUM]: 
+[otherStmts, TK_FUNID]: 
+[otherStmts, TK_RUID]: 
+[otherStmts, TK_WITH]: 
+[otherStmts, TK_PARAMETERS]: 
+[otherStmts, TK_END]: 
+[otherStmts, TK_WHILE]: otherStmts -> stmt otherStmts 
+[otherStmts, TK_UNION]: 
+[otherStmts, TK_ENDUNION]: 
+[otherStmts, TK_DEFINETYPE]: 
+[otherStmts, TK_AS]: 
+[otherStmts, TK_TYPE]: 
+[otherStmts, TK_MAIN]: 
+[otherStmts, TK_GLOBAL]: 
+[otherStmts, TK_PARAMETER]: 
+[otherStmts, TK_LIST]: 
+[otherStmts, TK_SQL]: otherStmts -> stmt otherStmts 
+[otherStmts, TK_SQR]: 
+[otherStmts, TK_INPUT]: 
+[otherStmts, TK_OUTPUT]: 
+[otherStmts, TK_INT]: 
+[otherStmts, TK_REAL]: 
+[otherStmts, TK_COMMA]: 
+[otherStmts, TK_SEM]: 
+[otherStmts, TK_COLON]: 
+[otherStmts, TK_DOT]: 
+[otherStmts, TK_ENDWHILE]: otherStmts -> 
+[otherStmts, TK_OP]: 
+[otherStmts, TK_CL]: 
+[otherStmts, TK_IF]: otherStmts -> stmt otherStmts 
+[otherStmts, TK_THEN]: 
+[otherStmts, TK_ENDIF]: otherStmts -> 
+[otherStmts, TK_READ]: otherStmts -> stmt otherStmts 
+[otherStmts, TK_WRITE]: otherStmts -> stmt otherStmts 
+[otherStmts, TK_RETURN]: otherStmts -> 
+[otherStmts, TK_PLUS]: 
+[otherStmts, TK_MINUS]: 
+[otherStmts, TK_MUL]: 
+[otherStmts, TK_DIV]: 
+[otherStmts, TK_CALL]: 
+[otherStmts, TK_RECORD]: 
+[otherStmts, TK_ENDRECORD]: 
+[otherStmts, TK_ELSE]: otherStmts -> 
+[otherStmts, TK_AND]: 
+[otherStmts, TK_OR]: 
+[otherStmts, TK_NOT]: 
+[otherStmts, TK_LT]: 
+[otherStmts, TK_LE]: 
+[otherStmts, TK_EQ]: 
+[otherStmts, TK_GT]: 
+[otherStmts, TK_GE]: 
+[otherStmts, TK_NE]: 
+[otherStmts, TK_EOF]: 
+----------------------------------
+[output_par, TK_ASSIGNOP]: 
+[output_par, TK_COMMENT]: 
+[output_par, TK_FIELDID]: 
+[output_par, TK_ID]: 
+[output_par, TK_NUM]: 
+[output_par, TK_RNUM]: 
+[output_par, TK_FUNID]: 
+[output_par, TK_RUID]: 
+[output_par, TK_WITH]: 
+[output_par, TK_PARAMETERS]: 
+[output_par, TK_END]: 
+[output_par, TK_WHILE]: 
+[output_par, TK_UNION]: 
+[output_par, TK_ENDUNION]: 
+[output_par, TK_DEFINETYPE]: 
+[output_par, TK_AS]: 
+[output_par, TK_TYPE]: 
+[output_par, TK_MAIN]: 
+[output_par, TK_GLOBAL]: 
+[output_par, TK_PARAMETER]: 
+[output_par, TK_LIST]: 
+[output_par, TK_SQL]: 
+[output_par, TK_SQR]: 
+[output_par, TK_INPUT]: 
+[output_par, TK_OUTPUT]: output_par -> TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
+[output_par, TK_INT]: 
+[output_par, TK_REAL]: 
+[output_par, TK_COMMA]: 
+[output_par, TK_SEM]: output_par -> 
+[output_par, TK_COLON]: 
+[output_par, TK_DOT]: 
+[output_par, TK_ENDWHILE]: 
+[output_par, TK_OP]: 
+[output_par, TK_CL]: 
+[output_par, TK_IF]: 
+[output_par, TK_THEN]: 
+[output_par, TK_ENDIF]: 
+[output_par, TK_READ]: 
+[output_par, TK_WRITE]: 
+[output_par, TK_RETURN]: 
+[output_par, TK_PLUS]: 
+[output_par, TK_MINUS]: 
+[output_par, TK_MUL]: 
+[output_par, TK_DIV]: 
+[output_par, TK_CALL]: 
+[output_par, TK_RECORD]: 
+[output_par, TK_ENDRECORD]: 
+[output_par, TK_ELSE]: 
+[output_par, TK_AND]: 
+[output_par, TK_OR]: 
+[output_par, TK_NOT]: 
+[output_par, TK_LT]: 
+[output_par, TK_LE]: 
+[output_par, TK_EQ]: 
+[output_par, TK_GT]: 
+[output_par, TK_GE]: 
+[output_par, TK_NE]: 
+[output_par, TK_EOF]: 
+----------------------------------
+[outputParameters, TK_ASSIGNOP]: 
+[outputParameters, TK_COMMENT]: 
+[outputParameters, TK_FIELDID]: 
+[outputParameters, TK_ID]: 
+[outputParameters, TK_NUM]: 
+[outputParameters, TK_RNUM]: 
+[outputParameters, TK_FUNID]: 
+[outputParameters, TK_RUID]: 
+[outputParameters, TK_WITH]: 
+[outputParameters, TK_PARAMETERS]: 
+[outputParameters, TK_END]: 
+[outputParameters, TK_WHILE]: 
+[outputParameters, TK_UNION]: 
+[outputParameters, TK_ENDUNION]: 
+[outputParameters, TK_DEFINETYPE]: 
+[outputParameters, TK_AS]: 
+[outputParameters, TK_TYPE]: 
+[outputParameters, TK_MAIN]: 
+[outputParameters, TK_GLOBAL]: 
+[outputParameters, TK_PARAMETER]: 
+[outputParameters, TK_LIST]: 
+[outputParameters, TK_SQL]: outputParameters -> TK_SQL idList TK_SQR TK_ASSIGNOP 
+[outputParameters, TK_SQR]: 
+[outputParameters, TK_INPUT]: 
+[outputParameters, TK_OUTPUT]: 
+[outputParameters, TK_INT]: 
+[outputParameters, TK_REAL]: 
+[outputParameters, TK_COMMA]: 
+[outputParameters, TK_SEM]: 
+[outputParameters, TK_COLON]: 
+[outputParameters, TK_DOT]: 
+[outputParameters, TK_ENDWHILE]: 
+[outputParameters, TK_OP]: 
+[outputParameters, TK_CL]: 
+[outputParameters, TK_IF]: 
+[outputParameters, TK_THEN]: 
+[outputParameters, TK_ENDIF]: 
+[outputParameters, TK_READ]: 
+[outputParameters, TK_WRITE]: 
+[outputParameters, TK_RETURN]: 
+[outputParameters, TK_PLUS]: 
+[outputParameters, TK_MINUS]: 
+[outputParameters, TK_MUL]: 
+[outputParameters, TK_DIV]: 
+[outputParameters, TK_CALL]: outputParameters -> 
+[outputParameters, TK_RECORD]: 
+[outputParameters, TK_ENDRECORD]: 
+[outputParameters, TK_ELSE]: 
+[outputParameters, TK_AND]: 
+[outputParameters, TK_OR]: 
+[outputParameters, TK_NOT]: 
+[outputParameters, TK_LT]: 
+[outputParameters, TK_LE]: 
+[outputParameters, TK_EQ]: 
+[outputParameters, TK_GT]: 
+[outputParameters, TK_GE]: 
+[outputParameters, TK_NE]: 
+[outputParameters, TK_EOF]: 
+----------------------------------
+[parameter_list, TK_ASSIGNOP]: 
+[parameter_list, TK_COMMENT]: 
+[parameter_list, TK_FIELDID]: 
+[parameter_list, TK_ID]: 
+[parameter_list, TK_NUM]: 
+[parameter_list, TK_RNUM]: 
+[parameter_list, TK_FUNID]: 
+[parameter_list, TK_RUID]: parameter_list -> dataType TK_ID remaining_list 
+[parameter_list, TK_WITH]: 
+[parameter_list, TK_PARAMETERS]: 
+[parameter_list, TK_END]: 
+[parameter_list, TK_WHILE]: 
+[parameter_list, TK_UNION]: parameter_list -> dataType TK_ID remaining_list 
+[parameter_list, TK_ENDUNION]: 
+[parameter_list, TK_DEFINETYPE]: 
+[parameter_list, TK_AS]: 
+[parameter_list, TK_TYPE]: 
+[parameter_list, TK_MAIN]: 
+[parameter_list, TK_GLOBAL]: 
+[parameter_list, TK_PARAMETER]: 
+[parameter_list, TK_LIST]: 
+[parameter_list, TK_SQL]: 
+[parameter_list, TK_SQR]: 
+[parameter_list, TK_INPUT]: 
+[parameter_list, TK_OUTPUT]: 
+[parameter_list, TK_INT]: parameter_list -> dataType TK_ID remaining_list 
+[parameter_list, TK_REAL]: parameter_list -> dataType TK_ID remaining_list 
+[parameter_list, TK_COMMA]: 
+[parameter_list, TK_SEM]: 
+[parameter_list, TK_COLON]: 
+[parameter_list, TK_DOT]: 
+[parameter_list, TK_ENDWHILE]: 
+[parameter_list, TK_OP]: 
+[parameter_list, TK_CL]: 
+[parameter_list, TK_IF]: 
+[parameter_list, TK_THEN]: 
+[parameter_list, TK_ENDIF]: 
+[parameter_list, TK_READ]: 
+[parameter_list, TK_WRITE]: 
+[parameter_list, TK_RETURN]: 
+[parameter_list, TK_PLUS]: 
+[parameter_list, TK_MINUS]: 
+[parameter_list, TK_MUL]: 
+[parameter_list, TK_DIV]: 
+[parameter_list, TK_CALL]: 
+[parameter_list, TK_RECORD]: parameter_list -> dataType TK_ID remaining_list 
+[parameter_list, TK_ENDRECORD]: 
+[parameter_list, TK_ELSE]: 
+[parameter_list, TK_AND]: 
+[parameter_list, TK_OR]: 
+[parameter_list, TK_NOT]: 
+[parameter_list, TK_LT]: 
+[parameter_list, TK_LE]: 
+[parameter_list, TK_EQ]: 
+[parameter_list, TK_GT]: 
+[parameter_list, TK_GE]: 
+[parameter_list, TK_NE]: 
+[parameter_list, TK_EOF]: 
+----------------------------------
+[primitiveDatatype, TK_ASSIGNOP]: 
+[primitiveDatatype, TK_COMMENT]: 
+[primitiveDatatype, TK_FIELDID]: 
+[primitiveDatatype, TK_ID]: 
+[primitiveDatatype, TK_NUM]: 
+[primitiveDatatype, TK_RNUM]: 
+[primitiveDatatype, TK_FUNID]: 
+[primitiveDatatype, TK_RUID]: 
+[primitiveDatatype, TK_WITH]: 
+[primitiveDatatype, TK_PARAMETERS]: 
+[primitiveDatatype, TK_END]: 
+[primitiveDatatype, TK_WHILE]: 
+[primitiveDatatype, TK_UNION]: 
+[primitiveDatatype, TK_ENDUNION]: 
+[primitiveDatatype, TK_DEFINETYPE]: 
+[primitiveDatatype, TK_AS]: 
+[primitiveDatatype, TK_TYPE]: 
+[primitiveDatatype, TK_MAIN]: 
+[primitiveDatatype, TK_GLOBAL]: 
+[primitiveDatatype, TK_PARAMETER]: 
+[primitiveDatatype, TK_LIST]: 
+[primitiveDatatype, TK_SQL]: 
+[primitiveDatatype, TK_SQR]: 
+[primitiveDatatype, TK_INPUT]: 
+[primitiveDatatype, TK_OUTPUT]: 
+[primitiveDatatype, TK_INT]: primitiveDatatype -> TK_INT 
+[primitiveDatatype, TK_REAL]: primitiveDatatype -> TK_REAL 
+[primitiveDatatype, TK_COMMA]: 
+[primitiveDatatype, TK_SEM]: 
+[primitiveDatatype, TK_COLON]: 
+[primitiveDatatype, TK_DOT]: 
+[primitiveDatatype, TK_ENDWHILE]: 
+[primitiveDatatype, TK_OP]: 
+[primitiveDatatype, TK_CL]: 
+[primitiveDatatype, TK_IF]: 
+[primitiveDatatype, TK_THEN]: 
+[primitiveDatatype, TK_ENDIF]: 
+[primitiveDatatype, TK_READ]: 
+[primitiveDatatype, TK_WRITE]: 
+[primitiveDatatype, TK_RETURN]: 
+[primitiveDatatype, TK_PLUS]: 
+[primitiveDatatype, TK_MINUS]: 
+[primitiveDatatype, TK_MUL]: 
+[primitiveDatatype, TK_DIV]: 
+[primitiveDatatype, TK_CALL]: 
+[primitiveDatatype, TK_RECORD]: 
+[primitiveDatatype, TK_ENDRECORD]: 
+[primitiveDatatype, TK_ELSE]: 
+[primitiveDatatype, TK_AND]: 
+[primitiveDatatype, TK_OR]: 
+[primitiveDatatype, TK_NOT]: 
+[primitiveDatatype, TK_LT]: 
+[primitiveDatatype, TK_LE]: 
+[primitiveDatatype, TK_EQ]: 
+[primitiveDatatype, TK_GT]: 
+[primitiveDatatype, TK_GE]: 
+[primitiveDatatype, TK_NE]: 
+[primitiveDatatype, TK_EOF]: 
+----------------------------------
+[program, TK_ASSIGNOP]: 
+[program, TK_COMMENT]: 
+[program, TK_FIELDID]: 
+[program, TK_ID]: 
+[program, TK_NUM]: 
+[program, TK_RNUM]: 
+[program, TK_FUNID]: program -> otherFunctions mainFunction 
+[program, TK_RUID]: 
+[program, TK_WITH]: 
+[program, TK_PARAMETERS]: 
+[program, TK_END]: 
+[program, TK_WHILE]: 
+[program, TK_UNION]: 
+[program, TK_ENDUNION]: 
+[program, TK_DEFINETYPE]: 
+[program, TK_AS]: 
+[program, TK_TYPE]: 
+[program, TK_MAIN]: 
+[program, TK_GLOBAL]: 
+[program, TK_PARAMETER]: 
+[program, TK_LIST]: 
+[program, TK_SQL]: 
+[program, TK_SQR]: 
+[program, TK_INPUT]: 
+[program, TK_OUTPUT]: 
+[program, TK_INT]: 
+[program, TK_REAL]: 
+[program, TK_COMMA]: 
+[program, TK_SEM]: 
+[program, TK_COLON]: 
+[program, TK_DOT]: 
+[program, TK_ENDWHILE]: 
+[program, TK_OP]: 
+[program, TK_CL]: 
+[program, TK_IF]: 
+[program, TK_THEN]: 
+[program, TK_ENDIF]: 
+[program, TK_READ]: 
+[program, TK_WRITE]: 
+[program, TK_RETURN]: 
+[program, TK_PLUS]: 
+[program, TK_MINUS]: 
+[program, TK_MUL]: 
+[program, TK_DIV]: 
+[program, TK_CALL]: 
+[program, TK_RECORD]: 
+[program, TK_ENDRECORD]: 
+[program, TK_ELSE]: 
+[program, TK_AND]: 
+[program, TK_OR]: 
+[program, TK_NOT]: 
+[program, TK_LT]: 
+[program, TK_LE]: 
+[program, TK_EQ]: 
+[program, TK_GT]: 
+[program, TK_GE]: 
+[program, TK_NE]: 
+[program, TK_EOF]: 
+----------------------------------
+[recOrUnion, TK_ASSIGNOP]: 
+[recOrUnion, TK_COMMENT]: 
+[recOrUnion, TK_FIELDID]: 
+[recOrUnion, TK_ID]: 
+[recOrUnion, TK_NUM]: 
+[recOrUnion, TK_RNUM]: 
+[recOrUnion, TK_FUNID]: 
+[recOrUnion, TK_RUID]: 
+[recOrUnion, TK_WITH]: 
+[recOrUnion, TK_PARAMETERS]: 
+[recOrUnion, TK_END]: 
+[recOrUnion, TK_WHILE]: 
+[recOrUnion, TK_UNION]: recOrUnion -> TK_UNION 
+[recOrUnion, TK_ENDUNION]: 
+[recOrUnion, TK_DEFINETYPE]: 
+[recOrUnion, TK_AS]: 
+[recOrUnion, TK_TYPE]: 
+[recOrUnion, TK_MAIN]: 
+[recOrUnion, TK_GLOBAL]: 
+[recOrUnion, TK_PARAMETER]: 
+[recOrUnion, TK_LIST]: 
+[recOrUnion, TK_SQL]: 
+[recOrUnion, TK_SQR]: 
+[recOrUnion, TK_INPUT]: 
+[recOrUnion, TK_OUTPUT]: 
+[recOrUnion, TK_INT]: 
+[recOrUnion, TK_REAL]: 
+[recOrUnion, TK_COMMA]: 
+[recOrUnion, TK_SEM]: 
+[recOrUnion, TK_COLON]: 
+[recOrUnion, TK_DOT]: 
+[recOrUnion, TK_ENDWHILE]: 
+[recOrUnion, TK_OP]: 
+[recOrUnion, TK_CL]: 
+[recOrUnion, TK_IF]: 
+[recOrUnion, TK_THEN]: 
+[recOrUnion, TK_ENDIF]: 
+[recOrUnion, TK_READ]: 
+[recOrUnion, TK_WRITE]: 
+[recOrUnion, TK_RETURN]: 
+[recOrUnion, TK_PLUS]: 
+[recOrUnion, TK_MINUS]: 
+[recOrUnion, TK_MUL]: 
+[recOrUnion, TK_DIV]: 
+[recOrUnion, TK_CALL]: 
+[recOrUnion, TK_RECORD]: recOrUnion -> TK_RECORD 
+[recOrUnion, TK_ENDRECORD]: 
+[recOrUnion, TK_ELSE]: 
+[recOrUnion, TK_AND]: 
+[recOrUnion, TK_OR]: 
+[recOrUnion, TK_NOT]: 
+[recOrUnion, TK_LT]: 
+[recOrUnion, TK_LE]: 
+[recOrUnion, TK_EQ]: 
+[recOrUnion, TK_GT]: 
+[recOrUnion, TK_GE]: 
+[recOrUnion, TK_NE]: 
+[recOrUnion, TK_EOF]: 
+----------------------------------
+[relationalOp, TK_ASSIGNOP]: 
+[relationalOp, TK_COMMENT]: 
+[relationalOp, TK_FIELDID]: 
+[relationalOp, TK_ID]: 
+[relationalOp, TK_NUM]: 
+[relationalOp, TK_RNUM]: 
+[relationalOp, TK_FUNID]: 
+[relationalOp, TK_RUID]: 
+[relationalOp, TK_WITH]: 
+[relationalOp, TK_PARAMETERS]: 
+[relationalOp, TK_END]: 
+[relationalOp, TK_WHILE]: 
+[relationalOp, TK_UNION]: 
+[relationalOp, TK_ENDUNION]: 
+[relationalOp, TK_DEFINETYPE]: 
+[relationalOp, TK_AS]: 
+[relationalOp, TK_TYPE]: 
+[relationalOp, TK_MAIN]: 
+[relationalOp, TK_GLOBAL]: 
+[relationalOp, TK_PARAMETER]: 
+[relationalOp, TK_LIST]: 
+[relationalOp, TK_SQL]: 
+[relationalOp, TK_SQR]: 
+[relationalOp, TK_INPUT]: 
+[relationalOp, TK_OUTPUT]: 
+[relationalOp, TK_INT]: 
+[relationalOp, TK_REAL]: 
+[relationalOp, TK_COMMA]: 
+[relationalOp, TK_SEM]: 
+[relationalOp, TK_COLON]: 
+[relationalOp, TK_DOT]: 
+[relationalOp, TK_ENDWHILE]: 
+[relationalOp, TK_OP]: 
+[relationalOp, TK_CL]: 
+[relationalOp, TK_IF]: 
+[relationalOp, TK_THEN]: 
+[relationalOp, TK_ENDIF]: 
+[relationalOp, TK_READ]: 
+[relationalOp, TK_WRITE]: 
+[relationalOp, TK_RETURN]: 
+[relationalOp, TK_PLUS]: 
+[relationalOp, TK_MINUS]: 
+[relationalOp, TK_MUL]: 
+[relationalOp, TK_DIV]: 
+[relationalOp, TK_CALL]: 
+[relationalOp, TK_RECORD]: 
+[relationalOp, TK_ENDRECORD]: 
+[relationalOp, TK_ELSE]: 
+[relationalOp, TK_AND]: 
+[relationalOp, TK_OR]: 
+[relationalOp, TK_NOT]: 
+[relationalOp, TK_LT]: relationalOp -> TK_LT 
+[relationalOp, TK_LE]: relationalOp -> TK_LE 
+[relationalOp, TK_EQ]: relationalOp -> TK_EQ 
+[relationalOp, TK_GT]: relationalOp -> TK_GT 
+[relationalOp, TK_GE]: relationalOp -> TK_GE 
+[relationalOp, TK_NE]: relationalOp -> TK_NE 
+[relationalOp, TK_EOF]: 
+----------------------------------
+[remaining_list, TK_ASSIGNOP]: 
+[remaining_list, TK_COMMENT]: 
+[remaining_list, TK_FIELDID]: 
+[remaining_list, TK_ID]: 
+[remaining_list, TK_NUM]: 
+[remaining_list, TK_RNUM]: 
+[remaining_list, TK_FUNID]: 
+[remaining_list, TK_RUID]: 
+[remaining_list, TK_WITH]: 
+[remaining_list, TK_PARAMETERS]: 
+[remaining_list, TK_END]: 
+[remaining_list, TK_WHILE]: 
+[remaining_list, TK_UNION]: 
+[remaining_list, TK_ENDUNION]: 
+[remaining_list, TK_DEFINETYPE]: 
+[remaining_list, TK_AS]: 
+[remaining_list, TK_TYPE]: 
+[remaining_list, TK_MAIN]: 
+[remaining_list, TK_GLOBAL]: 
+[remaining_list, TK_PARAMETER]: 
+[remaining_list, TK_LIST]: 
+[remaining_list, TK_SQL]: 
+[remaining_list, TK_SQR]: remaining_list -> 
+[remaining_list, TK_INPUT]: 
+[remaining_list, TK_OUTPUT]: 
+[remaining_list, TK_INT]: 
+[remaining_list, TK_REAL]: 
+[remaining_list, TK_COMMA]: remaining_list -> TK_COMMA parameter_list 
+[remaining_list, TK_SEM]: 
+[remaining_list, TK_COLON]: 
+[remaining_list, TK_DOT]: 
+[remaining_list, TK_ENDWHILE]: 
+[remaining_list, TK_OP]: 
+[remaining_list, TK_CL]: 
+[remaining_list, TK_IF]: 
+[remaining_list, TK_THEN]: 
+[remaining_list, TK_ENDIF]: 
+[remaining_list, TK_READ]: 
+[remaining_list, TK_WRITE]: 
+[remaining_list, TK_RETURN]: 
+[remaining_list, TK_PLUS]: 
+[remaining_list, TK_MINUS]: 
+[remaining_list, TK_MUL]: 
+[remaining_list, TK_DIV]: 
+[remaining_list, TK_CALL]: 
+[remaining_list, TK_RECORD]: 
+[remaining_list, TK_ENDRECORD]: 
+[remaining_list, TK_ELSE]: 
+[remaining_list, TK_AND]: 
+[remaining_list, TK_OR]: 
+[remaining_list, TK_NOT]: 
+[remaining_list, TK_LT]: 
+[remaining_list, TK_LE]: 
+[remaining_list, TK_EQ]: 
+[remaining_list, TK_GT]: 
+[remaining_list, TK_GE]: 
+[remaining_list, TK_NE]: 
+[remaining_list, TK_EOF]: 
+----------------------------------
+[returnStmt, TK_ASSIGNOP]: 
+[returnStmt, TK_COMMENT]: 
+[returnStmt, TK_FIELDID]: 
+[returnStmt, TK_ID]: 
+[returnStmt, TK_NUM]: 
+[returnStmt, TK_RNUM]: 
+[returnStmt, TK_FUNID]: 
+[returnStmt, TK_RUID]: 
+[returnStmt, TK_WITH]: 
+[returnStmt, TK_PARAMETERS]: 
+[returnStmt, TK_END]: 
+[returnStmt, TK_WHILE]: 
+[returnStmt, TK_UNION]: 
+[returnStmt, TK_ENDUNION]: 
+[returnStmt, TK_DEFINETYPE]: 
+[returnStmt, TK_AS]: 
+[returnStmt, TK_TYPE]: 
+[returnStmt, TK_MAIN]: 
+[returnStmt, TK_GLOBAL]: 
+[returnStmt, TK_PARAMETER]: 
+[returnStmt, TK_LIST]: 
+[returnStmt, TK_SQL]: 
+[returnStmt, TK_SQR]: 
+[returnStmt, TK_INPUT]: 
+[returnStmt, TK_OUTPUT]: 
+[returnStmt, TK_INT]: 
+[returnStmt, TK_REAL]: 
+[returnStmt, TK_COMMA]: 
+[returnStmt, TK_SEM]: 
+[returnStmt, TK_COLON]: 
+[returnStmt, TK_DOT]: 
+[returnStmt, TK_ENDWHILE]: 
+[returnStmt, TK_OP]: 
+[returnStmt, TK_CL]: 
+[returnStmt, TK_IF]: 
+[returnStmt, TK_THEN]: 
+[returnStmt, TK_ENDIF]: 
+[returnStmt, TK_READ]: 
+[returnStmt, TK_WRITE]: 
+[returnStmt, TK_RETURN]: returnStmt -> TK_RETURN optionalReturn TK_SEM 
+[returnStmt, TK_PLUS]: 
+[returnStmt, TK_MINUS]: 
+[returnStmt, TK_MUL]: 
+[returnStmt, TK_DIV]: 
+[returnStmt, TK_CALL]: 
+[returnStmt, TK_RECORD]: 
+[returnStmt, TK_ENDRECORD]: 
+[returnStmt, TK_ELSE]: 
+[returnStmt, TK_AND]: 
+[returnStmt, TK_OR]: 
+[returnStmt, TK_NOT]: 
+[returnStmt, TK_LT]: 
+[returnStmt, TK_LE]: 
+[returnStmt, TK_EQ]: 
+[returnStmt, TK_GT]: 
+[returnStmt, TK_GE]: 
+[returnStmt, TK_NE]: 
+[returnStmt, TK_EOF]: 
+----------------------------------
+[singleOrRecId, TK_ASSIGNOP]: 
+[singleOrRecId, TK_COMMENT]: 
+[singleOrRecId, TK_FIELDID]: 
+[singleOrRecId, TK_ID]: singleOrRecId -> TK_ID option_single_constructed 
+[singleOrRecId, TK_NUM]: 
+[singleOrRecId, TK_RNUM]: 
+[singleOrRecId, TK_FUNID]: 
+[singleOrRecId, TK_RUID]: 
+[singleOrRecId, TK_WITH]: 
+[singleOrRecId, TK_PARAMETERS]: 
+[singleOrRecId, TK_END]: 
+[singleOrRecId, TK_WHILE]: 
+[singleOrRecId, TK_UNION]: 
+[singleOrRecId, TK_ENDUNION]: 
+[singleOrRecId, TK_DEFINETYPE]: 
+[singleOrRecId, TK_AS]: 
+[singleOrRecId, TK_TYPE]: 
+[singleOrRecId, TK_MAIN]: 
+[singleOrRecId, TK_GLOBAL]: 
+[singleOrRecId, TK_PARAMETER]: 
+[singleOrRecId, TK_LIST]: 
+[singleOrRecId, TK_SQL]: 
+[singleOrRecId, TK_SQR]: 
+[singleOrRecId, TK_INPUT]: 
+[singleOrRecId, TK_OUTPUT]: 
+[singleOrRecId, TK_INT]: 
+[singleOrRecId, TK_REAL]: 
+[singleOrRecId, TK_COMMA]: 
+[singleOrRecId, TK_SEM]: 
+[singleOrRecId, TK_COLON]: 
+[singleOrRecId, TK_DOT]: 
+[singleOrRecId, TK_ENDWHILE]: 
+[singleOrRecId, TK_OP]: 
+[singleOrRecId, TK_CL]: 
+[singleOrRecId, TK_IF]: 
+[singleOrRecId, TK_THEN]: 
+[singleOrRecId, TK_ENDIF]: 
+[singleOrRecId, TK_READ]: 
+[singleOrRecId, TK_WRITE]: 
+[singleOrRecId, TK_RETURN]: 
+[singleOrRecId, TK_PLUS]: 
+[singleOrRecId, TK_MINUS]: 
+[singleOrRecId, TK_MUL]: 
+[singleOrRecId, TK_DIV]: 
+[singleOrRecId, TK_CALL]: 
+[singleOrRecId, TK_RECORD]: 
+[singleOrRecId, TK_ENDRECORD]: 
+[singleOrRecId, TK_ELSE]: 
+[singleOrRecId, TK_AND]: 
+[singleOrRecId, TK_OR]: 
+[singleOrRecId, TK_NOT]: 
+[singleOrRecId, TK_LT]: 
+[singleOrRecId, TK_LE]: 
+[singleOrRecId, TK_EQ]: 
+[singleOrRecId, TK_GT]: 
+[singleOrRecId, TK_GE]: 
+[singleOrRecId, TK_NE]: 
+[singleOrRecId, TK_EOF]: 
+----------------------------------
+[stmt, TK_ASSIGNOP]: 
+[stmt, TK_COMMENT]: 
+[stmt, TK_FIELDID]: 
+[stmt, TK_ID]: stmt -> assignmentStmt 
+[stmt, TK_NUM]: 
+[stmt, TK_RNUM]: 
+[stmt, TK_FUNID]: 
+[stmt, TK_RUID]: 
+[stmt, TK_WITH]: 
+[stmt, TK_PARAMETERS]: 
+[stmt, TK_END]: 
+[stmt, TK_WHILE]: stmt -> iterativeStmt 
+[stmt, TK_UNION]: 
+[stmt, TK_ENDUNION]: 
+[stmt, TK_DEFINETYPE]: 
+[stmt, TK_AS]: 
+[stmt, TK_TYPE]: 
+[stmt, TK_MAIN]: 
+[stmt, TK_GLOBAL]: 
+[stmt, TK_PARAMETER]: 
+[stmt, TK_LIST]: 
+[stmt, TK_SQL]: stmt -> funCallStmt 
+[stmt, TK_SQR]: 
+[stmt, TK_INPUT]: 
+[stmt, TK_OUTPUT]: 
+[stmt, TK_INT]: 
+[stmt, TK_REAL]: 
+[stmt, TK_COMMA]: 
+[stmt, TK_SEM]: 
+[stmt, TK_COLON]: 
+[stmt, TK_DOT]: 
+[stmt, TK_ENDWHILE]: 
+[stmt, TK_OP]: 
+[stmt, TK_CL]: 
+[stmt, TK_IF]: stmt -> conditionalStmt 
+[stmt, TK_THEN]: 
+[stmt, TK_ENDIF]: 
+[stmt, TK_READ]: stmt -> ioStmt 
+[stmt, TK_WRITE]: stmt -> ioStmt 
+[stmt, TK_RETURN]: 
+[stmt, TK_PLUS]: 
+[stmt, TK_MINUS]: 
+[stmt, TK_MUL]: 
+[stmt, TK_DIV]: 
+[stmt, TK_CALL]: 
+[stmt, TK_RECORD]: 
+[stmt, TK_ENDRECORD]: 
+[stmt, TK_ELSE]: 
+[stmt, TK_AND]: 
+[stmt, TK_OR]: 
+[stmt, TK_NOT]: 
+[stmt, TK_LT]: 
+[stmt, TK_LE]: 
+[stmt, TK_EQ]: 
+[stmt, TK_GT]: 
+[stmt, TK_GE]: 
+[stmt, TK_NE]: 
+[stmt, TK_EOF]: 
+----------------------------------
+[stmts, TK_ASSIGNOP]: 
+[stmts, TK_COMMENT]: 
+[stmts, TK_FIELDID]: 
+[stmts, TK_ID]: 
+[stmts, TK_NUM]: 
+[stmts, TK_RNUM]: 
+[stmts, TK_FUNID]: 
+[stmts, TK_RUID]: 
+[stmts, TK_WITH]: 
+[stmts, TK_PARAMETERS]: 
+[stmts, TK_END]: 
+[stmts, TK_WHILE]: 
+[stmts, TK_UNION]: stmts -> typeDefinitions declarations otherStmts returnStmt 
+[stmts, TK_ENDUNION]: 
+[stmts, TK_DEFINETYPE]: stmts -> typeDefinitions declarations otherStmts returnStmt 
+[stmts, TK_AS]: 
+[stmts, TK_TYPE]: 
+[stmts, TK_MAIN]: 
+[stmts, TK_GLOBAL]: 
+[stmts, TK_PARAMETER]: 
+[stmts, TK_LIST]: 
+[stmts, TK_SQL]: 
+[stmts, TK_SQR]: 
+[stmts, TK_INPUT]: 
+[stmts, TK_OUTPUT]: 
+[stmts, TK_INT]: 
+[stmts, TK_REAL]: 
+[stmts, TK_COMMA]: 
+[stmts, TK_SEM]: 
+[stmts, TK_COLON]: 
+[stmts, TK_DOT]: 
+[stmts, TK_ENDWHILE]: 
+[stmts, TK_OP]: 
+[stmts, TK_CL]: 
+[stmts, TK_IF]: 
+[stmts, TK_THEN]: 
+[stmts, TK_ENDIF]: 
+[stmts, TK_READ]: 
+[stmts, TK_WRITE]: 
+[stmts, TK_RETURN]: 
+[stmts, TK_PLUS]: 
+[stmts, TK_MINUS]: 
+[stmts, TK_MUL]: 
+[stmts, TK_DIV]: 
+[stmts, TK_CALL]: 
+[stmts, TK_RECORD]: stmts -> typeDefinitions declarations otherStmts returnStmt 
+[stmts, TK_ENDRECORD]: 
+[stmts, TK_ELSE]: 
+[stmts, TK_AND]: 
+[stmts, TK_OR]: 
+[stmts, TK_NOT]: 
+[stmts, TK_LT]: 
+[stmts, TK_LE]: 
+[stmts, TK_EQ]: 
+[stmts, TK_GT]: 
+[stmts, TK_GE]: 
+[stmts, TK_NE]: 
+[stmts, TK_EOF]: 
+----------------------------------
+[term, TK_ASSIGNOP]: 
+[term, TK_COMMENT]: 
+[term, TK_FIELDID]: 
+[term, TK_ID]: term -> factor termPrime 
+[term, TK_NUM]: term -> factor termPrime 
+[term, TK_RNUM]: term -> factor termPrime 
+[term, TK_FUNID]: 
+[term, TK_RUID]: 
+[term, TK_WITH]: 
+[term, TK_PARAMETERS]: 
+[term, TK_END]: 
+[term, TK_WHILE]: 
+[term, TK_UNION]: 
+[term, TK_ENDUNION]: 
+[term, TK_DEFINETYPE]: 
+[term, TK_AS]: 
+[term, TK_TYPE]: 
+[term, TK_MAIN]: 
+[term, TK_GLOBAL]: 
+[term, TK_PARAMETER]: 
+[term, TK_LIST]: 
+[term, TK_SQL]: 
+[term, TK_SQR]: 
+[term, TK_INPUT]: 
+[term, TK_OUTPUT]: 
+[term, TK_INT]: 
+[term, TK_REAL]: 
+[term, TK_COMMA]: 
+[term, TK_SEM]: 
+[term, TK_COLON]: 
+[term, TK_DOT]: 
+[term, TK_ENDWHILE]: 
+[term, TK_OP]: term -> factor termPrime 
+[term, TK_CL]: 
+[term, TK_IF]: 
+[term, TK_THEN]: 
+[term, TK_ENDIF]: 
+[term, TK_READ]: 
+[term, TK_WRITE]: 
+[term, TK_RETURN]: 
+[term, TK_PLUS]: 
+[term, TK_MINUS]: 
+[term, TK_MUL]: 
+[term, TK_DIV]: 
+[term, TK_CALL]: 
+[term, TK_RECORD]: 
+[term, TK_ENDRECORD]: 
+[term, TK_ELSE]: 
+[term, TK_AND]: 
+[term, TK_OR]: 
+[term, TK_NOT]: 
+[term, TK_LT]: 
+[term, TK_LE]: 
+[term, TK_EQ]: 
+[term, TK_GT]: 
+[term, TK_GE]: 
+[term, TK_NE]: 
+[term, TK_EOF]: 
+----------------------------------
+[termPrime, TK_ASSIGNOP]: 
+[termPrime, TK_COMMENT]: 
+[termPrime, TK_FIELDID]: 
+[termPrime, TK_ID]: 
+[termPrime, TK_NUM]: 
+[termPrime, TK_RNUM]: 
+[termPrime, TK_FUNID]: 
+[termPrime, TK_RUID]: 
+[termPrime, TK_WITH]: 
+[termPrime, TK_PARAMETERS]: 
+[termPrime, TK_END]: 
+[termPrime, TK_WHILE]: 
+[termPrime, TK_UNION]: 
+[termPrime, TK_ENDUNION]: 
+[termPrime, TK_DEFINETYPE]: 
+[termPrime, TK_AS]: 
+[termPrime, TK_TYPE]: 
+[termPrime, TK_MAIN]: 
+[termPrime, TK_GLOBAL]: 
+[termPrime, TK_PARAMETER]: 
+[termPrime, TK_LIST]: 
+[termPrime, TK_SQL]: 
+[termPrime, TK_SQR]: 
+[termPrime, TK_INPUT]: 
+[termPrime, TK_OUTPUT]: 
+[termPrime, TK_INT]: 
+[termPrime, TK_REAL]: 
+[termPrime, TK_COMMA]: 
+[termPrime, TK_SEM]: 
+[termPrime, TK_COLON]: 
+[termPrime, TK_DOT]: 
+[termPrime, TK_ENDWHILE]: 
+[termPrime, TK_OP]: 
+[termPrime, TK_CL]: 
+[termPrime, TK_IF]: 
+[termPrime, TK_THEN]: 
+[termPrime, TK_ENDIF]: 
+[termPrime, TK_READ]: 
+[termPrime, TK_WRITE]: 
+[termPrime, TK_RETURN]: 
+[termPrime, TK_PLUS]: termPrime -> 
+[termPrime, TK_MINUS]: termPrime -> 
+[termPrime, TK_MUL]: termPrime -> highPrecedenceOperators factor termPrime 
+[termPrime, TK_DIV]: termPrime -> highPrecedenceOperators factor termPrime 
+[termPrime, TK_CALL]: 
+[termPrime, TK_RECORD]: 
+[termPrime, TK_ENDRECORD]: 
+[termPrime, TK_ELSE]: 
+[termPrime, TK_AND]: 
+[termPrime, TK_OR]: 
+[termPrime, TK_NOT]: 
+[termPrime, TK_LT]: 
+[termPrime, TK_LE]: 
+[termPrime, TK_EQ]: 
+[termPrime, TK_GT]: 
+[termPrime, TK_GE]: 
+[termPrime, TK_NE]: 
+[termPrime, TK_EOF]: 
+----------------------------------
+[typeDefinition, TK_ASSIGNOP]: 
+[typeDefinition, TK_COMMENT]: 
+[typeDefinition, TK_FIELDID]: 
+[typeDefinition, TK_ID]: 
+[typeDefinition, TK_NUM]: 
+[typeDefinition, TK_RNUM]: 
+[typeDefinition, TK_FUNID]: 
+[typeDefinition, TK_RUID]: 
+[typeDefinition, TK_WITH]: 
+[typeDefinition, TK_PARAMETERS]: 
+[typeDefinition, TK_END]: 
+[typeDefinition, TK_WHILE]: 
+[typeDefinition, TK_UNION]: typeDefinition -> TK_UNION TK_RUID fieldDefinitions TK_ENDUNION 
+[typeDefinition, TK_ENDUNION]: 
+[typeDefinition, TK_DEFINETYPE]: 
+[typeDefinition, TK_AS]: 
+[typeDefinition, TK_TYPE]: 
+[typeDefinition, TK_MAIN]: 
+[typeDefinition, TK_GLOBAL]: 
+[typeDefinition, TK_PARAMETER]: 
+[typeDefinition, TK_LIST]: 
+[typeDefinition, TK_SQL]: 
+[typeDefinition, TK_SQR]: 
+[typeDefinition, TK_INPUT]: 
+[typeDefinition, TK_OUTPUT]: 
+[typeDefinition, TK_INT]: 
+[typeDefinition, TK_REAL]: 
+[typeDefinition, TK_COMMA]: 
+[typeDefinition, TK_SEM]: 
+[typeDefinition, TK_COLON]: 
+[typeDefinition, TK_DOT]: 
+[typeDefinition, TK_ENDWHILE]: 
+[typeDefinition, TK_OP]: 
+[typeDefinition, TK_CL]: 
+[typeDefinition, TK_IF]: 
+[typeDefinition, TK_THEN]: 
+[typeDefinition, TK_ENDIF]: 
+[typeDefinition, TK_READ]: 
+[typeDefinition, TK_WRITE]: 
+[typeDefinition, TK_RETURN]: 
+[typeDefinition, TK_PLUS]: 
+[typeDefinition, TK_MINUS]: 
+[typeDefinition, TK_MUL]: 
+[typeDefinition, TK_DIV]: 
+[typeDefinition, TK_CALL]: 
+[typeDefinition, TK_RECORD]: typeDefinition -> TK_RECORD TK_RUID fieldDefinitions TK_ENDRECORD 
+[typeDefinition, TK_ENDRECORD]: 
+[typeDefinition, TK_ELSE]: 
+[typeDefinition, TK_AND]: 
+[typeDefinition, TK_OR]: 
+[typeDefinition, TK_NOT]: 
+[typeDefinition, TK_LT]: 
+[typeDefinition, TK_LE]: 
+[typeDefinition, TK_EQ]: 
+[typeDefinition, TK_GT]: 
+[typeDefinition, TK_GE]: 
+[typeDefinition, TK_NE]: 
+[typeDefinition, TK_EOF]: 
+----------------------------------
+[typeDefinitions, TK_ASSIGNOP]: 
+[typeDefinitions, TK_COMMENT]: 
+[typeDefinitions, TK_FIELDID]: 
+[typeDefinitions, TK_ID]: 
+[typeDefinitions, TK_NUM]: 
+[typeDefinitions, TK_RNUM]: 
+[typeDefinitions, TK_FUNID]: 
+[typeDefinitions, TK_RUID]: 
+[typeDefinitions, TK_WITH]: 
+[typeDefinitions, TK_PARAMETERS]: 
+[typeDefinitions, TK_END]: 
+[typeDefinitions, TK_WHILE]: 
+[typeDefinitions, TK_UNION]: typeDefinitions -> actualOrRedefined typeDefinitions 
+[typeDefinitions, TK_ENDUNION]: 
+[typeDefinitions, TK_DEFINETYPE]: typeDefinitions -> actualOrRedefined typeDefinitions 
+[typeDefinitions, TK_AS]: 
+[typeDefinitions, TK_TYPE]: typeDefinitions -> 
+[typeDefinitions, TK_MAIN]: 
+[typeDefinitions, TK_GLOBAL]: 
+[typeDefinitions, TK_PARAMETER]: 
+[typeDefinitions, TK_LIST]: 
+[typeDefinitions, TK_SQL]: 
+[typeDefinitions, TK_SQR]: 
+[typeDefinitions, TK_INPUT]: 
+[typeDefinitions, TK_OUTPUT]: 
+[typeDefinitions, TK_INT]: 
+[typeDefinitions, TK_REAL]: 
+[typeDefinitions, TK_COMMA]: 
+[typeDefinitions, TK_SEM]: 
+[typeDefinitions, TK_COLON]: 
+[typeDefinitions, TK_DOT]: 
+[typeDefinitions, TK_ENDWHILE]: 
+[typeDefinitions, TK_OP]: 
+[typeDefinitions, TK_CL]: 
+[typeDefinitions, TK_IF]: 
+[typeDefinitions, TK_THEN]: 
+[typeDefinitions, TK_ENDIF]: 
+[typeDefinitions, TK_READ]: 
+[typeDefinitions, TK_WRITE]: 
+[typeDefinitions, TK_RETURN]: 
+[typeDefinitions, TK_PLUS]: 
+[typeDefinitions, TK_MINUS]: 
+[typeDefinitions, TK_MUL]: 
+[typeDefinitions, TK_DIV]: 
+[typeDefinitions, TK_CALL]: 
+[typeDefinitions, TK_RECORD]: typeDefinitions -> actualOrRedefined typeDefinitions 
+[typeDefinitions, TK_ENDRECORD]: 
+[typeDefinitions, TK_ELSE]: 
+[typeDefinitions, TK_AND]: 
+[typeDefinitions, TK_OR]: 
+[typeDefinitions, TK_NOT]: 
+[typeDefinitions, TK_LT]: 
+[typeDefinitions, TK_LE]: 
+[typeDefinitions, TK_EQ]: 
+[typeDefinitions, TK_GT]: 
+[typeDefinitions, TK_GE]: 
+[typeDefinitions, TK_NE]: 
+[typeDefinitions, TK_EOF]: 
+----------------------------------
+[var, TK_ASSIGNOP]: 
+[var, TK_COMMENT]: 
+[var, TK_FIELDID]: 
+[var, TK_ID]: var -> singleOrRecId 
+[var, TK_NUM]: var -> TK_NUM 
+[var, TK_RNUM]: var -> TK_RNUM 
+[var, TK_FUNID]: 
+[var, TK_RUID]: 
+[var, TK_WITH]: 
+[var, TK_PARAMETERS]: 
+[var, TK_END]: 
+[var, TK_WHILE]: 
+[var, TK_UNION]: 
+[var, TK_ENDUNION]: 
+[var, TK_DEFINETYPE]: 
+[var, TK_AS]: 
+[var, TK_TYPE]: 
+[var, TK_MAIN]: 
+[var, TK_GLOBAL]: 
+[var, TK_PARAMETER]: 
+[var, TK_LIST]: 
+[var, TK_SQL]: 
+[var, TK_SQR]: 
+[var, TK_INPUT]: 
+[var, TK_OUTPUT]: 
+[var, TK_INT]: 
+[var, TK_REAL]: 
+[var, TK_COMMA]: 
+[var, TK_SEM]: 
+[var, TK_COLON]: 
+[var, TK_DOT]: 
+[var, TK_ENDWHILE]: 
+[var, TK_OP]: 
+[var, TK_CL]: 
+[var, TK_IF]: 
+[var, TK_THEN]: 
+[var, TK_ENDIF]: 
+[var, TK_READ]: 
+[var, TK_WRITE]: 
+[var, TK_RETURN]: 
+[var, TK_PLUS]: 
+[var, TK_MINUS]: 
+[var, TK_MUL]: 
+[var, TK_DIV]: 
+[var, TK_CALL]: 
+[var, TK_RECORD]: 
+[var, TK_ENDRECORD]: 
+[var, TK_ELSE]: 
+[var, TK_AND]: 
+[var, TK_OR]: 
+[var, TK_NOT]: 
+[var, TK_LT]: 
+[var, TK_LE]: 
+[var, TK_EQ]: 
+[var, TK_GT]: 
+[var, TK_GE]: 
+[var, TK_NE]: 
+[var, TK_EOF]: 

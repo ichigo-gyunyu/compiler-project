@@ -10,10 +10,14 @@ Grammar initParser(char *grammarFile);
 
 FirstAndFollow *computeFirstAndFollow(Grammar g);
 
-void freeParserData(Grammar *g, FirstAndFollow *fnf);
+void freeParserData(Grammar *g, FirstAndFollow *fnf, ParseTable pt);
 
 void printGrammar(Grammar g);
 
 void printFirstAndFollow(FirstAndFollow *fnf);
+
+ParseTable createParseTable(FirstAndFollow *fnf);
+
+void printParseTable(ParseTable pt);
 
 #endif

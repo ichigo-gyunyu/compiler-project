@@ -111,4 +111,11 @@ typedef struct Grammar {
     Derivation *derivations;
 } Grammar;
 
+typedef struct ParseTableInfo {
+    bool           filled;
+    ProductionRule rule;
+} ParseTableInfo;
+
+typedef ParseTableInfo **ParseTable;
+
 #endif

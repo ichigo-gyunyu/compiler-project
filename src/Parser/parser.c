@@ -76,6 +76,9 @@ Grammar initParser(char *grammarFile) {
     populateTkToEnum();
 
     g = loadGrammarFromFile(grammarFile);
+    ht_print(TkToEnum);
+    printf("---\n");
+    ht_print(NtToEnum);
     return g;
 }
 
@@ -151,9 +154,8 @@ Grammar loadGrammarFromFile(char *grammarFile) {
             uint  rule_no = g.derivations[curr_lhs].num_rhs - 1; // 0 indexed
             // NOTE: can cause problems
             if (word[0] == 'T') {
-                type = TYPE_TK;
-                // tornt.val_tk = ht_lookup(TkToEnum, word);
-                tornt.val_tk = ht_lookup2(TkToEnum, word);
+                type         = TYPE_TK;
+                tornt.val_tk = ht_lookup(TkToEnum, word);
             } else {
                 type         = TYPE_NT;
                 tornt.val_nt = ht_lookup(NtToEnum, word);
@@ -179,9 +181,17 @@ Grammar loadGrammarFromFile(char *grammarFile) {
     return g;
 }
 
-void populateNtToEnum() {}
+void populateNtToEnum() {
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        ht_insert(&NtToEnum, getNonTerimnalName(i), i);
+    }
+}
 
-void populateTkToEnum() {}
+void populateTkToEnum() {
+    for (uint i = 0; i < TOKEN_COUNT; i++) {
+        ht_insert(&TkToEnum, getTokenTypeName(i), i);
+    }
+}
 
 void appendSymbolNode(ProductionRule *rule, SymbolNode *sn) {
 
@@ -211,7 +221,7 @@ bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
 
         // epsilon production
         if (rule.rule_length == 0) {
-            fnf[nt].has_eps = true;
+            // fnf[nt].has_eps = true; // TODO CHECK
             continue;
         }
 
@@ -366,6 +376,8 @@ void printGrammar(Grammar g) {
             printf("\n");
         }
     }
+
+    printf("-----------------------------------------------------\n");
 }
 
 void printFirstAndFollow(FirstAndFollow *fnf) {
@@ -389,6 +401,75 @@ void printFirstAndFollow(FirstAndFollow *fnf) {
             }
         }
         printf("\n");
+    }
+
+    printf("-----------------------------------------------------\n");
+}
+
+void fillPTCells(ParseTable pt, bitvector bv, ProductionRule rule, NonTerminal row) {
+    for (uint i = 0; i < TOKEN_COUNT; i++) {
+        if (!bv_contains(bv, i))
+            continue;
+        if (pt[row][i].filled) {
+            printf("Duplicate entry at [%s, %s]\n", getNonTerimnalName(row), getTokenTypeName(i));
+        }
+        pt[row][i].filled = true;
+        pt[row][i].rule   = rule;
+    }
+}
+
+ParseTable createParseTable(FirstAndFollow *fnf) {
+
+    // init the parse table
+    ParseTable pt = calloc(NONTERMINAL_COUNT, sizeof(ParseTableInfo *));
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        pt[i] = calloc(TOKEN_COUNT, sizeof *pt[i]);
+    }
+
+    // loop through all production rules
+    for (uint i = 0; i < g.num_nonterminals; i++) {
+        NonTerminal lhs = g.derivations[i].lhs;
+        for (uint j = 0; j < g.derivations[i].num_rhs; j++) {
+            ProductionRule rule = g.derivations[i].rhs[j];
+            if (rule.rule_length == 0) {
+                fillPTCells(pt, fnf[lhs].follow, rule, lhs);
+            } else if (rule.head->type == TYPE_TK) {
+                bitvector bv;
+                bv_init(&bv, TOKEN_COUNT);
+                bv_set(bv, rule.head->val.val_tk);
+                fillPTCells(pt, bv, rule, lhs);
+                free(bv);
+            } else {
+                fillPTCells(pt, fnf[rule.head->val.val_nt].first, rule, lhs);
+            }
+        }
+    }
+
+    return pt;
+}
+
+void printParseTable(ParseTable pt) {
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        printf("----------------------------------\n");
+        for (uint j = 0; j < TOKEN_COUNT; j++) {
+            printf("[%s, %s]: ", getNonTerimnalName(i), getTokenTypeName(j));
+            if (!pt[i][j].filled) {
+                printf("\n");
+                continue;
+            }
+
+            printf("%s -> ", getNonTerimnalName(i));
+            SymbolNode *trav = pt[i][j].rule.head;
+            while (trav != NULL) {
+                if (trav->type == TYPE_TK) {
+                    printf("%s ", getTokenTypeName(trav->val.val_tk));
+                } else {
+                    printf("%s ", getNonTerimnalName(trav->val.val_nt));
+                }
+                trav = trav->next;
+            }
+            printf("\n");
+        }
     }
 }
 
@@ -426,9 +507,18 @@ void freeFnf(uint num_elems, FirstAndFollow *fnf) {
     free(fnf);
 }
 
-void freeParserData(Grammar *g, FirstAndFollow *fnf) {
+void freePT(ParseTable pt) {
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        free(pt[i]);
+    }
+    free(pt);
+}
+
+void freeParserData(Grammar *g, FirstAndFollow *fnf, ParseTable pt) {
     if (fnf)
         freeFnf(g->num_nonterminals, fnf);
     if (g)
         freeGrammar(g);
+    if (pt)
+        freePT(pt);
 }

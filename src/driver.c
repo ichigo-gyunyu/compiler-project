@@ -44,8 +44,11 @@ int main(int argc, char **argv) {
 
     FirstAndFollow *fnf = computeFirstAndFollow(g);
     printFirstAndFollow(fnf);
+
+    ParseTable pt = createParseTable(fnf);
+    printParseTable(pt);
     //
-    freeParserData(&g, fnf);
+    freeParserData(&g, fnf, pt);
 
     /* while (1) {
         char ch = fgetc(fp);

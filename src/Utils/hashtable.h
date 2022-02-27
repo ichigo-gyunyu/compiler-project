@@ -8,9 +8,12 @@
 typedef struct data {
     char *key;
     int   val;
-} data;
+} ht_data;
 
-typedef data *hashtable;
+typedef struct hashtable {
+    ht_data **table;
+    uint      size;
+} hashtable;
 
 /**
  * Initializes a hash table of given size
@@ -24,10 +27,10 @@ void ht_print(hashtable ht);
 
 /**
  * Tries to insert d into the hashtable
- * Returns 0 if not successful
- * Returns 1 if successful
+ * Returns -1 if not successful
+ * Returns indx if successful
  */
-int ht_insert(hashtable ht, data d);
+int ht_insert(hashtable *ht, char *key, int val);
 
 /**
  * Checks if the data is in the hashtable
@@ -35,6 +38,9 @@ int ht_insert(hashtable ht, data d);
  * Returns the kay if data is in
  */
 int ht_lookup(hashtable ht, char *key);
+
+// temporary - till we implement it
+int ht_lookup1(hashtable ht, char *key);
 int ht_lookup2(hashtable ht, char *key);
 
 #endif
