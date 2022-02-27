@@ -2,9 +2,16 @@
 
 uint ht_hash(char *key, uint modulus) {
     uint hash_value = 0;
-    // compute hash of string key
+    // compute hash of string key using a polynomial rolling hash
+    const uint p    = 53;
+    const uint m    = 1e9 + 9;
+    ulong      ppow = 1;
+    for (size_t i = 0; i < strlen(key); i++) {
+        hash_value = (hash_value + (key[i] - 'a' + 1) * ppow) % m;
+        ppow       = (ppow * p) % m; // TODO precompute
+    }
 
-    return hash_value;
+    return hash_value % modulus;
 }
 
 int ht_init(hashtable *ht, uint sz) {
@@ -28,8 +35,9 @@ int ht_insert(hashtable *ht, char *key, int val) {
         indx++;
         indx %= ht->size;
         num_probed++;
-        if (num_probed == ht->size)
+        if (num_probed == ht->size) {
             return -1;
+        }
     }
 
     ht->table[indx] = d;
@@ -41,6 +49,7 @@ int ht_lookup(hashtable ht, char *key) {
     uint num_probed = 0;
     while (ht.table[indx] != NULL && strcmp(ht.table[indx]->key, key)) {
         indx++;
+        indx %= ht.size;
         num_probed++;
         if (num_probed == ht.size)
             return -1;

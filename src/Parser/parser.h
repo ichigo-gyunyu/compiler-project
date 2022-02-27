@@ -20,4 +20,7 @@ ParseTable createParseTable(FirstAndFollow *fnf);
 
 void printParseTable(ParseTable pt);
 
+extern hashtable NtToEnum;
+extern hashtable TkToEnum;
+
 #endif

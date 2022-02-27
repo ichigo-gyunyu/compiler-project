@@ -19,11 +19,11 @@ OBJ = lexer.o \
 	  driver.o \
 	  hashtable.o
 
-all: compile
+all: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)
-	./a.out
+	./a.out > out.txt
 
-compile:
+$(OBJ): $(SRC)
 	$(CC) $(CFLAGS) $(INC) -c $(SRC)
 
 clean:

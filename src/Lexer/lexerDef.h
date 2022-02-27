@@ -67,10 +67,11 @@ typedef enum TokenType {
 
     TK_EOF, // extra
 
-    END_TOKENTYPE
+    END_TOKENTYPE // also used to indicate error
 } TokenType;
 
-static const unsigned int TOKEN_COUNT = END_TOKENTYPE - TK_ASSIGNOP;
+static const unsigned int TOKEN_COUNT   = END_TOKENTYPE - TK_ASSIGNOP;
+static const unsigned int KEYWORD_COUNT = 28;
 
 typedef struct TokenInfo {
     TokenType tk_type;

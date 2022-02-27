@@ -6,9 +6,9 @@ Grammar loadGrammarFromFile(char *grammarFile);
 void    appendSymbolNode(ProductionRule *rule, SymbolNode *sn);
 char   *getNonTerimnalName(NonTerminal nt);
 
-static hashtable NtToEnum;
-static hashtable TkToEnum;
-static Grammar   g;
+static Grammar g;
+hashtable      NtToEnum;
+hashtable      TkToEnum;
 
 // for debugging
 // TODO surround in ifdef DEBUG_FLAG block

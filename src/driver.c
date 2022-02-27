@@ -6,16 +6,15 @@
 #define GRAMMAR_FILE "data/grammar.txt"
 
 int main(int argc, char **argv) {
-    /* FILE *fp = fopen("data/a.txt", "r");
+    FILE *fp = fopen("data/a.txt", "r");
     if (fp == NULL) {
         printf("noooo\n");
         return 1;
     }
 
     initLexer(fp);
-    l_test();
 
-    fclose(fp); */
+    fclose(fp);
 
     /* bitvector bv;
     bv_init(&bv, NONTERMINAL_COUNT);
@@ -46,7 +45,7 @@ int main(int argc, char **argv) {
     printFirstAndFollow(fnf);
 
     ParseTable pt = createParseTable(fnf);
-    // printParseTable(pt);
+    printParseTable(pt);
     //
     freeParserData(&g, fnf, pt);
 
