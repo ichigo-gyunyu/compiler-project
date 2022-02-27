@@ -1,0 +1,130 @@
+#include "parser.h"
+
+#define GRAMMAR_FILE "./data/grammar.txt"
+
+static Grammar      g;
+static NTGrammarMap map[NONTERMINAL_COUNT];
+
+uint count_lines(FILE *fp) {
+    fseek(fp, 0, SEEK_SET);
+    uint count = 0;
+    char c;
+    while ((c = fgetc(fp)) != EOF) {
+        if (c == '\n')
+            count++;
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    return count;
+}
+
+void add_symbol(SymbolList *sl, Symbol *s) {
+    if (sl->num_symbols == 0) {
+        sl->head = s;
+        sl->tail = s;
+        sl->num_symbols++;
+        return;
+    }
+
+    if (sl->tail == NULL) {
+        printf("nul\n");
+    } else {
+        printf("%d\n", sl->head->type);
+    }
+
+    sl->tail->next = s;
+    s->prev        = sl->tail;
+    sl->tail       = s;
+    sl->num_symbols++;
+}
+
+int main() {
+    FILE *fp = fopen(GRAMMAR_FILE, "r");
+
+    uint           num_rules = count_lines(fp);
+    ProductionRule rules[num_rules];
+
+    char buffer[256];
+
+    char        c;
+    int         i        = 0;
+    int         symbols  = 0;
+    int         rule_num = 0;
+    Nonterminal lhs;
+    SymbolList  rhs = {.num_symbols = 0};
+    while ((c = fgetc(fp)) != EOF) {
+        if (c == '\n') {
+            rules[rule_num].lhs = lhs;
+            rules[rule_num].rhs = rhs;
+            rule_num++;
+
+            rhs.head        = NULL;
+            rhs.tail        = NULL;
+            rhs.num_symbols = 0;
+            symbols         = 0;
+            continue;
+        } else if (c == ' ') {
+            char *word = buffer;
+            symbols++;
+            if (word[0] == 'T') {
+                // terminal
+                Symbol *s     = malloc(sizeof *s);
+                s->val.val_tk = 3;
+                s->type       = TYPE_TERMINAL;
+                s->prev       = NULL;
+                s->next       = NULL;
+                add_symbol(&rhs, s);
+            } else {
+                // nonterminal
+                Symbol *s     = malloc(sizeof *s);
+                s->val.val_tk = 3;
+                s->type       = TYPE_NONTERMINAL;
+                s->prev       = NULL;
+                s->next       = NULL;
+                add_symbol(&rhs, s);
+
+                if (symbols == 1) {
+                    lhs = 4;
+                }
+            }
+
+            i = 0;
+            continue;
+        } else if (c == '-') {
+            fgetc(fp);
+            fgetc(fp);
+            continue;
+        }
+        buffer[i++] = c;
+    }
+
+    /* char buffer2[64];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+
+    } */
+
+    g.num_rules = num_rules;
+    g.rules     = rules;
+
+    printf("%d\n", g.num_rules);
+}
+
+void computeFirst(Nonterminal nt, bool *first_computed, FirstAndFollow *fnf) {
+    bv_init(&fnf[nt].first, NONTERMINAL_COUNT);
+}
+
+FirstAndFollow *computeFirstAndFollow() {
+    int num_rules = g.num_rules;
+
+    FirstAndFollow fnf[NONTERMINAL_COUNT] = {0};
+
+    bool first_computed[NONTERMINAL_COUNT];
+    for (int i = 0; i < num_rules; i++) {
+        Nonterminal lhs = g.rules[i].lhs;
+        if (first_computed[lhs]) {
+            continue;
+        }
+
+        computeFirst(lhs, first_computed, fnf);
+    }
+}

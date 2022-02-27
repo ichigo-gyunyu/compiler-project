@@ -14,4 +14,6 @@ TokenInfo getNextToken(int *status);
 
 void removeComments(char *testcaseFile, char *cleanFile);
 
+char *getTokenTypeName(TokenType tk);
+
 #endif

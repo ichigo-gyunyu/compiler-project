@@ -7,7 +7,12 @@
 // first and follow sets - bitvectors
 // tree, parse table
 
+#include "Lexer/lexer.h"
 #include "Utils/bitvector.h"
+#include "Utils/hashtable.h"
+
+#define TYPE_TK 1
+#define TYPE_NT 2
 
 typedef enum Nonterminals {
     actualOrRedefined,
@@ -21,7 +26,6 @@ typedef enum Nonterminals {
     declarations,
     definetypestmt,
     elsePart,
-    eps,
     expPrime,
     factor,
     fieldDefinition,
@@ -66,13 +70,45 @@ typedef enum Nonterminals {
     var,
 
     END_NT
-} Nonterminals;
+} NonTerminal;
 
-static const unsigned int NONTERMINAL_COUNT = END_NT - actualOrRedefined;
+static const uint NONTERMINAL_COUNT = END_NT - actualOrRedefined;
 
 typedef struct FirstAndFollow {
     bitvector first;
     bitvector follow;
+    bool      has_eps; // if first contains eps
 } FirstAndFollow;
+
+typedef union TorNT {
+    TokenType   val_tk;
+    NonTerminal val_nt;
+} TorNT;
+
+typedef struct SymbolNode {
+    TorNT val;
+    int   type; // Terminal or NonTerminal
+
+    struct SymbolNode *prev;
+    struct SymbolNode *next;
+} SymbolNode;
+
+typedef struct ProductionRule {
+    SymbolNode *head;
+    SymbolNode *tail;
+    uint        rule_length;
+} ProductionRule;
+
+typedef struct Derivation {
+    NonTerminal     lhs; // lhs
+    uint            num_rhs;
+    ProductionRule *rhs;
+} Derivation;
+
+typedef struct Grammar {
+    uint        num_nonterminals;
+    NonTerminal start_symbol;
+    Derivation *derivations;
+} Grammar;
 
 #endif

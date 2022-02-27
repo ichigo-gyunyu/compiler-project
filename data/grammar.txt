@@ -1,11 +1,11 @@
 program -> otherFunctions mainFunction
 mainFunction -> TK_MAIN stmts TK_END
 otherFunctions -> function otherFunctions
-otherFunctions -> eps
+otherFunctions ->
 function -> TK_FUNID input_par output_par TK_SEM stmts TK_END
 input_par -> TK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR
 output_par -> TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR
-output_par -> eps
+output_par ->
 parameter_list -> dataType TK_ID remaining_list
 dataType -> primitiveDatatype
 dataType -> constructedDatatype
@@ -15,10 +15,10 @@ constructedDatatype -> TK_RECORD TK_RUID
 constructedDatatype -> TK_UNION TK_RUID
 constructedDatatype -> TK_RUID
 remaining_list -> TK_COMMA parameter_list
-remaining_list -> eps
+remaining_list ->
 stmts -> typeDefinitions declarations otherStmts returnStmt
 typeDefinitions -> actualOrRedefined typeDefinitions
-typeDefinitions -> eps
+typeDefinitions ->
 actualOrRedefined -> typeDefinition
 actualOrRedefined -> definetypestmt
 typeDefinition -> TK_RECORD TK_RUID fieldDefinitions TK_ENDRECORD
@@ -28,14 +28,14 @@ fieldDefinition -> TK_TYPE fieldType TK_COLON TK_FIELDID TK_SEM
 fieldType -> primitiveDatatype
 fieldType -> TK_RUID
 moreFields -> fieldDefinition moreFields
-moreFields -> eps
+moreFields ->
 declarations -> declaration declarations
-declarations -> eps
+declarations ->
 declaration -> TK_TYPE dataType TK_COLON TK_ID global_or_not TK_SEM
 global_or_not -> TK_COLON TK_GLOBAL
-global_or_not -> eps
+global_or_not ->
 otherStmts -> stmt otherStmts
-otherStmts -> eps
+otherStmts ->
 stmt -> assignmentStmt
 stmt -> iterativeStmt
 stmt -> conditionalStmt
@@ -44,13 +44,13 @@ stmt -> funCallStmt
 assignmentStmt -> singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM
 singleOrRecId -> TK_ID option_single_constructed
 option_single_constructed -> oneExpansion moreExpansions
-option_single_constructed -> eps
+option_single_constructed ->
 oneExpansion -> TK_DOT TK_FIELDID
 moreExpansions -> oneExpansion moreExpansions
-moreExpansions -> eps
+moreExpansions ->
 funCallStmt -> outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM
 outputParameters -> TK_SQL idList TK_SQR TK_ASSIGNOP
-outputParameters -> eps
+outputParameters ->
 inputParameters -> TK_SQL idList TK_SQR
 iterativeStmt -> TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE
 conditionalStmt -> TK_IF TK_OP booleanExpression TK_CL TK_THEN stmt otherStmts elsePart
@@ -60,10 +60,10 @@ ioStmt -> TK_READ TK_OP var TK_CL TK_SEM
 ioStmt -> TK_WRITE TK_OP var TK_CL TK_SEM
 arithmeticExpression -> term expPrime
 expPrime -> lowPrecedenceOperators term expPrime
-expPrime -> eps
+expPrime ->
 term -> factor termPrime
 termPrime -> highPrecedenceOperators factor termPrime
-termPrime -> eps
+termPrime ->
 factor -> TK_OP arithmeticExpression TK_CL
 factor -> var
 highPrecedenceOperators -> TK_MUL
@@ -86,10 +86,10 @@ relationalOp -> TK_GE
 relationalOp -> TK_NE
 returnStmt -> TK_RETURN optionalReturn TK_SEM
 optionalReturn -> TK_SQL idList TK_SQR
-optionalReturn -> eps
+optionalReturn ->
 idList -> TK_ID more_ids
 more_ids -> TK_COMMA idList
-more_ids -> eps
+more_ids ->
 definetypestmt -> TK_DEFINETYPE recOrUnion TK_RUID TK_AS TK_RUID
 recOrUnion -> TK_RECORD
 recOrUnion -> TK_UNION

@@ -3,6 +3,8 @@
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
 
+#define GRAMMAR_FILE "data/grammar.txt"
+
 int main(int argc, char **argv) {
     /* FILE *fp = fopen("data/a.txt", "r");
     if (fp == NULL) {
@@ -15,7 +17,35 @@ int main(int argc, char **argv) {
 
     fclose(fp); */
 
-    printf("%d\n", TOKEN_COUNT);
+    /* bitvector bv;
+    bv_init(&bv, NONTERMINAL_COUNT);
+    bv_set(bv, 0);
+    bv_set(bv, 2);
+    bv_set(bv, 12);
+
+    bitvector bv2;
+    bv_init(&bv2, NONTERMINAL_COUNT);
+    bv_set(bv2, 0);
+    bv_set(bv2, 12);
+    bv_set(bv2, 14);
+    bv_union(bv, bv2, NONTERMINAL_COUNT);
+
+    for (int i = 0; i < NONTERMINAL_COUNT; i++) {
+        if (bv_contains(bv, i)) {
+            printf("At %d\n", i);
+        }
+    }
+
+    free(bv);
+    free(bv2); */
+
+    Grammar g = initParser(GRAMMAR_FILE);
+    printGrammar(g);
+
+    FirstAndFollow *fnf = computeFirstAndFollow(g);
+    printFirstAndFollow(fnf);
+    //
+    freeParserData(&g, fnf);
 
     /* while (1) {
         char ch = fgetc(fp);

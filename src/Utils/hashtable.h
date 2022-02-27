@@ -15,7 +15,7 @@ typedef data *hashtable;
 /**
  * Initializes a hash table of given size
  */
-int ht_init(uint sz);
+int ht_init(hashtable *ht, uint sz);
 
 /**
  * Print the hash table
@@ -35,5 +35,6 @@ int ht_insert(hashtable ht, data d);
  * Returns the kay if data is in
  */
 int ht_lookup(hashtable ht, char *key);
+int ht_lookup2(hashtable ht, char *key);
 
 #endif
