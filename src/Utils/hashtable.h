@@ -39,8 +39,4 @@ int ht_insert(hashtable *ht, char *key, int val);
  */
 int ht_lookup(hashtable ht, char *key);
 
-// temporary - till we implement it
-int ht_lookup1(hashtable ht, char *key);
-int ht_lookup2(hashtable ht, char *key);
-
 #endif
