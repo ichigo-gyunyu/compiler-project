@@ -76,9 +76,6 @@ Grammar initParser(char *grammarFile) {
     populateTkToEnum();
 
     g = loadGrammarFromFile(grammarFile);
-    ht_print(TkToEnum);
-    printf("---\n");
-    ht_print(NtToEnum);
     return g;
 }
 
@@ -221,7 +218,7 @@ bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
 
         // epsilon production
         if (rule.rule_length == 0) {
-            // fnf[nt].has_eps = true; // TODO CHECK
+            fnf[nt].has_eps = true;
             continue;
         }
 
@@ -301,10 +298,11 @@ void computeFollow(FirstAndFollow *fnf) {
                 // ...
                 t = rule.tail->prev;
                 while (t != NULL) {
-                    if (t->type == TYPE_TK)
+                    if (t->type == TYPE_TK || t->next->type == TYPE_TK)
                         break;
+
                     NonTerminal ntD = t->val.val_nt;
-                    if (!fnf[ntD].has_eps)
+                    if (!fnf[t->next->val.val_nt].has_eps)
                         break;
 
                     fnf[ntD].follow = bv_union(fnf[ntD].follow, fnf[ntA].follow, TOKEN_COUNT);

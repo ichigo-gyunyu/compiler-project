@@ -40,13 +40,13 @@ int main(int argc, char **argv) {
     free(bv2); */
 
     Grammar g = initParser(GRAMMAR_FILE);
-    printGrammar(g);
+    // printGrammar(g);
 
     FirstAndFollow *fnf = computeFirstAndFollow(g);
     printFirstAndFollow(fnf);
 
     ParseTable pt = createParseTable(fnf);
-    printParseTable(pt);
+    // printParseTable(pt);
     //
     freeParserData(&g, fnf, pt);
 
