@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-#define BLOCK_SIZE 12
+#define BLOCK_SIZE 512
 
 static FILE *fp; // pointer to the src file
 static char  twin_buff[2][BLOCK_SIZE];
@@ -167,8 +167,6 @@ char nextChar(char **lex) {
 }
 
 void retract(char **lex) {
-    if (*forward == '\n')
-        line_number--;
 
     // switch to the previous buffer in case of underflow
     // and move the file pointer back
@@ -180,6 +178,9 @@ void retract(char **lex) {
         forward--;
     }
 
+    if (*forward == '\n')
+        line_number--;
+
     retractLexeme(lex);
 }
 
@@ -187,15 +188,15 @@ char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
 
 // TODO: can make it more efficient
 void updateLexeme(char **lex, char c) {
-    int len       = strlen(*lex);
-    *lex[len]     = c;
-    *lex[len + 1] = '\0';
+    int len         = strlen(*lex);
+    (*lex)[len]     = c;
+    (*lex)[len + 1] = '\0';
 }
 
 // TODO bounds checking
 void retractLexeme(char **lex) {
-    int len       = strlen(*lex);
-    *lex[len - 1] = '\0';
+    int len         = strlen(*lex);
+    (*lex)[len - 1] = '\0';
 }
 
 TokenType getTokenFromKeyword(char *lex) {
@@ -210,6 +211,12 @@ TokenType getMainOrFunID(char *lex) {
     if (res == TK_MAIN)
         return res;
     return TK_FUNID;
+}
+
+void printTokenInfo(TokenInfo t) {
+    printf("Line no. %2d: ", t.line_no);
+    printf("Token: %s ", getTokenTypeName(t.tk_type));
+    printf("Lexeme: %s\n", t.lexeme);
 }
 
 #define ERROR_STATE 58
@@ -231,9 +238,13 @@ TokenInfo getNextToken() {
     uint dfa_state = 0;
 
     char c = nextChar(&lex);
+    if (c == EOF)
+        return (TokenInfo){.tk_type = TK_EOF};
+    retract(&lex);
     for (;;) {
         switch (dfa_state) {
         case 0:
+            c = nextChar(&lex);
             switch (c) {
             case 'a':
                 dfa_state = 1;
@@ -282,6 +293,7 @@ TokenInfo getNextToken() {
             case ' ':
             case '\n':
             case '\t':
+                retractLexeme(&lex); // discard this delimiter
                 dfa_state = 0;
                 break;
             case '_':
@@ -576,6 +588,8 @@ TokenInfo getNextToken() {
             break;
 
         case 31:
+            retract(&lex);
+
             // accept
             return (TokenInfo){.tk_type = TK_COMMENT, .line_no = line_number, .lexeme = lex};
 
@@ -714,6 +728,10 @@ TokenInfo getNextToken() {
 
         case ERROR_STATE:
             printf("error, lol\n"); // TODO error handling
+            /* if (c != ' ' && c != '\t' && c != '\n') {
+                printf("%c", c);
+                retract(&lex);
+            } */
             return (TokenInfo){.tk_type = END_TOKENTYPE};
         }
     }

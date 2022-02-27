@@ -1,19 +1,17 @@
 #include "utils.h"
 
-typedef struct StackElement{
+typedef struct StackElement {
     int val;
     int type;
+
     struct StackElement *next;
-}StackElement;
-typedef StackElement* stack;
+} StackElement;
+typedef StackElement *stack;
 
-StackElement *newElement(int val, int type);
+bool st_isEmpty(StackElement *root);
 
-bool isEmpty(StackElement *root);
+void st_push(StackElement **root, int val, int type);
 
-void push(StackElement **root, int val, int type);
+int st_pop(StackElement **root);
 
-int pop(StackElement **root);
-
-StackElement *top(StackElement **root);
-
+StackElement *st_top(StackElement **root);

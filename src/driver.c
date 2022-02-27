@@ -13,6 +13,15 @@ int main(int argc, char **argv) {
     }
 
     initLexer(fp);
+    TokenInfo t = {0};
+    while (t.tk_type != TK_EOF) {
+        t = getNextToken();
+        if (t.tk_type == END_TOKENTYPE) {
+            printf("error i guess\n");
+            continue;
+        }
+        printTokenInfo(t);
+    }
 
     fclose(fp);
 
@@ -42,10 +51,9 @@ int main(int argc, char **argv) {
     // printGrammar(g);
 
     FirstAndFollow *fnf = computeFirstAndFollow(g);
-    printFirstAndFollow(fnf);
+    // printFirstAndFollow(fnf);
 
     ParseTable pt = createParseTable(fnf);
-    printParseTable(pt);
     //
     freeParserData(&g, fnf, pt);
 

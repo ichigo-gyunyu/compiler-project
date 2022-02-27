@@ -17,6 +17,8 @@ void removeComments(char *testcaseFile, char *cleanFile);
 
 char *getTokenTypeName(TokenType tk);
 
+void printTokenInfo(TokenInfo t);
+
 extern hashtable lookup_table;
 
 #endif

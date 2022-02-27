@@ -21,7 +21,7 @@ OBJ = lexer.o \
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)
-	./a.out > out.txt
+	./a.out
 
 $(OBJ): $(SRC)
 	$(CC) $(CFLAGS) $(INC) -c $(SRC)
