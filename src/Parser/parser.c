@@ -257,7 +257,7 @@ bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
 }
 
 /**
- * Time Complexity: O(NUM_NONTERMINALS * NUM_TERMINALS^2 * NUM_PRODUCTION_RULES * max(NUM_NONTERMINALS_IN_RULE))
+ * Time Complexity: O(NUM_NONTERMINALS * NUM_TERMINALS^2 * NUM_PRODUCTION_RULES * max(NUM_NONTERMINALS_IN_RULE)^2)
  * Actual running time will be much lower as most rules are short/many epsilon rules
  * Can be improved by early stopping - when the follow sets no longer change
  * But would require additional functionality to detect changes in the follow sets
@@ -274,7 +274,7 @@ void computeFollow(FirstAndFollow *fnf) {
                 if (rule.rule_length == 0)
                     continue;
 
-                // A -> BCDE; follow(B) += first(C), follow(C) += first(D)...
+                // A -> BCDE; follow(B) += first(CDE), follow(C) += first(DE)...
                 NonTerminal ntA = g.derivations[i].lhs;
                 SymbolNode *t   = rule.head->next;
                 while (t != NULL) {
@@ -283,12 +283,29 @@ void computeFollow(FirstAndFollow *fnf) {
                         continue;
                     }
 
+                    NonTerminal ntB = t->prev->val.val_nt;
                     if (t->type == TYPE_TK) {
-                        bv_set(fnf[t->prev->val.val_nt].follow, t->val.val_tk);
+                        bv_set(fnf[ntB].follow, t->val.val_tk);
                     } else {
-                        NonTerminal ntB = t->prev->val.val_nt;
                         NonTerminal ntC = t->val.val_nt;
                         fnf[ntB].follow = bv_union(fnf[ntB].follow, fnf[ntC].first, TOKEN_COUNT);
+                    }
+
+                    SymbolNode *t2 = t->next;
+                    while (t2 != NULL) {
+                        if (!fnf[t2->prev->val.val_nt].has_eps) {
+                            break;
+                        }
+
+                        if (t2->type == TYPE_TK) {
+                            bv_set(fnf[ntB].follow, t2->val.val_tk);
+                            break;
+                        }
+
+                        NonTerminal ntD = t2->val.val_nt;
+                        fnf[ntB].follow = bv_union(fnf[ntB].follow, fnf[ntD].first, TOKEN_COUNT);
+
+                        t2 = t2->next;
                     }
                     t = t->next;
                 }
