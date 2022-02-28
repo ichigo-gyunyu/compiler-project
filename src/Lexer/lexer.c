@@ -1,19 +1,9 @@
 #include "lexer.h"
 
-#define BLOCK_SIZE 512
+static uint line_number = 1;
 
-static FILE *fp; // pointer to the src file
-static char  twin_buff[2][BLOCK_SIZE];
-static uint  buff_size[2];
-static int   curr_buff_no = 0;
-
-static char *begin;   // pointer to the start of a lexeme
-static char *forward; // lookahead pointer
-
-static uint line_number       = 1;
-static bool lexer_initialised = false;
-
-hashtable lookup_table;
+hashtable        lookup_table;
+static hashtable valid_chars;
 
 // for debugging
 // TODO surround in ifdef DEBUG_FLAG block
@@ -78,24 +68,48 @@ static char *const TokenTypeNames[] = {
     [TK_EOF]        = "TK_EOF",
 };
 
-uint initBuffer(int buff_no);
-char nextChar(char **lex);
-void retract();
-void initLookupTable();
-void updateLexeme(char **lex, char c);
-void retractLexeme(char **lex);
+static char *const valid_starting_characters[] = {
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
+    "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "#", "<", "%",
+    "[", "]", ",", ";", ",", ".", "(", ")", "+", "-", "*", "/", "&", "@", "~", "=", ">", "!",
+};
 
-void initLexer(FILE *src_ptr) {
-    fp = src_ptr;
+uint      initBuffer(int buff_no);
+char      nextChar(char **lex);
+void      retract();
+void      initLookupTable();
+void      initValidCharsTable();
+void      updateLexeme(char **lex, char c);
+void      retractLexeme(char **lex);
+TokenInfo accept(TwinBuffer *tb, TokenType t);
+TokenInfo accept_noretract(TwinBuffer *tb, TokenType t);
+TokenInfo accept2(TwinBuffer *tb);
+TokenInfo accept19(TwinBuffer *tb);
+TokenType getTokenFromKeyword(char *lex);
+TokenType getMainOrFunID(char *lex);
+void      printTokenInfo(TokenInfo t);
 
+TwinBuffer initLexer(FILE *src_ptr) {
     // initialize the twin buffer
-    initBuffer(curr_buff_no);
-    begin   = twin_buff[curr_buff_no];
-    forward = twin_buff[curr_buff_no];
+    TwinBuffer tb = {.lookahead_buffnum = 0, .begin_buffnum = 0, .fp = src_ptr};
+    tb.buff[0]    = calloc(BLOCKSZ, sizeof *tb.buff[0]);
+    tb.buff[1]    = calloc(BLOCKSZ, sizeof *tb.buff[1]);
+    tb.begin      = tb.buff[0];
+    tb.lookahead  = tb.buff[0];
+    tb_loadNextBuff(&tb);
 
     initLookupTable();
+    initValidCharsTable();
 
-    lexer_initialised = true;
+    return tb;
+}
+
+void initValidCharsTable() {
+    uint n = NUM_ELEM(valid_starting_characters);
+    ht_init(&valid_chars, n);
+    for (uint i = 0; i < n; i++) {
+        ht_insert(&valid_chars, valid_starting_characters[i], i);
+    }
 }
 
 void initLookupTable() {
@@ -133,71 +147,7 @@ void initLookupTable() {
     // clang-format on
 }
 
-uint initBuffer(int buff_no) {
-    uint bytes_read = fread(twin_buff[buff_no], 1, BLOCK_SIZE, fp);
-    if (ferror(fp)) {
-        perror("Error when initializing buffer");
-        exit(EXIT_FAILURE);
-    }
-
-    if (feof(fp)) {
-        twin_buff[buff_no][bytes_read] = EOF;
-    }
-
-    buff_size[curr_buff_no] = bytes_read;
-
-    return bytes_read;
-}
-
-char nextChar(char **lex) {
-
-    // check for buffer overflow
-    if (forward - twin_buff[curr_buff_no] >= BLOCK_SIZE) {
-        curr_buff_no = !curr_buff_no;
-        initBuffer(curr_buff_no);
-        forward = twin_buff[curr_buff_no];
-    }
-
-    char c = *forward;
-    if (c == '\n')
-        line_number++;
-    forward++;
-    updateLexeme(lex, c);
-    return c;
-}
-
-void retract(char **lex) {
-
-    // switch to the previous buffer in case of underflow
-    // and move the file pointer back
-    if (forward == twin_buff[curr_buff_no]) {
-        fseek(fp, -buff_size[curr_buff_no], SEEK_CUR);
-        curr_buff_no = !curr_buff_no;
-        forward      = twin_buff[curr_buff_no] + buff_size[curr_buff_no] - 1;
-    } else {
-        forward--;
-    }
-
-    if (*forward == '\n')
-        line_number--;
-
-    retractLexeme(lex);
-}
-
 char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
-
-// TODO: can make it more efficient
-void updateLexeme(char **lex, char c) {
-    int len         = strlen(*lex);
-    (*lex)[len]     = c;
-    (*lex)[len + 1] = '\0';
-}
-
-// TODO bounds checking
-void retractLexeme(char **lex) {
-    int len         = strlen(*lex);
-    (*lex)[len - 1] = '\0';
-}
 
 TokenType getTokenFromKeyword(char *lex) {
     int res = ht_lookup(lookup_table, lex);
@@ -214,13 +164,13 @@ TokenType getMainOrFunID(char *lex) {
 }
 
 void printTokenInfo(TokenInfo t) {
-    printf("Line no. %2d: ", t.line_no);
-    printf("Token: %s ", getTokenTypeName(t.tk_type));
-    printf("Lexeme: %s\n", t.lexeme);
+    printf("Line no. %2d ", t.line_no);
+    printf("Lexeme %s\t\t", t.lexeme);
+    printf("Token %s\n", getTokenTypeName(t.tk_type));
 }
 
 #define ERROR_STATE 58
-TokenInfo getNextToken() {
+TokenInfo getNextToken(TwinBuffer *tb) {
     // few things
     // 1. how to handle no more tokens (eof)?
     // 2. how to handle errors?
@@ -228,23 +178,17 @@ TokenInfo getNextToken() {
     // other way would be to modify TokenInfo to accomodate these
     // but that would likely cause more problems
 
-    if (!lexer_initialised) {
-        printf("Lexer has not been initialised\n");
-        return (TokenInfo){.tk_type = END_TOKENTYPE};
-    }
-
-    char *lex = calloc(128, sizeof *lex); // care
-
     uint dfa_state = 0;
 
-    char c = nextChar(&lex);
+    char c = tb_nextChar(tb, &line_number);
     if (c == EOF)
-        return (TokenInfo){.tk_type = TK_EOF};
-    retract(&lex);
+        return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL};
+    tb_retract(tb, &line_number);
+
     for (;;) {
         switch (dfa_state) {
         case 0:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             switch (c) {
             case 'a':
                 dfa_state = 1;
@@ -293,7 +237,7 @@ TokenInfo getNextToken() {
             case ' ':
             case '\n':
             case '\t':
-                retractLexeme(&lex); // discard this delimiter
+                tb_resetBegin(tb);
                 dfa_state = 0;
                 break;
             case '_':
@@ -369,19 +313,18 @@ TokenInfo getNextToken() {
             break;
 
         case 1:
-            c = nextChar(&lex);
-            if (c < 'a' || c > 'z')
+            c = tb_nextChar(tb, &line_number);
+            if (c >= 'a' && c <= 'z')
+                dfa_state = 1;
+            else
                 dfa_state = 2;
             break;
 
         case 2:
-            retract(&lex);
-            TokenType t2 = getTokenFromKeyword(lex);
-            // accept
-            return (TokenInfo){.tk_type = t2, .lexeme = lex, .line_no = line_number};
+            return accept2(tb);
 
         case 3:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= 'a' && c <= 'z')
                 dfa_state = 1;
             else if (c >= '2' && c <= '7')
@@ -391,7 +334,7 @@ TokenInfo getNextToken() {
             break;
 
         case 4:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '2' && c <= '7')
                 dfa_state = 5;
             else if (c >= 'b' && c <= 'd')
@@ -401,7 +344,7 @@ TokenInfo getNextToken() {
             break;
 
         case 5:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '2' && c <= '7')
                 dfa_state = 5;
             else
@@ -409,12 +352,10 @@ TokenInfo getNextToken() {
             break;
 
         case 6:
-            retract(&lex);
-            // accept
-            return (TokenInfo){.line_no = line_number, .lexeme = lex, .tk_type = TK_ID};
+            return accept(tb, TK_ID);
 
         case 7:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '0' && c <= '9')
                 dfa_state = 7;
             else if (c == '.')
@@ -424,12 +365,10 @@ TokenInfo getNextToken() {
             break;
 
         case 8:
-            retract(&lex);
-            // accept
-            return (TokenInfo){.tk_type = TK_NUM, .lexeme = lex, .line_no = line_number};
+            return accept(tb, TK_NUM);
 
         case 9:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '0' && c <= '9')
                 dfa_state = 10;
             else
@@ -437,7 +376,7 @@ TokenInfo getNextToken() {
             break;
 
         case 10:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '0' && c <= '9')
                 dfa_state = 11;
             else
@@ -445,7 +384,7 @@ TokenInfo getNextToken() {
             break;
 
         case 11:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == 'E')
                 dfa_state = 12;
             else
@@ -453,7 +392,7 @@ TokenInfo getNextToken() {
             break;
 
         case 12:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '+' || c == '-')
                 dfa_state = 13;
             else if (c >= '0' && c <= '9')
@@ -463,7 +402,7 @@ TokenInfo getNextToken() {
             break;
 
         case 13:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '0' && c <= '9')
                 dfa_state = 14;
             else
@@ -471,7 +410,7 @@ TokenInfo getNextToken() {
             break;
 
         case 14:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '0' && c <= '9')
                 dfa_state = 15;
             else
@@ -479,16 +418,13 @@ TokenInfo getNextToken() {
             break;
 
         case 15:
-            // accept
-            return (TokenInfo){.line_no = line_number, .lexeme = lex, .tk_type = TK_RNUM};
+            return accept_noretract(tb, TK_RNUM);
 
         case 16:
-            retract(&lex);
-            // accept
-            return (TokenInfo){.tk_type = TK_RNUM, .lexeme = lex, .line_no = line_number};
+            return accept(tb, TK_RNUM);
 
         case 17:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
                 dfa_state = 18;
             else
@@ -496,7 +432,7 @@ TokenInfo getNextToken() {
             break;
 
         case 18:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
                 dfa_state = 18;
             else if (c >= '0' && c <= '9')
@@ -506,13 +442,10 @@ TokenInfo getNextToken() {
             break;
 
         case 19:
-            retract(&lex);
-            TokenType t19 = getMainOrFunID(lex);
-            // accept
-            return (TokenInfo){.tk_type = t19, .lexeme = lex, .line_no = line_number};
+            return accept19(tb);
 
         case 20:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c >= '0' && c <= '9')
                 dfa_state = 20;
             else
@@ -520,28 +453,26 @@ TokenInfo getNextToken() {
             break;
 
         case 21:
-            c = nextChar(&lex);
-            if (c <= 'a' && c >= 'z')
+            c = tb_nextChar(tb, &line_number);
+            if (c >= 'a' && c <= 'z')
                 dfa_state = 22;
             else
                 dfa_state = ERROR_STATE;
             break;
 
         case 22:
-            c = nextChar(&lex);
-            if (c <= 'a' && c >= 'z')
+            c = tb_nextChar(tb, &line_number);
+            if (c >= 'a' && c <= 'z')
                 dfa_state = 22;
             else
                 dfa_state = 23;
             break;
 
         case 23:
-            retract(&lex);
-            // accept
-            return (TokenInfo){.line_no = line_number, .lexeme = lex, .tk_type = TK_RUID};
+            return accept(tb, TK_RUID);
 
         case 24:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '-')
                 dfa_state = 25;
             else if (c == '=')
@@ -551,7 +482,7 @@ TokenInfo getNextToken() {
             break;
 
         case 25:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '-')
                 dfa_state = 26;
             else
@@ -559,7 +490,7 @@ TokenInfo getNextToken() {
             break;
 
         case 26:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '-')
                 dfa_state = 27;
             else
@@ -567,20 +498,16 @@ TokenInfo getNextToken() {
             break;
 
         case 27:
-            // accept
-            return (TokenInfo){.tk_type = TK_ASSIGNOP, .lexeme = lex, .line_no = line_number};
+            return accept_noretract(tb, TK_ASSIGNOP);
 
         case 28:
-            // accept
-            return (TokenInfo){.tk_type = TK_LE, .lexeme = lex, .line_no = line_number};
+            return accept_noretract(tb, TK_LE);
 
         case 29:
-            retract(&lex);
-            // accept
-            return (TokenInfo){.line_no = line_number, .lexeme = lex, .tk_type = TK_LT};
+            return accept(tb, TK_LT);
 
         case 30:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '\n')
                 dfa_state = 31;
             else
@@ -588,61 +515,46 @@ TokenInfo getNextToken() {
             break;
 
         case 31:
-            retract(&lex);
-
-            // accept
-            return (TokenInfo){.tk_type = TK_COMMENT, .line_no = line_number, .lexeme = lex};
+            return accept(tb, TK_COMMENT); // NOTE: retracting the \n here
 
         case 32:
-            // accept
-            return (TokenInfo){.tk_type = TK_SQL, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_SQL);
 
         case 33:
-            // accept
-            return (TokenInfo){.tk_type = TK_SQR, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_SQR);
 
         case 34:
-            // accept
-            return (TokenInfo){.tk_type = TK_COMMA, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_COMMA);
 
         case 35:
-            // accept
-            return (TokenInfo){.tk_type = TK_SEM, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_SEM);
 
         case 36:
-            // accept
-            return (TokenInfo){.tk_type = TK_COLON, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_COLON);
 
         case 37:
-            // accept
-            return (TokenInfo){.tk_type = TK_DOT, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_DOT);
 
         case 38:
-            // accept
-            return (TokenInfo){.tk_type = TK_OP, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_OP);
 
         case 39:
-            // accept
-            return (TokenInfo){.tk_type = TK_CL, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_CL);
 
         case 40:
-            // accept
-            return (TokenInfo){.tk_type = TK_PLUS, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_PLUS);
 
         case 41:
-            // accept
-            return (TokenInfo){.tk_type = TK_MINUS, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_MINUS);
 
         case 42:
-            // accept
-            return (TokenInfo){.tk_type = TK_MUL, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_MUL);
 
         case 43:
-            // accept
-            return (TokenInfo){.tk_type = TK_DIV, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_DIV);
 
         case 44:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '&')
                 dfa_state = 45;
             else
@@ -650,7 +562,7 @@ TokenInfo getNextToken() {
             break;
 
         case 45:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '&')
                 dfa_state = 46;
             else
@@ -658,11 +570,10 @@ TokenInfo getNextToken() {
             break;
 
         case 46:
-            // accept
-            return (TokenInfo){.tk_type = TK_AND, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_AND);
 
         case 47:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '@')
                 dfa_state = 48;
             else
@@ -670,7 +581,7 @@ TokenInfo getNextToken() {
             break;
 
         case 48:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '@')
                 dfa_state = 49;
             else
@@ -678,15 +589,13 @@ TokenInfo getNextToken() {
             break;
 
         case 49:
-            // accept
-            return (TokenInfo){.tk_type = TK_OR, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_OR);
 
         case 50:
-            // accept
-            return (TokenInfo){.tk_type = TK_NOT, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_NOT);
 
         case 51:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '=')
                 dfa_state = 52;
             else
@@ -694,11 +603,10 @@ TokenInfo getNextToken() {
             break;
 
         case 52:
-            // accept
-            return (TokenInfo){.tk_type = TK_EQ, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_EQ);
 
         case 53:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '=')
                 dfa_state = 54;
             else
@@ -706,16 +614,13 @@ TokenInfo getNextToken() {
             break;
 
         case 54:
-            // accept
-            return (TokenInfo){.tk_type = TK_GE, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_GE);
 
         case 55:
-            retract(&lex);
-            // accept
-            return (TokenInfo){.tk_type = TK_GT, .line_no = line_number, .lexeme = lex};
+            return accept(tb, TK_GT);
 
         case 56:
-            c = nextChar(&lex);
+            c = tb_nextChar(tb, &line_number);
             if (c == '=')
                 dfa_state = 57;
             else
@@ -723,20 +628,65 @@ TokenInfo getNextToken() {
             break;
 
         case 57:
-            // accept
-            return (TokenInfo){.tk_type = TK_GE, .line_no = line_number, .lexeme = lex};
+            return accept_noretract(tb, TK_NE);
 
         case ERROR_STATE:
-            printf("error, lol\n"); // TODO error handling
-            /* if (c != ' ' && c != '\t' && c != '\n') {
-                printf("%c", c);
-                retract(&lex);
-            } */
-            return (TokenInfo){.tk_type = END_TOKENTYPE};
+            printf("error, lol %c\n", c); // TODO error handling
+            if (c == EOF)
+                return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL};
+
+            char tmp[2] = {0};
+            tmp[0]      = c;
+            if (ht_lookup(valid_chars, tmp) != -1)
+                tb_retract(tb, &line_number);
+            tb_resetBegin(tb);
+            return (TokenInfo){.tk_type = END_TOKENTYPE, .lexeme = NULL};
         }
     }
+}
+
+TokenInfo accept(TwinBuffer *tb, TokenType t) {
+    tb_retract(tb, &line_number);
+    char *lex = tb_getLexeme(tb);
+    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+}
+
+TokenInfo accept_noretract(TwinBuffer *tb, TokenType t) {
+    char *lex = tb_getLexeme(tb);
+    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+}
+
+TokenInfo accept2(TwinBuffer *tb) {
+    tb_retract(tb, &line_number);
+    char     *lex = tb_getLexeme(tb);
+    TokenType t   = getTokenFromKeyword(lex);
+    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+}
+
+TokenInfo accept19(TwinBuffer *tb) {
+    tb_retract(tb, &line_number);
+    char     *lex = tb_getLexeme(tb);
+    TokenType t   = getMainOrFunID(lex);
+    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
 }
 
 // handled independently of other functions in lexer
 // (just for demonstration probably)
 void removeComments(char *testcaseFile, char *cleanFile) {}
+
+/****************** FREE UP ALL (C/M)ALLOCd ENTITIES ***********************/
+void freeToken(TokenInfo *t) {
+    if (t) {
+        if (t->lexeme)
+            free(t->lexeme);
+    }
+}
+
+void freeTwinBuffer(TwinBuffer *tb) {
+    if (tb) {
+        if (tb->buff[0])
+            free(tb->buff[0]);
+        if (tb->buff[1])
+            free(tb->buff[1]);
+    }
+}

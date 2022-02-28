@@ -1,110 +1,96 @@
-Line no.  1: Token: TK_COMMENT Lexeme: % Test case 1: For testing your lexer
-Line no.  2: Token: TK_COMMENT Lexeme: %Do not run your parser on this test case
-Line no.  4: Token: TK_COMMENT Lexeme: %The following program computes the function value for the user defined input
-Line no.  5: Token: TK_MAIN Lexeme: _main
-Line no.  5: Token: TK_INPUT Lexeme: input
-Line no.  5: Token: TK_FUNID Lexeme: _input
-Line no.  5: Token: TK_PARAMETER Lexeme: parameter
-Line no.  5: Token: TK_LIST Lexeme: list
-Line no.  5: Token: TK_SQL Lexeme: [
-Line no.  5: Token: TK_INT Lexeme: int
-Line no.  5: Token: TK_ID Lexeme: c3
-Line no.  5: Token: TK_COMMA Lexeme: ,
-Line no.  5: Token: TK_SQR Lexeme: ]
-Line no.  5: Token: TK_OUTPUT Lexeme: output
-Line no.  5: Token: TK_SQL Lexeme: [
-Line no.  5: Token: TK_REAL Lexeme: real
-Line no.  5: Token: TK_ID Lexeme: c6
-Line no.  5: Token: TK_SQR Lexeme: ]
-Line no.  5: Token: TK_SEM Lexeme: ;
-Line no.  5: Token: TK_FUNID Lexeme: _computeFunctionValue
-Line no.  6: Token: TK_ID Lexeme: d4cbcd5677
-Line no.  6: Token: TK_ASSIGNOP Lexeme: <---
-Line no.  6: Token: TK_OP Lexeme: (
-Line no.  6: Token: TK_OP Lexeme: (
-Line no.  6: Token: TK_ID Lexeme: c3
-Line no.  6: Token: TK_PLUS Lexeme: +
-Line no.  6: Token: TK_NUM Lexeme: 2
-Line no.  6: Token: TK_MUL Lexeme: *
-Line no.  6: Token: TK_ID Lexeme: c4
-Line no.  6: Token: TK_MINUS Lexeme: -
-Line no.  6: Token: TK_OP Lexeme: (
-Line no.  6: Token: TK_ID Lexeme: c5
-Line no.  6: Token: TK_MINUS Lexeme: -
-Line no.  6: Token: TK_NUM Lexeme: 5
-Line no.  6: Token: TK_CL Lexeme: )
-Line no.  6: Token: TK_CL Lexeme: )
-Line no.  6: Token: TK_DIV Lexeme: /
-Line no.  6: Token: TK_NUM Lexeme: 4
-Line no.  6: Token: TK_SEM Lexeme: ;
-Line no.  6: Token: TK_ID Lexeme: c4bbb
-Line no.  6: Token: TK_LT Lexeme: <
-Line no.  6: Token: TK_LE Lexeme: <=
-Line no.  6: Token: TK_LE Lexeme: <=
-error, lol
-error i guess
-Line no.  6: Token: TK_MINUS Lexeme: -
-Line no.  6: Token: TK_MINUS Lexeme: -
-Line no.  6: Token: TK_MINUS Lexeme: -
-Line no.  6: Token: TK_OP Lexeme: (
-Line no.  6: Token: TK_ID Lexeme: d4cbcd5677
-Line no.  6: Token: TK_MINUS Lexeme: -
-Line no.  6: Token: TK_RNUM Lexeme: 2.35
-Line no.  6: Token: TK_PLUS Lexeme: +
-Line no.  6: Token: TK_RNUM Lexeme: 34.98E+23
-Line no.  6: Token: TK_CL Lexeme: )
-Line no.  6: Token: TK_MUL Lexeme: *
-Line no.  6: Token: TK_DIV Lexeme: /
-error, lol
-error i guess
-error, lol
-error i guess
-error, lol
-error i guess
-Line no.  6: Token: TK_AND Lexeme: &&&
-Line no.  6: Token: TK_SEM Lexeme: ;
-Line no.  7: Token: TK_IF Lexeme: if
-Line no.  7: Token: TK_PLUS Lexeme: +
-Line no.  7: Token: TK_THEN Lexeme: then
-Line no.  7: Token: TK_FUNID Lexeme: _AbC23
-error, lol
-error i guess
-Line no.  7: Token: TK_FIELDID Lexeme: ew
-error, lol
-error i guess
-Line no.  7: Token: TK_RNUM Lexeme: 34.54E-23
-Line no.  7: Token: TK_SEM Lexeme: ;
-Line no.  7: Token: TK_ELSE Lexeme: else
-Line no.  7: Token: TK_DIV Lexeme: /
-Line no.  7: Token: TK_WRITE Lexeme: write
-Line no.  7: Token: TK_OP Lexeme: (
-Line no.  7: Token: TK_ID Lexeme: c4bbb
-Line no.  7: Token: TK_CL Lexeme: )
-Line no.  7: Token: TK_SEM Lexeme: ;
-Line no.  8: Token: TK_ENDIF Lexeme: endif
-Line no.  8: Token: TK_LT Lexeme: <
-Line no.  8: Token: TK_TYPE Lexeme: type
-Line no.  8: Token: TK_GE Lexeme: >=
-Line no.  8: Token: TK_INT Lexeme: int
-Line no.  8: Token: TK_COLON Lexeme: :
-Line no.  8: Token: TK_ID Lexeme: d5cb34567
-Line no.  8: Token: TK_COLON Lexeme: :
-Line no.  8: Token: TK_GLOBAL Lexeme: global
-Line no.  8: Token: TK_FUNID Lexeme: _abc
-Line no.  8: Token: TK_GE Lexeme: !=
-Line no.  8: Token: TK_NOT Lexeme: ~
-Line no.  8: Token: TK_ID Lexeme: d4cbcccccccccccccbbbbbbbbdddd5222222222222633333333333377
-Line no.  8: Token: TK_NOT Lexeme: ~
-Line no.  8: Token: TK_SEM Lexeme: ;
-error, lol
-error i guess
-Line no.  9: Token: TK_RNUM Lexeme: 2543.23E45
-Line no.  9: Token: TK_MINUS Lexeme: -
-Line no.  9: Token: TK_NUM Lexeme: 432
-Line no.  9: Token: TK_PLUS Lexeme: +
-Line no.  9: Token: TK_RNUM Lexeme: 343333.55E-12
-Line no.  9: Token: TK_NUM Lexeme: 4
-Line no.  9: Token: TK_SEM Lexeme: ;
-error, lol
-error i guess
-Line no. 10: T
+Line no.  4 Lexeme _sumN		Token TK_FUNID
+Line no.  4 Lexeme input		Token TK_INPUT
+Line no.  4 Lexeme parameter		Token TK_PARAMETER
+Line no.  4 Lexeme list		Token TK_LIST
+Line no.  4 Lexeme [		Token TK_SQL
+Line no.  4 Lexeme int		Token TK_INT
+Line no.  4 Lexeme d5cc34		Token TK_ID
+Line no.  4 Lexeme ]		Token TK_SQR
+Line no.  5 Lexeme output		Token TK_OUTPUT
+Line no.  5 Lexeme parameter		Token TK_PARAMETER
+Line no.  5 Lexeme list		Token TK_LIST
+Line no.  5 Lexeme [		Token TK_SQL
+Line no.  5 Lexeme real		Token TK_REAL
+Line no.  5 Lexeme d3		Token TK_ID
+Line no.  5 Lexeme ]		Token TK_SQR
+Line no.  5 Lexeme ;		Token TK_SEM
+Line no.  6 Lexeme type		Token TK_TYPE
+Line no.  6 Lexeme int		Token TK_INT
+Line no.  6 Lexeme :		Token TK_COLON
+Line no.  6 Lexeme b5b567		Token TK_ID
+Line no.  6 Lexeme ;		Token TK_SEM
+Line no.  7 Lexeme b5b567		Token TK_ID
+Line no.  7 Lexeme <---		Token TK_ASSIGNOP
+Line no.  7 Lexeme 1		Token TK_NUM
+Line no.  7 Lexeme ;		Token TK_SEM
+Line no.  8 Lexeme d3		Token TK_ID
+Line no.  8 Lexeme <---		Token TK_ASSIGNOP
+Line no.  8 Lexeme 0.00		Token TK_RNUM
+Line no.  8 Lexeme ;		Token TK_SEM
+Line no.  9 Lexeme while		Token TK_WHILE
+Line no.  9 Lexeme (		Token TK_OP
+Line no.  9 Lexeme b5b567		Token TK_ID
+Line no.  9 Lexeme <=		Token TK_LE
+Line no.  9 Lexeme d5cc34		Token TK_ID
+Line no.  9 Lexeme )		Token TK_CL
+Line no. 10 Lexeme read		Token TK_READ
+Line no. 10 Lexeme (		Token TK_OP
+Line no. 10 Lexeme c3bd		Token TK_ID
+Line no. 10 Lexeme )		Token TK_CL
+Line no. 10 Lexeme ;		Token TK_SEM
+Line no. 11 Lexeme d3		Token TK_ID
+Line no. 11 Lexeme <---		Token TK_ASSIGNOP
+Line no. 11 Lexeme d3		Token TK_ID
+Line no. 11 Lexeme +		Token TK_PLUS
+Line no. 11 Lexeme c3bd		Token TK_ID
+Line no. 11 Lexeme ;		Token TK_SEM
+Line no. 12 Lexeme b5b567		Token TK_ID
+Line no. 12 Lexeme <---		Token TK_ASSIGNOP
+Line no. 12 Lexeme b5b567		Token TK_ID
+Line no. 12 Lexeme +		Token TK_PLUS
+Line no. 12 Lexeme 1		Token TK_NUM
+Line no. 12 Lexeme ;		Token TK_SEM
+Line no. 13 Lexeme endwhile		Token TK_ENDWHILE
+Line no. 14 Lexeme return		Token TK_RETURN
+Line no. 14 Lexeme [		Token TK_SQL
+Line no. 14 Lexeme d3		Token TK_ID
+Line no. 14 Lexeme ]		Token TK_SQR
+Line no. 14 Lexeme ;		Token TK_SEM
+Line no. 15 Lexeme end		Token TK_END
+Line no. 17 Lexeme _main		Token TK_MAIN
+Line no. 18 Lexeme type		Token TK_TYPE
+Line no. 18 Lexeme int		Token TK_INT
+Line no. 18 Lexeme :		Token TK_COLON
+Line no. 18 Lexeme b3		Token TK_ID
+Line no. 18 Lexeme ;		Token TK_SEM
+Line no. 19 Lexeme type		Token TK_TYPE
+Line no. 19 Lexeme real		Token TK_REAL
+Line no. 19 Lexeme :		Token TK_COLON
+Line no. 19 Lexeme c4bd56		Token TK_ID
+Line no. 19 Lexeme ;		Token TK_SEM
+Line no. 20 Lexeme b3		Token TK_ID
+Line no. 20 Lexeme <---		Token TK_ASSIGNOP
+Line no. 20 Lexeme 7		Token TK_NUM
+Line no. 20 Lexeme ;		Token TK_SEM
+Line no. 21 Lexeme [		Token TK_SQL
+Line no. 21 Lexeme c4bd56		Token TK_ID
+Line no. 21 Lexeme ]		Token TK_SQR
+Line no. 21 Lexeme <---		Token TK_ASSIGNOP
+Line no. 21 Lexeme call		Token TK_CALL
+Line no. 21 Lexeme _sumN		Token TK_FUNID
+Line no. 21 Lexeme with		Token TK_WITH
+Line no. 21 Lexeme parameters		Token TK_PARAMETERS
+Line no. 21 Lexeme [		Token TK_SQL
+Line no. 21 Lexeme b3		Token TK_ID
+Line no. 21 Lexeme ]		Token TK_SQR
+Line no. 21 Lexeme ;		Token TK_SEM
+Line no. 22 Lexeme write		Token TK_WRITE
+Line no. 22 Lexeme (		Token TK_OP
+Line no. 22 Lexeme c4bd56		Token TK_ID
+Line no. 22 Lexeme )		Token TK_CL
+Line no. 22 Lexeme ;		Token TK_SEM
+Line no. 23 Lexeme return		Token TK_RETURN
+Line no. 23 Lexeme ;		Token TK_SEM
+Line no. 24 Lexeme end		Token TK_END
+error, lol ÿ
+Line no.  0 Lexeme (null)		Token TK_EOF

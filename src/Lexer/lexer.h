@@ -2,6 +2,7 @@
 #define LEXER_H
 
 #include "Utils/hashtable.h"
+#include "Utils/twinbuffer.h"
 #include "lexerDef.h"
 
 /**
@@ -9,15 +10,19 @@
  * Initializes the twin buffer
  * Sets the begin and lookahead pointers
  */
-void initLexer(FILE *src_ptr);
+TwinBuffer initLexer(FILE *src_ptr);
 
-TokenInfo getNextToken();
+TokenInfo getNextToken(TwinBuffer *tb);
 
 void removeComments(char *testcaseFile, char *cleanFile);
 
 char *getTokenTypeName(TokenType tk);
 
 void printTokenInfo(TokenInfo t);
+
+void freeToken(TokenInfo *t);
+
+void freeTwinBuffer(TwinBuffer *tb);
 
 extern hashtable lookup_table;
 

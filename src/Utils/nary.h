@@ -1,3 +1,6 @@
+#ifndef NARY_H
+#define NARY_H
+
 #include "utils.h"
 
 typedef struct TreeNode {
@@ -13,4 +16,6 @@ typedef struct TreeNode {
 
 typedef TreeNode *nary_root;
 
-TreeNode *nary_addChild(TreeNode *node, int val, bool is_leaf) {
+TreeNode *nary_addChild(TreeNode *node, int val, bool is_leaf);
+
+#endif

@@ -10,14 +10,16 @@ SRC = ./src/Lexer/lexer.c \
 ./src/Utils/utils.c \
 ./src/Utils/bitvector.c \
 ./src/Utils/hashtable.c \
+./src/Utils/twinbuffer.c \
  ./src/driver.c
 
 OBJ = lexer.o \
 	  parser.o \
 	  utils.o \
 	  bitvector.o \
-	  driver.o \
-	  hashtable.o
+	  hashtable.o \
+	  twinbuffer.o \
+	  driver.o
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ)

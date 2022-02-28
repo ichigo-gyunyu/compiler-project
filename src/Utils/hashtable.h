@@ -1,5 +1,3 @@
-// insert into table
-// lookup
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 

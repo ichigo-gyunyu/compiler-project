@@ -2,6 +2,7 @@
 
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
+#include "Utils/twinbuffer.h"
 
 #define GRAMMAR_FILE "data/grammar.txt"
 
@@ -12,16 +13,19 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    initLexer(fp);
-    TokenInfo t = {0};
+    TwinBuffer tb = initLexer(fp);
+    TokenInfo  t  = {0};
     while (t.tk_type != TK_EOF) {
-        t = getNextToken();
+        t = getNextToken(&tb);
         if (t.tk_type == END_TOKENTYPE) {
-            printf("error i guess\n");
             continue;
         }
-        printTokenInfo(t);
+
+        if (t.tk_type != TK_COMMENT)
+            printTokenInfo(t);
+        freeToken(&t);
     }
+    freeTwinBuffer(&tb);
 
     fclose(fp);
 
