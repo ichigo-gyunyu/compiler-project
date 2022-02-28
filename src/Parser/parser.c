@@ -12,6 +12,7 @@ char   *getNonTerimnalName(NonTerminal nt);
 static Grammar g;
 hashtable      NtToEnum;
 hashtable      TkToEnum;
+static bool    htinit = false;
 
 // for debugging
 // TODO surround in ifdef DEBUG_FLAG block
@@ -72,11 +73,15 @@ static char *const NonTerminalNames[] = {
 };
 
 Grammar initParser(char *grammarFile) {
-    ht_init(&NtToEnum, NONTERMINAL_COUNT);
-    populateNtToEnum();
+    if (!htinit) {
+        ht_init(&NtToEnum, NONTERMINAL_COUNT);
+        populateNtToEnum();
 
-    ht_init(&TkToEnum, TOKEN_COUNT);
-    populateTkToEnum();
+        ht_init(&TkToEnum, TOKEN_COUNT);
+        populateTkToEnum();
+    }
+
+    htinit = true;
 
     g = loadGrammarFromFile(grammarFile);
     return g;
@@ -549,12 +554,12 @@ void parseInputSourceCode(char *testcaseFile) {
     bool      has_errors = false;
     for (;;) {
         StackElement *se = st_top(s); // declare it outside?
-        if (se == NULL)
+        if (se == NULL) {
             break;
+        }
 
         // redundant checks sometimes, can be optimized
         if (t.tk_type == END_TOKENTYPE) {
-            printf("Lexical error:\n");
             freeToken(&t);
             t = getNextToken(tb);
 
@@ -610,24 +615,18 @@ void parseInputSourceCode(char *testcaseFile) {
                 if (t.tk_type != TK_SEM) {
                     printf("Line %3d Error: Invalid token %s encountered with value %s stack top %s\n", t.line_no,
                            getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
-                    has_errors = true;
-                    freeToken(&t);
-                    bool has_syn     = false;
-                    bool reached_eof = false;
+                    has_errors   = true;
+                    bool has_syn = false;
                     do {
+                        freeToken(&t);
                         t = getNextToken(tb);
-                        if (t.tk_type == TK_EOF) {
-                            reached_eof = true;
-                            st_pop(s);
-                            break;
-                        }
-                        if (t.tk_type == END_TOKENTYPE) {
+                        if (t.tk_type == END_TOKENTYPE || t.tk_type == TK_EOF) {
                             break;
                         }
                         if (pt[stack_val][t.tk_type].syn)
                             has_syn = true;
-                    } while (!has_syn);
-                    if (!reached_eof && has_syn) {
+                    } while (has_syn);
+                    if (has_syn) {
                         st_pop(s);
                     }
                 } else {
@@ -635,6 +634,15 @@ void parseInputSourceCode(char *testcaseFile) {
                     t = getNextToken(tb);
                 }
             }
+        }
+
+        // eof check
+        if (t.tk_type == TK_EOF) {
+            StackElement *se = st_top(s);
+            if (!(se && se->val == TK_EOF)) {
+                has_errors = true;
+            }
+            break;
         }
     }
 

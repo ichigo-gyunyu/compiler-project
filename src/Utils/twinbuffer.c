@@ -54,6 +54,9 @@ void tb_retract(TwinBuffer *tb, uint *linenum) {
         tb->lookahead--;
     }
 
+    if (tb->lookahead == tb->buff[tb->lookahead_buffnum] - 1)
+        printf("XXX\n");
+
     if (*tb->lookahead == '\n')
         *linenum = *linenum - 1;
 }

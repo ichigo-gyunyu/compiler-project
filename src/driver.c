@@ -8,28 +8,30 @@
 
 int main(int argc, char **argv) {
 
-    FILE *fp = fopen("data/a.txt", "r");
-    /* for (;;) {
-        char c = fgetc(fp);
-        printf("%c - %d\n", c, c);
-        if (feof(fp))
-            break;
+    static char *tc[] = {
+        "testcases/t1.txt", "testcases/t2.txt", "testcases/t3.txt", "testcases/t4.txt",
+        "testcases/t5.txt", "testcases/t6.txt", "testcases/t7.txt",
+    };
+
+    /* for (int i = 5; i < 6; i++) {
+        FILE       *fp = fopen(tc[i], "r");
+        TwinBuffer *tb = initLexer(&fp);
+        TokenInfo   t  = getNextToken(tb);
+        while (t.tk_type != TK_EOF) {
+            if (t.tk_type != END_TOKENTYPE)
+                printTokenInfo(t);
+            freeToken(&t);
+            t = getNextToken(tb);
+        }
+        freeToken(&t);
+        freeTwinBuffer(tb);
+        printf("\n----------------------------\n");
     } */
 
-    TwinBuffer *tb = initLexer(&fp);
-    TokenInfo   t  = getNextToken(tb);
-    while (t.tk_type != TK_EOF) {
-        if (t.tk_type != END_TOKENTYPE)
-            printTokenInfo(t);
-        freeToken(&t);
-        t = getNextToken(tb);
+    for (int i = 0; i < 7; i++) {
+        parseInputSourceCode(tc[i]);
+        printf("\n----------------------------\n");
     }
-    freeToken(&t);
-    freeTwinBuffer(tb);
-    free(tb);
-    fclose(fp);
-
-    // parseInputSourceCode("data/a.txt");
 
     /* while (1) {
         char ch = fgetc(fp);

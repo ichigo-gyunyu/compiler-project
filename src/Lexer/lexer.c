@@ -1,9 +1,11 @@
 #include "lexer.h"
 
-static uint line_number = 1;
+uint line_number = 1;
 
 hashtable        lookup_table;
+bool             seen_eof = false;
 static hashtable valid_chars;
+static bool      htinit = false;
 
 // for debugging
 // TODO surround in ifdef DEBUG_FLAG block
@@ -92,6 +94,9 @@ TokenType getMainOrFunID(char *lex);
 void      printTokenInfo(TokenInfo t);
 
 TwinBuffer *initLexer(FILE **src_ptr) {
+    line_number = 1;
+    seen_eof    = false;
+
     // initialize the twin buffer
     TwinBuffer *tb = calloc(1, sizeof *tb);
     tb->buff[0]    = calloc(BLOCKSZ, sizeof *tb->buff[0]);
@@ -103,9 +108,12 @@ TwinBuffer *initLexer(FILE **src_ptr) {
     tb->fp         = src_ptr;
     tb_loadNextBuff(tb);
 
-    initLookupTable();
-    initValidCharsTable();
+    if (!htinit) {
+        initLookupTable();
+        initValidCharsTable();
+    }
 
+    htinit = true;
     return tb;
 }
 
@@ -175,17 +183,11 @@ void printTokenInfo(TokenInfo t) {
 }
 
 #define ERROR_STATE 58
-bool      seen_eof = false;
 TokenInfo getNextToken(TwinBuffer *tb) {
     uint dfa_state        = 0;
     bool err_from_state_0 = false;
 
-    char c = tb_nextChar(tb, &line_number);
-    if (seen_eof || c == EOF) {
-        seen_eof = true;
-        return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL};
-    }
-    tb_retract(tb, &line_number);
+    char c;
 
     for (;;) {
         switch (dfa_state) {
@@ -634,7 +636,7 @@ TokenInfo getNextToken(TwinBuffer *tb) {
             return accept_noretract(tb, TK_NE);
 
         case ERROR_STATE:
-            if (c == EOF) {
+            if (seen_eof || c == EOF) {
                 seen_eof = true;
                 return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL, .line_no = line_number};
             }
@@ -723,9 +725,11 @@ void freeToken(TokenInfo *t) {
 
 void freeTwinBuffer(TwinBuffer *tb) {
     if (tb) {
+        fclose(*(tb->fp));
         if (tb->buff[0])
             free(tb->buff[0]);
         if (tb->buff[1])
             free(tb->buff[1]);
+        free(tb);
     }
 }
