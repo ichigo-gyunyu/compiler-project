@@ -1,96 +1,615 @@
-Line no.  4 Lexeme _sumN		Token TK_FUNID
-Line no.  4 Lexeme input		Token TK_INPUT
-Line no.  4 Lexeme parameter		Token TK_PARAMETER
-Line no.  4 Lexeme list		Token TK_LIST
-Line no.  4 Lexeme [		Token TK_SQL
-Line no.  4 Lexeme int		Token TK_INT
-Line no.  4 Lexeme d5cc34		Token TK_ID
-Line no.  4 Lexeme ]		Token TK_SQR
-Line no.  5 Lexeme output		Token TK_OUTPUT
-Line no.  5 Lexeme parameter		Token TK_PARAMETER
-Line no.  5 Lexeme list		Token TK_LIST
-Line no.  5 Lexeme [		Token TK_SQL
-Line no.  5 Lexeme real		Token TK_REAL
-Line no.  5 Lexeme d3		Token TK_ID
-Line no.  5 Lexeme ]		Token TK_SQR
-Line no.  5 Lexeme ;		Token TK_SEM
-Line no.  6 Lexeme type		Token TK_TYPE
-Line no.  6 Lexeme int		Token TK_INT
-Line no.  6 Lexeme :		Token TK_COLON
-Line no.  6 Lexeme b5b567		Token TK_ID
-Line no.  6 Lexeme ;		Token TK_SEM
-Line no.  7 Lexeme b5b567		Token TK_ID
-Line no.  7 Lexeme <---		Token TK_ASSIGNOP
-Line no.  7 Lexeme 1		Token TK_NUM
-Line no.  7 Lexeme ;		Token TK_SEM
-Line no.  8 Lexeme d3		Token TK_ID
-Line no.  8 Lexeme <---		Token TK_ASSIGNOP
-Line no.  8 Lexeme 0.00		Token TK_RNUM
-Line no.  8 Lexeme ;		Token TK_SEM
-Line no.  9 Lexeme while		Token TK_WHILE
-Line no.  9 Lexeme (		Token TK_OP
-Line no.  9 Lexeme b5b567		Token TK_ID
-Line no.  9 Lexeme <=		Token TK_LE
-Line no.  9 Lexeme d5cc34		Token TK_ID
-Line no.  9 Lexeme )		Token TK_CL
-Line no. 10 Lexeme read		Token TK_READ
-Line no. 10 Lexeme (		Token TK_OP
-Line no. 10 Lexeme c3bd		Token TK_ID
-Line no. 10 Lexeme )		Token TK_CL
-Line no. 10 Lexeme ;		Token TK_SEM
-Line no. 11 Lexeme d3		Token TK_ID
-Line no. 11 Lexeme <---		Token TK_ASSIGNOP
-Line no. 11 Lexeme d3		Token TK_ID
-Line no. 11 Lexeme +		Token TK_PLUS
-Line no. 11 Lexeme c3bd		Token TK_ID
-Line no. 11 Lexeme ;		Token TK_SEM
-Line no. 12 Lexeme b5b567		Token TK_ID
-Line no. 12 Lexeme <---		Token TK_ASSIGNOP
-Line no. 12 Lexeme b5b567		Token TK_ID
-Line no. 12 Lexeme +		Token TK_PLUS
-Line no. 12 Lexeme 1		Token TK_NUM
-Line no. 12 Lexeme ;		Token TK_SEM
-Line no. 13 Lexeme endwhile		Token TK_ENDWHILE
-Line no. 14 Lexeme return		Token TK_RETURN
-Line no. 14 Lexeme [		Token TK_SQL
-Line no. 14 Lexeme d3		Token TK_ID
-Line no. 14 Lexeme ]		Token TK_SQR
-Line no. 14 Lexeme ;		Token TK_SEM
-Line no. 15 Lexeme end		Token TK_END
-Line no. 17 Lexeme _main		Token TK_MAIN
-Line no. 18 Lexeme type		Token TK_TYPE
-Line no. 18 Lexeme int		Token TK_INT
-Line no. 18 Lexeme :		Token TK_COLON
-Line no. 18 Lexeme b3		Token TK_ID
-Line no. 18 Lexeme ;		Token TK_SEM
-Line no. 19 Lexeme type		Token TK_TYPE
-Line no. 19 Lexeme real		Token TK_REAL
-Line no. 19 Lexeme :		Token TK_COLON
-Line no. 19 Lexeme c4bd56		Token TK_ID
-Line no. 19 Lexeme ;		Token TK_SEM
-Line no. 20 Lexeme b3		Token TK_ID
-Line no. 20 Lexeme <---		Token TK_ASSIGNOP
-Line no. 20 Lexeme 7		Token TK_NUM
-Line no. 20 Lexeme ;		Token TK_SEM
-Line no. 21 Lexeme [		Token TK_SQL
-Line no. 21 Lexeme c4bd56		Token TK_ID
-Line no. 21 Lexeme ]		Token TK_SQR
-Line no. 21 Lexeme <---		Token TK_ASSIGNOP
-Line no. 21 Lexeme call		Token TK_CALL
-Line no. 21 Lexeme _sumN		Token TK_FUNID
-Line no. 21 Lexeme with		Token TK_WITH
-Line no. 21 Lexeme parameters		Token TK_PARAMETERS
-Line no. 21 Lexeme [		Token TK_SQL
-Line no. 21 Lexeme b3		Token TK_ID
-Line no. 21 Lexeme ]		Token TK_SQR
-Line no. 21 Lexeme ;		Token TK_SEM
-Line no. 22 Lexeme write		Token TK_WRITE
-Line no. 22 Lexeme (		Token TK_OP
-Line no. 22 Lexeme c4bd56		Token TK_ID
-Line no. 22 Lexeme )		Token TK_CL
-Line no. 22 Lexeme ;		Token TK_SEM
-Line no. 23 Lexeme return		Token TK_RETURN
-Line no. 23 Lexeme ;		Token TK_SEM
-Line no. 24 Lexeme end		Token TK_END
-error, lol ÿ
-Line no.  0 Lexeme (null)		Token TK_EOF
+Initialised lexer
+Loaded grammar
+Computed first and follow
+Constructed Parse Table
+Top of the stack: program. Current input token: TK_FUNID. Current lexeme: _unionfunction
+Top of the stack: otherFunctions. Current input token: TK_FUNID. Current lexeme: _unionfunction
+Top of the stack: function. Current input token: TK_FUNID. Current lexeme: _unionfunction
+Top of the stack: TK_FUNID. Current input token: TK_FUNID. Current lexeme: _unionfunction
+Top of the stack: input_par. Current input token: TK_INPUT. Current lexeme: input
+Top of the stack: TK_INPUT. Current input token: TK_INPUT. Current lexeme: input
+Top of the stack: TK_PARAMETER. Current input token: TK_PARAMETER. Current lexeme: parameter
+Top of the stack: TK_LIST. Current input token: TK_LIST. Current lexeme: list
+Top of the stack: TK_SQL. Current input token: TK_SQL. Current lexeme: [
+Top of the stack: parameter_list. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: dataType. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: constructedDatatype. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #two
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d5cc34
+Top of the stack: remaining_list. Current input token: TK_COMMA. Current lexeme: ,
+Top of the stack: TK_COMMA. Current input token: TK_COMMA. Current lexeme: ,
+Top of the stack: parameter_list. Current input token: TK_RUID. Current lexeme: #oint
+Top of the stack: dataType. Current input token: TK_RUID. Current lexeme: #oint
+Top of the stack: constructedDatatype. Current input token: TK_RUID. Current lexeme: #oint
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #oint
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: c5
+Top of the stack: remaining_list. Current input token: TK_SQR. Current lexeme: ]
+Top of the stack: TK_SQR. Current input token: TK_SQR. Current lexeme: ]
+Top of the stack: output_par. Current input token: TK_OUTPUT. Current lexeme: output
+Top of the stack: TK_OUTPUT. Current input token: TK_OUTPUT. Current lexeme: output
+Top of the stack: TK_PARAMETER. Current input token: TK_PARAMETER. Current lexeme: parameter
+Top of the stack: TK_LIST. Current input token: TK_LIST. Current lexeme: list
+Top of the stack: TK_SQL. Current input token: TK_SQL. Current lexeme: [
+Top of the stack: parameter_list. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: dataType. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: primitiveDatatype. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: TK_REAL. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: remaining_list. Current input token: TK_SQR. Current lexeme: ]
+Top of the stack: TK_SQR. Current input token: TK_SQR. Current lexeme: ]
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: stmts. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: typeDefinitions. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: actualOrRedefined. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: typeDefinition. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #two
+Top of the stack: fieldDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: beginpoint
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: endpoint
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: moreFields. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: TK_ENDRECORD. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: typeDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: constructedDatatype. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #two
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: global_or_not. Current input token: TK_COMMA. Current lexeme: ,
+Syntax error: parse table
+Top of the stack: global_or_not. Current input token: TK_ID. Current lexeme: c6
+Syntax error: parse table
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: constructedDatatype. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #one
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b3
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: constructedDatatype. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d5
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: term. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: var. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: option_single_constructed. Current input token: TK_MUL. Current lexeme: *
+Top of the stack: termPrime. Current input token: TK_MUL. Current lexeme: *
+Top of the stack: highPrecedenceOperators. Current input token: TK_MUL. Current lexeme: *
+Top of the stack: TK_MUL. Current input token: TK_MUL. Current lexeme: *
+Top of the stack: factor. Current input token: TK_NUM. Current lexeme: 2
+Top of the stack: var. Current input token: TK_NUM. Current lexeme: 2
+Top of the stack: TK_NUM. Current input token: TK_NUM. Current lexeme: 2
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: b3
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: b3
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: b3
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b3
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b3
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: term. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: var. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: c6
+Top of the stack: option_single_constructed. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: termPrime. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: expPrime. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: lowPrecedenceOperators. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: TK_MINUS. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: term. Current input token: TK_ID. Current lexeme: c3
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: c3
+Top of the stack: var. Current input token: TK_ID. Current lexeme: c3
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: c3
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: c3
+Top of the stack: option_single_constructed. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_WHILE. Current lexeme: while
+Top of the stack: stmt. Current input token: TK_WHILE. Current lexeme: while
+Top of the stack: iterativeStmt. Current input token: TK_WHILE. Current lexeme: while
+Top of the stack: TK_WHILE. Current input token: TK_WHILE. Current lexeme: while
+Top of the stack: TK_OP. Current input token: TK_OP. Current lexeme: (
+Top of the stack: booleanExpression. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: option_single_constructed. Current input token: TK_LE. Current lexeme: <=
+Top of the stack: relationalOp. Current input token: TK_LE. Current lexeme: <=
+Top of the stack: TK_LE. Current input token: TK_LE. Current lexeme: <=
+Top of the stack: var. Current input token: TK_ID. Current lexeme: d5cc34
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d5cc34
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d5cc34
+Top of the stack: option_single_constructed. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_CL. Current input token: TK_CL. Current lexeme: )
+Top of the stack: stmt. Current input token: TK_READ. Current lexeme: read
+Top of the stack: ioStmt. Current input token: TK_READ. Current lexeme: read
+Top of the stack: TK_READ. Current input token: TK_READ. Current lexeme: read
+Top of the stack: TK_OP. Current input token: TK_OP. Current lexeme: (
+Top of the stack: var. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: option_single_constructed. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_CL. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: term. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: var. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: option_single_constructed. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: termPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: expPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: lowPrecedenceOperators. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: TK_PLUS. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: term. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: var. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: c3bd
+Top of the stack: option_single_constructed. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: term. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5b567
+Top of the stack: option_single_constructed. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: termPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: expPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: lowPrecedenceOperators. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: TK_PLUS. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: term. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: factor. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: var. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: TK_NUM. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_ENDWHILE. Current lexeme: endwhile
+Top of the stack: TK_ENDWHILE. Current input token: TK_ENDWHILE. Current lexeme: endwhile
+Top of the stack: otherStmts. Current input token: TK_RETURN. Current lexeme: return
+Top of the stack: returnStmt. Current input token: TK_RETURN. Current lexeme: return
+Top of the stack: TK_RETURN. Current input token: TK_RETURN. Current lexeme: return
+Top of the stack: optionalReturn. Current input token: TK_SQL. Current lexeme: [
+Top of the stack: TK_SQL. Current input token: TK_SQL. Current lexeme: [
+Top of the stack: idList. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d3
+Top of the stack: more_ids. Current input token: TK_SQR. Current lexeme: ]
+Top of the stack: TK_SQR. Current input token: TK_SQR. Current lexeme: ]
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_END. Current input token: TK_END. Current lexeme: end
+Top of the stack: otherFunctions. Current input token: TK_MAIN. Current lexeme: _main
+Top of the stack: mainFunction. Current input token: TK_MAIN. Current lexeme: _main
+Top of the stack: TK_MAIN. Current input token: TK_MAIN. Current lexeme: _main
+Top of the stack: stmts. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: typeDefinitions. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: actualOrRedefined. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: typeDefinition. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #one
+Top of the stack: fieldDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: primitiveDatatype. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: TK_REAL. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: x
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: primitiveDatatype. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: TK_REAL. Current input token: TK_REAL. Current lexeme: real
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: y
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: moreFields. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: TK_ENDRECORD. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: typeDefinitions. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: actualOrRedefined. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: definetypestmt. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: TK_DEFINETYPE. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: recOrUnion. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #one
+Top of the stack: TK_AS. Current input token: TK_AS. Current lexeme: as
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: typeDefinitions. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: actualOrRedefined. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: definetypestmt. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: TK_DEFINETYPE. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: recOrUnion. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #two
+Top of the stack: TK_AS. Current input token: TK_AS. Current lexeme: as
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: typeDefinitions. Current input token: TK_UNION. Current lexeme: union
+Top of the stack: actualOrRedefined. Current input token: TK_UNION. Current lexeme: union
+Top of the stack: typeDefinition. Current input token: TK_UNION. Current lexeme: union
+Top of the stack: TK_UNION. Current input token: TK_UNION. Current lexeme: union
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #four
+Top of the stack: fieldDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: ln
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #point
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: pt
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: moreFields. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #traingle
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #traingle
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: tr
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: moreFields. Current input token: TK_ENDUNION. Current lexeme: endunion
+Top of the stack: TK_ENDUNION. Current input token: TK_ENDUNION. Current lexeme: endunion
+Top of the stack: typeDefinitions. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: typeDefinitions. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: actualOrRedefined. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: definetypestmt. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: TK_DEFINETYPE. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: recOrUnion. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #three
+Top of the stack: TK_AS. Current input token: TK_AS. Current lexeme: as
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #triangle
+Top of the stack: typeDefinitions. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: actualOrRedefined. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: typeDefinition. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #three
+Top of the stack: fieldDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: base
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #line
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: height
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: moreFields. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: TK_ENDRECORD. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: typeDefinitions. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: actualOrRedefined. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: definetypestmt. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: TK_DEFINETYPE. Current input token: TK_DEFINETYPE. Current lexeme: definetype
+Top of the stack: recOrUnion. Current input token: TK_UNION. Current lexeme: union
+Top of the stack: TK_UNION. Current input token: TK_UNION. Current lexeme: union
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #four
+Top of the stack: TK_AS. Current input token: TK_AS. Current lexeme: as
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #shape
+Top of the stack: typeDefinitions. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: actualOrRedefined. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: typeDefinition. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #variantrecord
+Top of the stack: fieldDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_INT. Current lexeme: int
+Top of the stack: primitiveDatatype. Current input token: TK_INT. Current lexeme: int
+Top of the stack: TK_INT. Current input token: TK_INT. Current lexeme: int
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: tag
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: fieldDefinition. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: fieldType. Current input token: TK_RUID. Current lexeme: #shape
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #shape
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: s
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: moreFields. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: TK_ENDRECORD. Current input token: TK_ENDRECORD. Current lexeme: endrecord
+Top of the stack: typeDefinitions. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: constructedDatatype. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #variantrecord
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_INT. Current lexeme: int
+Top of the stack: primitiveDatatype. Current input token: TK_INT. Current lexeme: int
+Top of the stack: TK_INT. Current input token: TK_INT. Current lexeme: int
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_INT. Current lexeme: int
+Top of the stack: primitiveDatatype. Current input token: TK_INT. Current lexeme: int
+Top of the stack: TK_INT. Current input token: TK_INT. Current lexeme: int
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d5cb34567
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: declaration. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: TK_TYPE. Current input token: TK_TYPE. Current lexeme: type
+Top of the stack: dataType. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: constructedDatatype. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RECORD. Current input token: TK_RECORD. Current lexeme: record
+Top of the stack: TK_RUID. Current input token: TK_RUID. Current lexeme: #variantrecord
+Top of the stack: TK_COLON. Current input token: TK_COLON. Current lexeme: :
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: global_or_not. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: declarations. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: term. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: option_single_constructed. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: tag
+Top of the stack: moreExpansions. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: termPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: expPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: lowPrecedenceOperators. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: TK_PLUS. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: term. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: var. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: option_single_constructed. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: s
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: ln
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: beginpoint
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: x
+Top of the stack: moreExpansions. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: termPrime. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: expPrime. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: lowPrecedenceOperators. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: TK_MINUS. Current input token: TK_MINUS. Current lexeme: -
+Top of the stack: term. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: option_single_constructed. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: s
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: tr
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: base
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: beginpoint
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: y
+Top of the stack: moreExpansions. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: term. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5
+Top of the stack: option_single_constructed. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: termPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: expPrime. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: lowPrecedenceOperators. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: TK_PLUS. Current input token: TK_PLUS. Current lexeme: +
+Top of the stack: term. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: factor. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: var. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: TK_NUM. Current input token: TK_NUM. Current lexeme: 1
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: stmt. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: assignmentStmt. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: option_single_constructed. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: TK_ASSIGNOP. Current input token: TK_ASSIGNOP. Current lexeme: <---
+Top of the stack: arithmeticExpression. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: term. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: option_single_constructed. Current input token: TK_DIV. Current lexeme: /
+Top of the stack: termPrime. Current input token: TK_DIV. Current lexeme: /
+Top of the stack: highPrecedenceOperators. Current input token: TK_DIV. Current lexeme: /
+Top of the stack: TK_DIV. Current input token: TK_DIV. Current lexeme: /
+Top of the stack: factor. Current input token: TK_ID. Current lexeme: d5cb34567
+Top of the stack: var. Current input token: TK_ID. Current lexeme: d5cb34567
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d5cb34567
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d5cb34567
+Top of the stack: option_single_constructed. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: termPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: expPrime. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: stmt. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: ioStmt. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: TK_WRITE. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: TK_OP. Current input token: TK_OP. Current lexeme: (
+Top of the stack: var. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: option_single_constructed. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_CL. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: stmt. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: ioStmt. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: TK_WRITE. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: TK_OP. Current input token: TK_OP. Current lexeme: (
+Top of the stack: var. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: d4
+Top of the stack: option_single_constructed. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: s
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: ln
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: beginpoint
+Top of the stack: moreExpansions. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: x
+Top of the stack: moreExpansions. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_CL. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: stmt. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: ioStmt. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: TK_WRITE. Current input token: TK_WRITE. Current lexeme: write
+Top of the stack: TK_OP. Current input token: TK_OP. Current lexeme: (
+Top of the stack: var. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: singleOrRecId. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: TK_ID. Current input token: TK_ID. Current lexeme: b5c6
+Top of the stack: option_single_constructed. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: oneExpansion. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_DOT. Current input token: TK_DOT. Current lexeme: .
+Top of the stack: TK_FIELDID. Current input token: TK_FIELDID. Current lexeme: tag
+Top of the stack: moreExpansions. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_CL. Current input token: TK_CL. Current lexeme: )
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: otherStmts. Current input token: TK_RETURN. Current lexeme: return
+Top of the stack: returnStmt. Current input token: TK_RETURN. Current lexeme: return
+Top of the stack: TK_RETURN. Current input token: TK_RETURN. Current lexeme: return
+Top of the stack: optionalReturn. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_SEM. Current input token: TK_SEM. Current lexeme: ;
+Top of the stack: TK_END. Current input token: TK_END. Current lexeme: end
+Top of the stack: TK_EOF. Current input token: TK_EOF. Current lexeme: (null)

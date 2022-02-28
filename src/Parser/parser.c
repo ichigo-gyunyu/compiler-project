@@ -1,4 +1,7 @@
 #include "parser.h"
+#include "Utils/stack.h"
+
+#define GRAMMAR_FILE "data/grammar.txt"
 
 void    populateNtToEnum();
 void    populateTkToEnum();
@@ -292,7 +295,7 @@ void computeFollow(FirstAndFollow *fnf) {
                     }
 
                     // TODO CHECK
-                    /* SymbolNode *t2 = t->next;
+                    SymbolNode *t2 = t->next;
                     while (t2 != NULL) {
                         if (!fnf[t2->prev->val.val_nt].has_eps) {
                             break;
@@ -307,7 +310,7 @@ void computeFollow(FirstAndFollow *fnf) {
                         fnf[ntB].follow = bv_union(fnf[ntB].follow, fnf[ntD].first, TOKEN_COUNT);
 
                         t2 = t2->next;
-                    } */
+                    }
                     t = t->next;
                 }
 
@@ -396,30 +399,36 @@ void printGrammar(Grammar g) {
     printf("-----------------------------------------------------\n");
 }
 
+#define FNFOUTPUT_FILE "output/firstandfollow.txt"
 void printFirstAndFollow(FirstAndFollow *fnf) {
-    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        printf("\nNon Terminal: %s\n", getNonTerimnalName(i));
-
-        printf("First Set:  ");
-        if (fnf[i].has_eps)
-            printf("eps, ");
-        for (uint j = 0; j < TOKEN_COUNT; j++) {
-            if (bv_contains(fnf[i].first, j)) {
-                printf("%s ", getTokenTypeName(j));
-            }
-        }
-        printf("\n");
-
-        printf("Follow Set: ");
-        for (uint j = 0; j < TOKEN_COUNT; j++) {
-            if (bv_contains(fnf[i].follow, j)) {
-                printf("%s ", getTokenTypeName(j));
-            }
-        }
-        printf("\n");
+    FILE *fp = fopen(FNFOUTPUT_FILE, "w");
+    if (fp == NULL) {
+        exit_msg("Could not open test case file");
     }
 
-    printf("-----------------------------------------------------\n");
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        fprintf(fp, "\nNon Terminal: %s\n", getNonTerimnalName(i));
+
+        fprintf(fp, "First Set:  ");
+        if (fnf[i].has_eps)
+            fprintf(fp, "eps, ");
+        for (uint j = 0; j < TOKEN_COUNT; j++) {
+            if (bv_contains(fnf[i].first, j)) {
+                fprintf(fp, "%s ", getTokenTypeName(j));
+            }
+        }
+        fprintf(fp, "\n");
+
+        fprintf(fp, "Follow Set: ");
+        for (uint j = 0; j < TOKEN_COUNT; j++) {
+            if (bv_contains(fnf[i].follow, j)) {
+                fprintf(fp, "%s ", getTokenTypeName(j));
+            }
+        }
+        fprintf(fp, "\n");
+    }
+
+    fclose(fp);
 }
 
 void fillPTCells(ParseTable pt, bitvector bv, ProductionRule rule, NonTerminal row) {
@@ -449,14 +458,19 @@ ParseTable createParseTable(FirstAndFollow *fnf) {
             ProductionRule rule = g.derivations[i].rhs[j];
             if (rule.rule_length == 0) {
                 fillPTCells(pt, fnf[lhs].follow, rule, lhs);
-            } else if (rule.head->type == TYPE_TK) {
-                bitvector bv;
-                bv_init(&bv, TOKEN_COUNT);
-                bv_set(bv, rule.head->val.val_tk);
-                fillPTCells(pt, bv, rule, lhs);
-                free(bv);
             } else {
-                fillPTCells(pt, fnf[rule.head->val.val_nt].first, rule, lhs);
+                SymbolNode *t = rule.head;
+                if (t->type == TYPE_TK) {
+                    bitvector bv;
+                    bv_init(&bv, TOKEN_COUNT);
+                    bv_set(bv, rule.head->val.val_tk);
+                    fillPTCells(pt, bv, rule, lhs);
+                    free(bv);
+                } else {
+                    fillPTCells(pt, fnf[t->val.val_nt].first, rule, lhs);
+                    if (fnf[t->val.val_nt].has_eps)
+                        fillPTCells(pt, fnf[t->val.val_nt].follow, rule, lhs);
+                }
             }
         }
     }
@@ -464,29 +478,136 @@ ParseTable createParseTable(FirstAndFollow *fnf) {
     return pt;
 }
 
+#define PTOUTPUT_FILE "output/parsetable.txt"
 void printParseTable(ParseTable pt) {
+    FILE *fp = fopen(PTOUTPUT_FILE, "w");
+    if (fp == NULL) {
+        exit_msg("Could not open test case file");
+    }
+
     for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        printf("----------------------------------\n");
         for (uint j = 0; j < TOKEN_COUNT; j++) {
-            printf("[%s, %s]: ", getNonTerimnalName(i), getTokenTypeName(j));
+            fprintf(fp, "[%s, %s]: ", getNonTerimnalName(i), getTokenTypeName(j));
             if (!pt[i][j].filled) {
-                printf("\n");
+                fprintf(fp, "\n");
                 continue;
             }
 
-            printf("%s -> ", getNonTerimnalName(i));
+            fprintf(fp, "%s -> ", getNonTerimnalName(i));
             SymbolNode *trav = pt[i][j].rule.head;
             while (trav != NULL) {
                 if (trav->type == TYPE_TK) {
-                    printf("%s ", getTokenTypeName(trav->val.val_tk));
+                    fprintf(fp, "%s ", getTokenTypeName(trav->val.val_tk));
                 } else {
-                    printf("%s ", getNonTerimnalName(trav->val.val_nt));
+                    fprintf(fp, "%s ", getNonTerimnalName(trav->val.val_nt));
                 }
                 trav = trav->next;
             }
-            printf("\n");
+            fprintf(fp, "\n");
         }
     }
+
+    fclose(fp);
+}
+
+void parseInputSourceCode(char *testcaseFile) {
+    FILE *fp = fopen(testcaseFile, "r");
+    if (fp == NULL) {
+        exit_msg("Could not open test case file");
+    }
+
+    // initialise lexer
+    TwinBuffer tb = initLexer(fp);
+    printf("Initialised lexer\n");
+
+    // initialise parser
+    Grammar g = initParser(GRAMMAR_FILE);
+    printf("Loaded grammar\n");
+    FirstAndFollow *fnf = computeFirstAndFollow(g);
+    printf("Computed first and follow\n");
+    printFirstAndFollow(fnf);
+    ParseTable pt = createParseTable(fnf);
+    printParseTable(pt);
+    printf("Constructed Parse Table\n");
+
+    // setup stack for parsing
+    stack *s = calloc(1, sizeof(stack));
+    st_push(s, TK_EOF, TYPE_TK);
+    st_push(s, program, TYPE_NT); // start symbol
+
+    // begin parsing
+    TokenInfo t          = getNextToken(&tb);
+    bool      has_errors = false;
+    for (;;) {
+        StackElement *se = st_top(s); // declare it outside?
+        if (se == NULL)
+            break;
+
+        // redundant checks sometimes, can be optimized
+        if (t.tk_type == END_TOKENTYPE) {
+            printf("Lexical error found... stopping.\n");
+            has_errors = true;
+            break;
+        }
+
+        while (t.tk_type == TK_COMMENT) {
+            freeToken(&t);
+            t = getNextToken(&tb);
+            continue;
+        }
+
+        /* if (se->type == TYPE_NT)
+            printf("Top of the stack: %s. Current input token: %s. Current lexeme: %s\n", getNonTerimnalName(se->val),
+                   getTokenTypeName(t.tk_type), t.lexeme);
+        else
+            printf("Top of the stack: %s. Current input token: %s. Current lexeme: %s\n", getTokenTypeName(se->val),
+                   getTokenTypeName(t.tk_type), t.lexeme); */
+
+        if (se->type == TYPE_TK) {
+            if (se->val == t.tk_type) {
+                st_pop(s); // stack and input match
+                freeToken(&t);
+                t = getNextToken(&tb);
+            } else {
+                printf("Syntax error: stack mismatch\n");
+                freeToken(&t);
+                t          = getNextToken(&tb);
+                has_errors = true;
+            }
+        }
+
+        else {
+            NonTerminal    stack_val  = se->val;
+            TokenType      curr_input = t.tk_type;
+            ParseTableInfo pti        = pt[stack_val][curr_input];
+            if (pti.filled) {
+                st_pop(s);
+                // fill in reverse order
+                SymbolNode *t = pti.rule.tail;
+                while (t != NULL) {
+                    st_push(s, t->val.val_nt, t->type);
+                    t = t->prev;
+                }
+            } else {
+                // TODO: check if legal
+                if (t.tk_type != TK_SEM) {
+                    printf("Syntax error: parse table\n"); // TODO: error recovery
+                    has_errors = true;
+                }
+                freeToken(&t);
+                t = getNextToken(&tb);
+            }
+        }
+    }
+
+    if (!has_errors)
+        printf("Input source code is syntatically correct\n");
+
+    // free up resources
+    freeParserData(&g, fnf, pt);
+    freeTwinBuffer(&tb);
+    st_free(s);
+    free(s);
 }
 
 char *getNonTerimnalName(NonTerminal nt) { return NonTerminalNames[nt]; }

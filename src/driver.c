@@ -7,27 +7,6 @@
 #define GRAMMAR_FILE "data/grammar.txt"
 
 int main(int argc, char **argv) {
-    FILE *fp = fopen("data/a.txt", "r");
-    if (fp == NULL) {
-        printf("noooo\n");
-        return 1;
-    }
-
-    TwinBuffer tb = initLexer(fp);
-    TokenInfo  t  = {0};
-    while (t.tk_type != TK_EOF) {
-        t = getNextToken(&tb);
-        if (t.tk_type == END_TOKENTYPE) {
-            continue;
-        }
-
-        if (t.tk_type != TK_COMMENT)
-            printTokenInfo(t);
-        freeToken(&t);
-    }
-    freeTwinBuffer(&tb);
-
-    fclose(fp);
 
     /* bitvector bv;
     bv_init(&bv, NONTERMINAL_COUNT);
@@ -51,15 +30,7 @@ int main(int argc, char **argv) {
     free(bv);
     free(bv2); */
 
-    Grammar g = initParser(GRAMMAR_FILE);
-    // printGrammar(g);
-
-    FirstAndFollow *fnf = computeFirstAndFollow(g);
-    // printFirstAndFollow(fnf);
-
-    ParseTable pt = createParseTable(fnf);
-    //
-    freeParserData(&g, fnf, pt);
+    parseInputSourceCode("data/a.txt");
 
     /* while (1) {
         char ch = fgetc(fp);

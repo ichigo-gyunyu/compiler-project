@@ -34,3 +34,10 @@ StackElement *st_top(StackElement **root) {
 
     return *root;
 }
+
+void st_free(stack *root) {
+    if (*root && (*root)->next)
+        st_free(&(*root)->next);
+    if (*root)
+        free(*root);
+}

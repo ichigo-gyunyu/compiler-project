@@ -20,6 +20,8 @@ ParseTable createParseTable(FirstAndFollow *fnf);
 
 void printParseTable(ParseTable pt);
 
+void parseInputSourceCode(char *testcaseFile);
+
 extern hashtable NtToEnum;
 extern hashtable TkToEnum;
 

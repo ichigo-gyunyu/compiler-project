@@ -11,6 +11,7 @@ SRC = ./src/Lexer/lexer.c \
 ./src/Utils/bitvector.c \
 ./src/Utils/hashtable.c \
 ./src/Utils/twinbuffer.c \
+./src/Utils/stack.c \
  ./src/driver.c
 
 OBJ = lexer.o \
@@ -19,9 +20,11 @@ OBJ = lexer.o \
 	  bitvector.o \
 	  hashtable.o \
 	  twinbuffer.o \
+	  stack.o \
 	  driver.o
 
 all: $(OBJ)
+	mkdir -p output
 	$(CC) $(CFLAGS) $(OBJ)
 	./a.out
 

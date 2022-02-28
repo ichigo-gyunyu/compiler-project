@@ -85,6 +85,7 @@ TokenInfo accept(TwinBuffer *tb, TokenType t);
 TokenInfo accept_noretract(TwinBuffer *tb, TokenType t);
 TokenInfo accept2(TwinBuffer *tb);
 TokenInfo accept19(TwinBuffer *tb);
+TokenInfo accept31(TwinBuffer *tb);
 TokenType getTokenFromKeyword(char *lex);
 TokenType getMainOrFunID(char *lex);
 void      printTokenInfo(TokenInfo t);
@@ -170,7 +171,8 @@ void printTokenInfo(TokenInfo t) {
 }
 
 #define ERROR_STATE 58
-TokenInfo getNextToken(TwinBuffer *tb) {
+static bool seen_eof = false;
+TokenInfo   getNextToken(TwinBuffer *tb) {
     // few things
     // 1. how to handle no more tokens (eof)?
     // 2. how to handle errors?
@@ -181,8 +183,10 @@ TokenInfo getNextToken(TwinBuffer *tb) {
     uint dfa_state = 0;
 
     char c = tb_nextChar(tb, &line_number);
-    if (c == EOF)
+    if (seen_eof || c == EOF) {
+        seen_eof = true;
         return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL};
+    }
     tb_retract(tb, &line_number);
 
     for (;;) {
@@ -515,7 +519,7 @@ TokenInfo getNextToken(TwinBuffer *tb) {
             break;
 
         case 31:
-            return accept(tb, TK_COMMENT); // NOTE: retracting the \n here
+            return accept31(tb); // NOTE: retracting the \n here
 
         case 32:
             return accept_noretract(tb, TK_SQL);
@@ -631,9 +635,12 @@ TokenInfo getNextToken(TwinBuffer *tb) {
             return accept_noretract(tb, TK_NE);
 
         case ERROR_STATE:
-            printf("error, lol %c\n", c); // TODO error handling
-            if (c == EOF)
+            if (c == EOF) {
+                seen_eof = true;
                 return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL};
+            }
+
+            printf("error, lol %c-%d\n", c, c); // TODO error handling
 
             char tmp[2] = {0};
             tmp[0]      = c;
@@ -668,6 +675,13 @@ TokenInfo accept19(TwinBuffer *tb) {
     char     *lex = tb_getLexeme(tb);
     TokenType t   = getMainOrFunID(lex);
     return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+}
+
+TokenInfo accept31(TwinBuffer *tb) {
+    tb_retract(tb, &line_number);
+    char *lex = calloc(2, sizeof *lex);
+    lex[0]    = '%';
+    return (TokenInfo){.lexeme = lex, .tk_type = TK_COMMENT, .line_no = line_number};
 }
 
 // handled independently of other functions in lexer
