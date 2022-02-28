@@ -173,13 +173,6 @@ void printTokenInfo(TokenInfo t) {
 #define ERROR_STATE 58
 static bool seen_eof = false;
 TokenInfo   getNextToken(TwinBuffer *tb) {
-    // few things
-    // 1. how to handle no more tokens (eof)?
-    // 2. how to handle errors?
-    // im thinking have a status variable that is passed as an out param
-    // other way would be to modify TokenInfo to accomodate these
-    // but that would likely cause more problems
-
     uint dfa_state = 0;
 
     char c = tb_nextChar(tb, &line_number);
