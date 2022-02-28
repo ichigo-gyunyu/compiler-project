@@ -93,6 +93,8 @@ typedef struct SymbolNode {
     struct SymbolNode *next;
 } SymbolNode;
 
+// TODO consider making a vector ds
+// linked lists are slow
 typedef struct ProductionRule {
     SymbolNode *head;
     SymbolNode *tail;

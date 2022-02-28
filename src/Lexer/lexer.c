@@ -84,6 +84,7 @@ void      retractLexeme(char **lex);
 TokenInfo accept(TwinBuffer *tb, TokenType t);
 TokenInfo accept_noretract(TwinBuffer *tb, TokenType t);
 TokenInfo accept2(TwinBuffer *tb);
+TokenInfo accept6(TwinBuffer *tb);
 TokenInfo accept19(TwinBuffer *tb);
 TokenInfo accept31(TwinBuffer *tb);
 TokenType getTokenFromKeyword(char *lex);
@@ -165,15 +166,16 @@ TokenType getMainOrFunID(char *lex) {
 }
 
 void printTokenInfo(TokenInfo t) {
-    printf("Line no. %2d ", t.line_no);
-    printf("Lexeme %s\t\t", t.lexeme);
+    printf("Line no. %3d\t", t.line_no);
+    printf("Lexeme %-30s", t.lexeme);
     printf("Token %s\n", getTokenTypeName(t.tk_type));
 }
 
 #define ERROR_STATE 58
-static bool seen_eof = false;
-TokenInfo   getNextToken(TwinBuffer *tb) {
-    uint dfa_state = 0;
+bool      seen_eof = false;
+TokenInfo getNextToken(TwinBuffer *tb) {
+    uint dfa_state        = 0;
+    bool err_from_state_0 = false;
 
     char c = tb_nextChar(tb, &line_number);
     if (seen_eof || c == EOF) {
@@ -304,7 +306,8 @@ TokenInfo   getNextToken(TwinBuffer *tb) {
                 dfa_state = 56;
                 break;
             default:
-                dfa_state = ERROR_STATE;
+                err_from_state_0 = true;
+                dfa_state        = ERROR_STATE;
                 break;
             }
             break;
@@ -349,7 +352,7 @@ TokenInfo   getNextToken(TwinBuffer *tb) {
             break;
 
         case 6:
-            return accept(tb, TK_ID);
+            return accept6(tb);
 
         case 7:
             c = tb_nextChar(tb, &line_number);
@@ -630,17 +633,25 @@ TokenInfo   getNextToken(TwinBuffer *tb) {
         case ERROR_STATE:
             if (c == EOF) {
                 seen_eof = true;
-                return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL};
+                return (TokenInfo){.tk_type = TK_EOF, .lexeme = NULL, .line_no = line_number};
             }
 
-            printf("error, lol %c-%d\n", c, c); // TODO error handling
+            char *tmp = calloc(2, sizeof *tmp);
+            tmp[0]    = c;
+            if (err_from_state_0) {
+                printf("Line %3d Error: Unknown symbol <%c>\n", line_number, c);
+                tb_moveBegin(tb);
+                return (TokenInfo){.line_no = line_number, .lexeme = tmp, .tk_type = END_TOKENTYPE};
+            }
 
-            char tmp[2] = {0};
-            tmp[0]      = c;
-            if (ht_lookup(valid_chars, tmp) != -1)
-                tb_retract(tb, &line_number);
-            tb_resetBegin(tb);
-            return (TokenInfo){.tk_type = END_TOKENTYPE, .lexeme = NULL};
+            tb_retract(tb, &line_number);
+            char *lex = tb_getLexeme(tb);
+            printf("Line %3d Error: Unknown pattern <%s>\n", line_number, lex);
+            /* if (ht_lookup(valid_chars, tmp) == -1)
+                tb_nextChar(tb, &line_number); */
+            free(tmp);
+
+            return (TokenInfo){.tk_type = END_TOKENTYPE, .lexeme = lex};
         }
     }
 }
@@ -663,10 +674,27 @@ TokenInfo accept2(TwinBuffer *tb) {
     return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
 }
 
+TokenInfo accept6(TwinBuffer *tb) {
+    tb_retract(tb, &line_number);
+    char     *lex = tb_getLexeme(tb);
+    TokenType t   = TK_ID;
+
+    if (t == TK_ID && strlen(lex) > ID_MAX_LENGTH) {
+        printf("Line %3d Error: Variable identifier is longer than prescribed length of 20 characters\n", line_number);
+        return (TokenInfo){.lexeme = lex, .tk_type = END_TOKENTYPE, .line_no = line_number};
+    }
+    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+}
+
 TokenInfo accept19(TwinBuffer *tb) {
     tb_retract(tb, &line_number);
     char     *lex = tb_getLexeme(tb);
     TokenType t   = getMainOrFunID(lex);
+
+    if (t == TK_FUNID && strlen(lex) > FUNID_MAX_LENGTH) {
+        printf("Line %3d Error: Variable identifier is longer than prescribed length of 30 characters\n", line_number);
+        return (TokenInfo){.lexeme = lex, .tk_type = END_TOKENTYPE, .line_no = line_number};
+    }
     return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
 }
 
@@ -684,8 +712,9 @@ void removeComments(char *testcaseFile, char *cleanFile) {}
 /****************** FREE UP ALL (C/M)ALLOCd ENTITIES ***********************/
 void freeToken(TokenInfo *t) {
     if (t) {
-        if (t->lexeme)
+        if (t->lexeme) {
             free(t->lexeme);
+        }
     }
 }
 

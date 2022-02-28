@@ -2,8 +2,10 @@
 
 void tb_loadNextBuff(TwinBuffer *tb) {
     uint bytes_read = fread(tb->buff[tb->lookahead_buffnum], 1, BLOCKSZ, tb->fp);
-    /* printf("%s\n", tb->buff[tb->lookahead_buffnum]);
-    sleep(1); */
+    printf("%d-", bytes_read);
+    printf("%d\n", tb->lookahead_buffnum);
+    /* for (int i = 0; i < BLOCKSZ; i++)
+        printf("%c", tb->buff[tb->lookahead_buffnum][i]); */
     if (ferror(tb->fp)) {
         perror("Error when initializing buffer");
         exit(EXIT_FAILURE);
@@ -18,6 +20,7 @@ void tb_loadNextBuff(TwinBuffer *tb) {
 
 char tb_nextChar(TwinBuffer *tb, uint *linenum) {
     char c = *(tb->lookahead);
+
     if (c == '\n')
         *linenum = *linenum + 1;
     tb->lookahead++;

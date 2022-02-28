@@ -6,6 +6,9 @@
 #define TKSTATUS_EOF 1
 #define TKSTATUS_ERR 2
 
+#define ID_MAX_LENGTH    20
+#define FUNID_MAX_LENGTH 30
+
 typedef enum TokenType {
     TK_ASSIGNOP,
     TK_COMMENT,

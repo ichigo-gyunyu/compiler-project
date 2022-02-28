@@ -8,29 +8,29 @@
 
 int main(int argc, char **argv) {
 
-    /* bitvector bv;
-    bv_init(&bv, NONTERMINAL_COUNT);
-    bv_set(bv, 0);
-    bv_set(bv, 2);
-    bv_set(bv, 12);
+    FILE *fp = fopen("data/a.txt", "r");
+    /* for (;;) {
+        char c = fgetc(fp);
+        printf("%c - %d\n", c, c);
+        if (feof(fp))
+            break;
+    } */
 
-    bitvector bv2;
-    bv_init(&bv2, NONTERMINAL_COUNT);
-    bv_set(bv2, 0);
-    bv_set(bv2, 12);
-    bv_set(bv2, 14);
-    bv_union(bv, bv2, NONTERMINAL_COUNT);
-
-    for (int i = 0; i < NONTERMINAL_COUNT; i++) {
-        if (bv_contains(bv, i)) {
-            printf("At %d\n", i);
-        }
+    TwinBuffer tb = initLexer(fp);
+    TokenInfo  t  = getNextToken(&tb);
+    while (t.tk_type != TK_EOF) {
+        /* if (t.tk_type != END_TOKENTYPE)
+            printTokenInfo(t); */
+        freeToken(&t);
+        t = getNextToken(&tb);
     }
+    if (t.tk_type == TK_EOF)
+        printf("done\n");
+    freeToken(&t);
+    freeTwinBuffer(&tb);
+    fclose(fp);
 
-    free(bv);
-    free(bv2); */
-
-    parseInputSourceCode("data/a.txt");
+    // parseInputSourceCode("data/a.txt");
 
     /* while (1) {
         char ch = fgetc(fp);
