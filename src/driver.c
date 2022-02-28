@@ -16,18 +16,17 @@ int main(int argc, char **argv) {
             break;
     } */
 
-    TwinBuffer tb = initLexer(fp);
-    TokenInfo  t  = getNextToken(&tb);
+    TwinBuffer *tb = initLexer(&fp);
+    TokenInfo   t  = getNextToken(tb);
     while (t.tk_type != TK_EOF) {
-        /* if (t.tk_type != END_TOKENTYPE)
-            printTokenInfo(t); */
+        if (t.tk_type != END_TOKENTYPE)
+            printTokenInfo(t);
         freeToken(&t);
-        t = getNextToken(&tb);
+        t = getNextToken(tb);
     }
-    if (t.tk_type == TK_EOF)
-        printf("done\n");
     freeToken(&t);
-    freeTwinBuffer(&tb);
+    freeTwinBuffer(tb);
+    free(tb);
     fclose(fp);
 
     // parseInputSourceCode("data/a.txt");

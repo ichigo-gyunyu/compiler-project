@@ -23,12 +23,12 @@ OBJ = lexer.o \
 	  stack.o \
 	  driver.o
 
-all: $(OBJ)
+all: compile
 	mkdir -p output
 	$(CC) $(CFLAGS) $(OBJ)
 	./a.out
 
-$(OBJ): $(SRC)
+compile:
 	$(CC) $(CFLAGS) $(INC) -c $(SRC)
 
 clean:

@@ -10,7 +10,7 @@
  * Initializes the twin buffer
  * Sets the begin and lookahead pointers
  */
-TwinBuffer initLexer(FILE *src_ptr);
+TwinBuffer *initLexer(FILE **src_ptr);
 
 TokenInfo getNextToken(TwinBuffer *tb);
 

@@ -91,14 +91,17 @@ TokenType getTokenFromKeyword(char *lex);
 TokenType getMainOrFunID(char *lex);
 void      printTokenInfo(TokenInfo t);
 
-TwinBuffer initLexer(FILE *src_ptr) {
+TwinBuffer *initLexer(FILE **src_ptr) {
     // initialize the twin buffer
-    TwinBuffer tb = {.lookahead_buffnum = 0, .begin_buffnum = 0, .fp = src_ptr};
-    tb.buff[0]    = calloc(BLOCKSZ, sizeof *tb.buff[0]);
-    tb.buff[1]    = calloc(BLOCKSZ, sizeof *tb.buff[1]);
-    tb.begin      = tb.buff[0];
-    tb.lookahead  = tb.buff[0];
-    tb_loadNextBuff(&tb);
+    TwinBuffer *tb = calloc(1, sizeof *tb);
+    tb->buff[0]    = calloc(BLOCKSZ, sizeof *tb->buff[0]);
+    tb->buff[1]    = calloc(BLOCKSZ, sizeof *tb->buff[1]);
+    tb->begin      = tb->buff[0];
+    tb->lookahead  = tb->buff[0];
+    tb->used[0]    = 0;
+    tb->used[1]    = 0;
+    tb->fp         = src_ptr;
+    tb_loadNextBuff(tb);
 
     initLookupTable();
     initValidCharsTable();

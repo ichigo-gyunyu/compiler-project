@@ -475,6 +475,15 @@ ParseTable createParseTable(FirstAndFollow *fnf) {
         }
     }
 
+    // syn flag for the follow set
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        for (uint j = 0; j < TOKEN_COUNT; j++) {
+            if (bv_contains(fnf[i].follow, j)) {
+                pt[i][j].syn = true;
+            }
+        }
+    }
+
     return pt;
 }
 
@@ -517,7 +526,7 @@ void parseInputSourceCode(char *testcaseFile) {
     }
 
     // initialise lexer
-    TwinBuffer tb = initLexer(fp);
+    TwinBuffer *tb = initLexer(&fp);
     printf("Initialised lexer\n");
 
     // initialise parser
@@ -536,7 +545,7 @@ void parseInputSourceCode(char *testcaseFile) {
     st_push(s, program, TYPE_NT); // start symbol
 
     // begin parsing
-    TokenInfo t          = getNextToken(&tb);
+    TokenInfo t          = getNextToken(tb);
     bool      has_errors = false;
     for (;;) {
         StackElement *se = st_top(s); // declare it outside?
@@ -545,14 +554,17 @@ void parseInputSourceCode(char *testcaseFile) {
 
         // redundant checks sometimes, can be optimized
         if (t.tk_type == END_TOKENTYPE) {
-            printf("Lexical error found... stopping.\n");
+            printf("Lexical error:\n");
+            freeToken(&t);
+            t = getNextToken(tb);
+
             has_errors = true;
-            break;
+            continue;
         }
 
         while (t.tk_type == TK_COMMENT) {
             freeToken(&t);
-            t = getNextToken(&tb);
+            t = getNextToken(tb);
             continue;
         }
 
@@ -567,12 +579,17 @@ void parseInputSourceCode(char *testcaseFile) {
             if (se->val == t.tk_type) {
                 st_pop(s); // stack and input match
                 freeToken(&t);
-                t = getNextToken(&tb);
+                t = getNextToken(tb);
             } else {
-                printf("Syntax error: stack mismatch\n");
+                printf("Line %3d Error: The token %s for lexeme %s does not match with the expected token %s\n",
+                       t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getTokenTypeName(se->val));
+
+                st_pop(s);
                 freeToken(&t);
-                t          = getNextToken(&tb);
+                t          = getNextToken(tb);
                 has_errors = true;
+                if (t.tk_type == TK_EOF)
+                    break;
             }
         }
 
@@ -591,11 +608,32 @@ void parseInputSourceCode(char *testcaseFile) {
             } else {
                 // TODO: check if legal
                 if (t.tk_type != TK_SEM) {
-                    printf("Syntax error: parse table\n"); // TODO: error recovery
+                    printf("Line %3d Error: Invalid token %s encountered with value %s stack top %s\n", t.line_no,
+                           getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
                     has_errors = true;
+                    freeToken(&t);
+                    bool has_syn     = false;
+                    bool reached_eof = false;
+                    do {
+                        t = getNextToken(tb);
+                        if (t.tk_type == TK_EOF) {
+                            reached_eof = true;
+                            st_pop(s);
+                            break;
+                        }
+                        if (t.tk_type == END_TOKENTYPE) {
+                            break;
+                        }
+                        if (pt[stack_val][t.tk_type].syn)
+                            has_syn = true;
+                    } while (!has_syn);
+                    if (!reached_eof && has_syn) {
+                        st_pop(s);
+                    }
+                } else {
+                    freeToken(&t);
+                    t = getNextToken(tb);
                 }
-                freeToken(&t);
-                t = getNextToken(&tb);
             }
         }
     }
@@ -604,8 +642,9 @@ void parseInputSourceCode(char *testcaseFile) {
         printf("Input source code is syntatically correct\n");
 
     // free up resources
+    freeToken(&t);
     freeParserData(&g, fnf, pt);
-    freeTwinBuffer(&tb);
+    freeTwinBuffer(tb);
     st_free(s);
     free(s);
 }

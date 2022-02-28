@@ -1,17 +1,24 @@
 #include "twinbuffer.h"
 
+void _prinbuf(TwinBuffer *tb) {
+    for (int i = 0; i < BLOCKSZ; i++) {
+        printf("%c", tb->buff[0][i]);
+    }
+    printf("\n");
+    for (int i = 0; i < BLOCKSZ; i++) {
+        printf("%c", tb->buff[1][i]);
+    }
+    printf("\n--------\n");
+}
+
 void tb_loadNextBuff(TwinBuffer *tb) {
-    uint bytes_read = fread(tb->buff[tb->lookahead_buffnum], 1, BLOCKSZ, tb->fp);
-    printf("%d-", bytes_read);
-    printf("%d\n", tb->lookahead_buffnum);
-    /* for (int i = 0; i < BLOCKSZ; i++)
-        printf("%c", tb->buff[tb->lookahead_buffnum][i]); */
-    if (ferror(tb->fp)) {
+    uint bytes_read = fread(tb->buff[tb->lookahead_buffnum], 1, BLOCKSZ, *(tb->fp));
+    if (ferror(*tb->fp)) {
         perror("Error when initializing buffer");
         exit(EXIT_FAILURE);
     }
 
-    if (feof(tb->fp)) {
+    if (feof(*(tb->fp))) {
         tb->buff[tb->lookahead_buffnum][bytes_read] = EOF;
     }
 
@@ -39,7 +46,8 @@ void tb_retract(TwinBuffer *tb, uint *linenum) {
     // switch to the previous buffer in case of underflow
     // and move the file pointer back
     if (tb->lookahead == tb->buff[tb->lookahead_buffnum]) {
-        fseek(tb->fp, -tb->used[tb->lookahead_buffnum], SEEK_CUR);
+        long seek_back = (long)(tb->used[tb->lookahead_buffnum]) * -1;
+        fseek(*(tb->fp), seek_back, SEEK_CUR);
         tb->lookahead_buffnum = !tb->lookahead_buffnum;
         tb->lookahead         = tb->buff[tb->lookahead_buffnum] + tb->used[tb->lookahead_buffnum] - 1;
     } else {

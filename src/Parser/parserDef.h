@@ -115,6 +115,7 @@ typedef struct Grammar {
 
 typedef struct ParseTableInfo {
     bool           filled;
+    bool           syn;
     ProductionRule rule;
 } ParseTableInfo;
 
