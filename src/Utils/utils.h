@@ -18,4 +18,10 @@
  */
 void exit_msg(char *msg);
 
+/**
+ * Allocates memory and copies the input string into it
+ * Slightly inefficient, but helps avoiding double frees
+ */
+char *duplicate_str(char *str);
+
 #endif

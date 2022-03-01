@@ -1,16 +1,5 @@
 #include "twinbuffer.h"
 
-void _prinbuf(TwinBuffer *tb) {
-    for (int i = 0; i < BLOCKSZ; i++) {
-        printf("%c", tb->buff[0][i]);
-    }
-    printf("\n");
-    for (int i = 0; i < BLOCKSZ; i++) {
-        printf("%c", tb->buff[1][i]);
-    }
-    printf("\n--------\n");
-}
-
 void tb_loadNextBuff(TwinBuffer *tb) {
     uint bytes_read = fread(tb->buff[tb->lookahead_buffnum], 1, BLOCKSZ, *(tb->fp));
     if (ferror(*tb->fp)) {

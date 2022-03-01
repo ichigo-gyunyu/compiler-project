@@ -3,13 +3,13 @@
 
 #include "utils.h"
 
-typedef int *bitvector;
+typedef int *Bitvector;
 
 /**
  * Initializes a bitvector
  * with capacity given by max
  */
-int bv_init(bitvector *bv, uint max);
+int bv_init(Bitvector *bv, uint max);
 
 /**
  * Returns capacity of the bitvector
@@ -21,17 +21,17 @@ uint bv_getsize(uint max);
  * Sets the bit at position
  * in the given bitvector
  */
-void bv_set(const bitvector bv, int pos);
+void bv_set(const Bitvector bv, int pos);
 
 /**
  * Checkif the bit at pos
  * is set in the given bitvector
  */
-int bv_contains(const bitvector bv, int pos);
+int bv_contains(const Bitvector bv, int pos);
 
 /**
  * Returns the union of 2 bitvectors
  */
-bitvector bv_union(const bitvector a, const bitvector b, uint max_size);
+Bitvector bv_union(const Bitvector a, const Bitvector b, uint max_size);
 
 #endif

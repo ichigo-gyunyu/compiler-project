@@ -1,12 +1,6 @@
 #ifndef PARSERDEF_H
 #define PARSERDEF_H
 
-// TODO
-// grammar - terminals, non terminals?
-// production rules
-// first and follow sets - bitvectors
-// tree, parse table
-
 #include "Lexer/lexer.h"
 #include "Utils/bitvector.h"
 #include "Utils/hashtable.h"
@@ -75,16 +69,18 @@ typedef enum Nonterminals {
 static const uint NONTERMINAL_COUNT = END_NT - actualOrRedefined;
 
 typedef struct FirstAndFollow {
-    bitvector first;
-    bitvector follow;
+    Bitvector first;
+    Bitvector follow;
     bool      has_eps; // if first contains eps
 } FirstAndFollow;
 
+// terminal or nonterminal
 typedef union TorNT {
     TokenType   val_tk;
     NonTerminal val_nt;
 } TorNT;
 
+// terminal or nonterminal in the RHS of a production rule
 typedef struct SymbolNode {
     TorNT val;
     int   type; // Terminal or NonTerminal

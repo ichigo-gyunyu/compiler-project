@@ -1,14 +1,14 @@
 #include "lexer.h"
 
-uint line_number = 1;
+/********************************** DATA DEFINITIONS **********************************/
 
-hashtable        lookup_table;
+uint             line_number = 1;
+Hashtable        lookup_table;
 bool             seen_eof = false;
-static hashtable valid_chars;
+static Hashtable valid_chars;
 static bool      htinit = false;
 
-// for debugging
-// TODO surround in ifdef DEBUG_FLAG block
+// useful for printing relevant information
 static char *const TokenTypeNames[] = {
     [TK_ASSIGNOP]   = "TK_ASSIGNOP",
     [TK_COMMENT]    = "TK_COMMENT",
@@ -70,12 +70,16 @@ static char *const TokenTypeNames[] = {
     [TK_EOF]        = "TK_EOF",
 };
 
+// may be used for optimizing time, tradeoff is memory
 static char *const valid_starting_characters[] = {
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
     "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "#", "<", "%",
     "[", "]", ",", ";", ",", ".", "(", ")", "+", "-", "*", "/", "&", "@", "~", "=", ">", "!",
 };
 
+/********************************** HELPER FUNCTION DECLERATIONS **********************************/
+
+// note - not visible outside the lexer
 uint      initBuffer(int buff_no);
 char      nextChar(char **lex);
 void      retract();
@@ -83,16 +87,18 @@ void      initLookupTable();
 void      initValidCharsTable();
 void      updateLexeme(char **lex, char c);
 void      retractLexeme(char **lex);
+TokenType getTokenFromKeyword(char *lex);
+TokenType getMainOrFunID(char *lex);
 TokenInfo accept(TwinBuffer *tb, TokenType t);
-TokenInfo accept_noretract(TwinBuffer *tb, TokenType t);
 TokenInfo accept2(TwinBuffer *tb);
 TokenInfo accept6(TwinBuffer *tb);
 TokenInfo accept19(TwinBuffer *tb);
 TokenInfo accept31(TwinBuffer *tb);
-TokenType getTokenFromKeyword(char *lex);
-TokenType getMainOrFunID(char *lex);
-void      printTokenInfo(TokenInfo t);
+TokenInfo accept_noretract(TwinBuffer *tb, TokenType t);
 
+/********************************** API FUNCTION DEFINITIONS **********************************/
+
+// entry point for the lexical analyzer
 TwinBuffer *initLexer(FILE **src_ptr) {
     line_number = 1;
     seen_eof    = false;
@@ -117,71 +123,7 @@ TwinBuffer *initLexer(FILE **src_ptr) {
     return tb;
 }
 
-void initValidCharsTable() {
-    uint n = NUM_ELEM(valid_starting_characters);
-    ht_init(&valid_chars, n);
-    for (uint i = 0; i < n; i++) {
-        ht_insert(&valid_chars, valid_starting_characters[i], i);
-    }
-}
-
-void initLookupTable() {
-    ht_init(&lookup_table, KEYWORD_COUNT);
-
-    // clang-format off
-    ht_insert(&lookup_table, "with",        TK_WITH);
-    ht_insert(&lookup_table, "parameters",  TK_PARAMETERS);
-    ht_insert(&lookup_table, "end",         TK_END);
-    ht_insert(&lookup_table, "while",       TK_WHILE);
-    ht_insert(&lookup_table, "union",       TK_UNION);
-    ht_insert(&lookup_table, "endunion",    TK_ENDUNION);
-    ht_insert(&lookup_table, "definetype",  TK_DEFINETYPE);
-    ht_insert(&lookup_table, "as",          TK_AS);
-    ht_insert(&lookup_table, "type",        TK_TYPE);
-    ht_insert(&lookup_table, "_main",       TK_MAIN);
-    ht_insert(&lookup_table, "global",      TK_GLOBAL);
-    ht_insert(&lookup_table, "parameter",   TK_PARAMETER);
-    ht_insert(&lookup_table, "list",        TK_LIST);
-    ht_insert(&lookup_table, "input",       TK_INPUT);
-    ht_insert(&lookup_table, "output",      TK_OUTPUT);
-    ht_insert(&lookup_table, "int",         TK_INT);
-    ht_insert(&lookup_table, "real",        TK_REAL);
-    ht_insert(&lookup_table, "endwhile",    TK_ENDWHILE);
-    ht_insert(&lookup_table, "if",          TK_IF);
-    ht_insert(&lookup_table, "then",        TK_THEN);
-    ht_insert(&lookup_table, "endif",       TK_ENDIF);
-    ht_insert(&lookup_table, "read",        TK_READ);
-    ht_insert(&lookup_table, "write",       TK_WRITE);
-    ht_insert(&lookup_table, "return",      TK_RETURN);
-    ht_insert(&lookup_table, "call",        TK_CALL);
-    ht_insert(&lookup_table, "record",      TK_RECORD);
-    ht_insert(&lookup_table, "endrecord",   TK_ENDRECORD);
-    ht_insert(&lookup_table, "else",        TK_ELSE);
-    // clang-format on
-}
-
-char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
-
-TokenType getTokenFromKeyword(char *lex) {
-    int res = ht_lookup(lookup_table, lex);
-    if (res == -1)
-        return TK_FIELDID;
-    return res;
-}
-
-TokenType getMainOrFunID(char *lex) {
-    int res = ht_lookup(lookup_table, lex);
-    if (res == TK_MAIN)
-        return res;
-    return TK_FUNID;
-}
-
-void printTokenInfo(TokenInfo t) {
-    printf("Line no. %3d\t", t.line_no);
-    printf("Lexeme %-30s", t.lexeme);
-    printf("Token %s\n", getTokenTypeName(t.tk_type));
-}
-
+// simulate the DFA to get tokens
 #define ERROR_STATE 58
 TokenInfo getNextToken(TwinBuffer *tb) {
     uint dfa_state        = 0;
@@ -656,18 +598,116 @@ TokenInfo getNextToken(TwinBuffer *tb) {
                 tb_nextChar(tb, &line_number); */
             free(tmp);
 
-            return (TokenInfo){.tk_type = END_TOKENTYPE, .lexeme = lex};
+            return (TokenInfo){.tk_type = END_TOKENTYPE, .lexeme = lex, .line_no = line_number};
         }
     }
 }
 
-TokenInfo accept(TwinBuffer *tb, TokenType t) {
-    tb_retract(tb, &line_number);
-    char *lex = tb_getLexeme(tb);
-    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+// handled independently of other functions in lexer
+void removeComments(char *testcaseFile, char *cleanFile) {
+    const uint buf_size = 512;
+    char       line[buf_size];
+    uint       a  = 0;
+    FILE      *f1 = fopen(testcaseFile, "r");
+    FILE      *f2 = fopen(cleanFile, "w");
+
+    while (fgets(line, buf_size, f1) != NULL) {
+        for (a = 0; a < buf_size; a++) {
+            if (line[a] == '\0') {
+                break;
+            }
+        }
+
+        for (uint i = 0; i < a; i++) {
+            if (line[i] == '%') {
+                fprintf(f2, "\n");
+                break;
+            } else {
+                fprintf(f2, "%c", line[i]);
+            }
+        }
+    }
+
+    fclose(f1);
+    fclose(f2);
 }
 
-TokenInfo accept_noretract(TwinBuffer *tb, TokenType t) {
+// get name from the enumerated token type value
+char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
+
+/********************************** HELPER FUNCTION DEFINITIONS **********************************/
+
+// hashtable for valid characters
+void initValidCharsTable() {
+    uint n = NUM_ELEM(valid_starting_characters);
+    ht_init(&valid_chars, n);
+    for (uint i = 0; i < n; i++) {
+        ht_insert(&valid_chars, valid_starting_characters[i], i);
+    }
+}
+
+// hashtable for all keywords
+void initLookupTable() {
+    ht_init(&lookup_table, KEYWORD_COUNT);
+
+    // clang-format off
+    ht_insert(&lookup_table, "with",        TK_WITH);
+    ht_insert(&lookup_table, "parameters",  TK_PARAMETERS);
+    ht_insert(&lookup_table, "end",         TK_END);
+    ht_insert(&lookup_table, "while",       TK_WHILE);
+    ht_insert(&lookup_table, "union",       TK_UNION);
+    ht_insert(&lookup_table, "endunion",    TK_ENDUNION);
+    ht_insert(&lookup_table, "definetype",  TK_DEFINETYPE);
+    ht_insert(&lookup_table, "as",          TK_AS);
+    ht_insert(&lookup_table, "type",        TK_TYPE);
+    ht_insert(&lookup_table, "_main",       TK_MAIN);
+    ht_insert(&lookup_table, "global",      TK_GLOBAL);
+    ht_insert(&lookup_table, "parameter",   TK_PARAMETER);
+    ht_insert(&lookup_table, "list",        TK_LIST);
+    ht_insert(&lookup_table, "input",       TK_INPUT);
+    ht_insert(&lookup_table, "output",      TK_OUTPUT);
+    ht_insert(&lookup_table, "int",         TK_INT);
+    ht_insert(&lookup_table, "real",        TK_REAL);
+    ht_insert(&lookup_table, "endwhile",    TK_ENDWHILE);
+    ht_insert(&lookup_table, "if",          TK_IF);
+    ht_insert(&lookup_table, "then",        TK_THEN);
+    ht_insert(&lookup_table, "endif",       TK_ENDIF);
+    ht_insert(&lookup_table, "read",        TK_READ);
+    ht_insert(&lookup_table, "write",       TK_WRITE);
+    ht_insert(&lookup_table, "return",      TK_RETURN);
+    ht_insert(&lookup_table, "call",        TK_CALL);
+    ht_insert(&lookup_table, "record",      TK_RECORD);
+    ht_insert(&lookup_table, "endrecord",   TK_ENDRECORD);
+    ht_insert(&lookup_table, "else",        TK_ELSE);
+    // clang-format on
+}
+
+TokenType getTokenFromKeyword(char *lex) {
+    int res = ht_lookup(lookup_table, lex);
+    if (res == -1)
+        return TK_FIELDID;
+    return res;
+}
+
+TokenType getMainOrFunID(char *lex) {
+    int res = ht_lookup(lookup_table, lex);
+    if (res == TK_MAIN)
+        return res;
+    return TK_FUNID;
+}
+
+/********************************** PRINTING FUNCTIONS FOR LOGGING **********************************/
+
+void printTokenInfo(TokenInfo t) {
+    printf("Line no. %3d\t", t.line_no);
+    printf("Lexeme %-30s", t.lexeme);
+    printf("Token %s\n", getTokenTypeName(t.tk_type));
+}
+
+/********************************** DFA ACCEPT STATE HELPERS **********************************/
+
+TokenInfo accept(TwinBuffer *tb, TokenType t) {
+    tb_retract(tb, &line_number);
     char *lex = tb_getLexeme(tb);
     return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
 }
@@ -705,16 +745,16 @@ TokenInfo accept19(TwinBuffer *tb) {
 
 TokenInfo accept31(TwinBuffer *tb) {
     tb_retract(tb, &line_number);
-    char *lex = calloc(2, sizeof *lex);
-    lex[0]    = '%';
-    return (TokenInfo){.lexeme = lex, .tk_type = TK_COMMENT, .line_no = line_number};
+    return (TokenInfo){.lexeme = duplicate_str("%"), .tk_type = TK_COMMENT, .line_no = line_number};
 }
 
-// handled independently of other functions in lexer
-// (just for demonstration probably)
-void removeComments(char *testcaseFile, char *cleanFile) {}
+TokenInfo accept_noretract(TwinBuffer *tb, TokenType t) {
+    char *lex = tb_getLexeme(tb);
+    return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
+}
 
-/****************** FREE UP ALL (C/M)ALLOCd ENTITIES ***********************/
+/********************************** FREE UP ALL MALLOCd ENTITIES **********************************/
+
 void freeToken(TokenInfo *t) {
     if (t) {
         if (t->lexeme) {
@@ -733,3 +773,5 @@ void freeTwinBuffer(TwinBuffer *tb) {
         free(tb);
     }
 }
+
+/**************************************************************************************************/

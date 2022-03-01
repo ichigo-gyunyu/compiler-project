@@ -3,4 +3,3 @@ c
 -I./src
 -g
 -fsanitize=address
--Wno-unused-but-set-variable

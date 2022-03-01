@@ -7,18 +7,18 @@
 
 uint bv_getsize(uint max) { return max / WORDSIZE + 1; }
 
-int bv_init(bitvector *bv, uint max) {
+int bv_init(Bitvector *bv, uint max) {
     *bv = calloc(bv_getsize(max), sizeof(int));
     return *bv != NULL;
 }
 
-void bv_set(const bitvector bv, int pos) { bv[pos >> WS_BITS] |= (1 << (pos & MASK)); }
+void bv_set(const Bitvector bv, int pos) { bv[pos >> WS_BITS] |= (1 << (pos & MASK)); }
 
-int bv_contains(const bitvector bv, int pos) { return bv[pos >> WS_BITS] & (1 << (pos & MASK)); }
+int bv_contains(const Bitvector bv, int pos) { return bv[pos >> WS_BITS] & (1 << (pos & MASK)); }
 
 // TODO ensure a and b are of equal size
-bitvector bv_union(const bitvector a, const bitvector b, uint max) {
-    bitvector un = a;
+Bitvector bv_union(const Bitvector a, const Bitvector b, uint max) {
+    Bitvector un = a;
 
     for (uint i = 0; i < max; i++) {
         un[i >> WS_BITS] |= ((1 << (i & MASK)) & b[i >> WS_BITS]);

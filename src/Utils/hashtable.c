@@ -14,14 +14,14 @@ uint ht_hash(char *key, uint modulus) {
     return hash_value % modulus;
 }
 
-int ht_init(hashtable *ht, uint sz) {
+int ht_init(Hashtable *ht, uint sz) {
     ht->size  = sz;
     ht->table = calloc(sz, sizeof(ht_data *));
 
     return ht->table != NULL;
 }
 
-int ht_insert(hashtable *ht, char *key, int val) {
+int ht_insert(Hashtable *ht, char *key, int val) {
     uint hash = ht_hash(key, ht->size);
 
     ht_data *d = malloc(sizeof *d);
@@ -44,7 +44,7 @@ int ht_insert(hashtable *ht, char *key, int val) {
     return indx;
 }
 
-int ht_lookup(hashtable ht, char *key) {
+int ht_lookup(Hashtable ht, char *key) {
     uint indx       = ht_hash(key, ht.size);
     uint num_probed = 0;
     while (ht.table[indx] != NULL && strcmp(ht.table[indx]->key, key)) {
@@ -61,7 +61,7 @@ int ht_lookup(hashtable ht, char *key) {
     return ht.table[indx]->val;
 }
 
-void ht_print(hashtable ht) {
+void ht_print(Hashtable ht) {
     for (uint i = 0; i < ht.size; i++) {
         if (ht.table[i] == NULL)
             printf("empty\n");

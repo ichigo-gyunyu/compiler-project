@@ -11,13 +11,13 @@ StackElement *newElement(int val, int type) {
 
 bool st_isEmpty(StackElement *root) { return !root; }
 
-void st_push(StackElement **root, int val, int type) {
+void st_push(Stack *root, int val, int type) {
     StackElement *element = newElement(val, type);
     element->next         = *root;
     *root                 = element;
 }
 
-int st_pop(StackElement **root) {
+int st_pop(Stack *root) {
     if (st_isEmpty(*root))
         return -1;
 
@@ -28,14 +28,14 @@ int st_pop(StackElement **root) {
     return 1;
 }
 
-StackElement *st_top(StackElement **root) {
+StackElement *st_top(Stack *root) {
     if (!(*root))
         return NULL;
 
     return *root;
 }
 
-void st_free(stack *root) {
+void st_free(Stack *root) {
     if (*root && (*root)->next)
         st_free(&(*root)->next);
     if (*root)

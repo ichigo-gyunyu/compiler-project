@@ -10,16 +10,13 @@ typedef struct StackElement {
     struct StackElement *next;
 } StackElement;
 
-typedef StackElement *stack;
+typedef StackElement *Stack;
 
-bool st_isEmpty(StackElement *root);
-
-void st_push(StackElement **root, int val, int type);
-
-int st_pop(StackElement **root);
-
-StackElement *st_top(StackElement **root);
-
-void st_free(stack *root);
+// typical stack functionality
+bool          st_isEmpty(Stack root);
+void          st_push(Stack *root, int val, int type);
+int           st_pop(Stack *root);
+StackElement *st_top(Stack *root);
+void          st_free(Stack *root); // cleanup
 
 #endif

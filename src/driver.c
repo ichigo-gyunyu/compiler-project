@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
         "testcases/t5.txt", "testcases/t6.txt", "testcases/t7.txt",
     };
 
-    /* for (int i = 5; i < 6; i++) {
+    for (int i = 0; i < 6; i++) {
         FILE       *fp = fopen(tc[i], "r");
         TwinBuffer *tb = initLexer(&fp);
         TokenInfo   t  = getNextToken(tb);
@@ -26,12 +26,10 @@ int main(int argc, char **argv) {
         freeToken(&t);
         freeTwinBuffer(tb);
         printf("\n----------------------------\n");
-    } */
-
-    for (int i = 0; i < 7; i++) {
-        parseInputSourceCode(tc[i]);
-        printf("\n----------------------------\n");
     }
+
+    Nary_tree pt = parseInputSourceCode(tc[1]);
+    printParseTree(pt, "output/parsetree.txt");
 
     /* while (1) {
         char ch = fgetc(fp);

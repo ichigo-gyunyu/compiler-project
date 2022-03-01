@@ -1,21 +1,16 @@
 #include "parser.h"
 #include "Utils/stack.h"
 
+/********************************** DATA DEFINITIONS **********************************/
+
 #define GRAMMAR_FILE "data/grammar.txt"
 
-void    populateNtToEnum();
-void    populateTkToEnum();
-Grammar loadGrammarFromFile(char *grammarFile);
-void    appendSymbolNode(ProductionRule *rule, SymbolNode *sn);
-char   *getNonTerimnalName(NonTerminal nt);
-
 static Grammar g;
-hashtable      NtToEnum;
-hashtable      TkToEnum;
+Hashtable      NtToEnum;
+Hashtable      TkToEnum;
 static bool    htinit = false;
 
-// for debugging
-// TODO surround in ifdef DEBUG_FLAG block
+// useful for printing relevant information
 static char *const NonTerminalNames[] = {
     [actualOrRedefined]         = "actualOrRedefined",
     [arithmeticExpression]      = "arithmeticExpression",
@@ -72,7 +67,23 @@ static char *const NonTerminalNames[] = {
     [var]                       = "var",
 };
 
+/********************************** HELPER FUNCTION DECLERATIONS **********************************/
+
+void      populateNtToEnum();
+void      populateTkToEnum();
+Grammar   loadGrammarFromFile(char *grammarFile);
+void      appendSymbolNode(ProductionRule *rule, SymbolNode *sn);
+char     *getNonTerimnalName(NonTerminal nt);
+Bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed);
+void      computeFollow(FirstAndFollow *fnf);
+void      fillPTCells(ParseTable pt, Bitvector bv, ProductionRule rule, NonTerminal row);
+
+/********************************** API FUNCTION DEFINITIONS **********************************/
+
+// entry point for the syntax analyzer
 Grammar initParser(char *grammarFile) {
+
+    // populate hashtables to reference terminals and nonterminals
     if (!htinit) {
         ht_init(&NtToEnum, NONTERMINAL_COUNT);
         populateNtToEnum();
@@ -86,6 +97,293 @@ Grammar initParser(char *grammarFile) {
     g = loadGrammarFromFile(grammarFile);
     return g;
 }
+
+FirstAndFollow *computeFirstAndFollow(const Grammar g) {
+    FirstAndFollow *fnf = calloc(NONTERMINAL_COUNT, sizeof(*fnf));
+
+    // keep track of what all first sets have been computed
+    bool first_computed[NONTERMINAL_COUNT];
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        first_computed[i] = false;
+    }
+
+    // recursively compute first
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        NonTerminal lhs = g.derivations[i].lhs;
+        if (first_computed[lhs]) {
+            continue;
+        }
+
+        computeFirst(lhs, fnf, first_computed);
+    }
+
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        bv_init(&fnf[i].follow, TOKEN_COUNT);
+    }
+    // add '$' to follow(start symbol)
+    bv_set(fnf[program].follow, TK_EOF); // care, hardcoded start symbol
+    // iteratively compute follow in rounds
+    computeFollow(fnf);
+
+    return fnf;
+}
+
+ParseTable createParseTable(FirstAndFollow *fnf) {
+
+    // init the parse table
+    ParseTable pt = calloc(NONTERMINAL_COUNT, sizeof(ParseTableInfo *));
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        pt[i] = calloc(TOKEN_COUNT, sizeof *pt[i]);
+    }
+
+    // loop through all production rules
+    for (uint i = 0; i < g.num_nonterminals; i++) {
+        NonTerminal lhs = g.derivations[i].lhs;
+        for (uint j = 0; j < g.derivations[i].num_rhs; j++) {
+            ProductionRule rule = g.derivations[i].rhs[j];
+
+            // if A -> eps, add this rule to [A, b] for all b in follow(A)
+            if (rule.rule_length == 0) {
+                fillPTCells(pt, fnf[lhs].follow, rule, lhs);
+            }
+
+            else {
+                SymbolNode *t = rule.head;
+
+                // if A -> BCDE, add this rule to [A, b] for all b in first(BCDE)
+                if (t->type == TYPE_TK) {
+                    Bitvector bv;
+                    bv_init(&bv, TOKEN_COUNT);
+                    bv_set(bv, rule.head->val.val_tk);
+                    fillPTCells(pt, bv, rule, lhs);
+                    free(bv);
+                } else {
+                    fillPTCells(pt, fnf[t->val.val_nt].first, rule, lhs);
+                    if (fnf[t->val.val_nt].has_eps)
+                        fillPTCells(pt, fnf[t->val.val_nt].follow, rule, lhs);
+                }
+            }
+        }
+    }
+
+    // syn flag for the follow set
+    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
+        for (uint j = 0; j < TOKEN_COUNT; j++) {
+            if (bv_contains(fnf[i].follow, j)) {
+                pt[i][j].syn = true;
+            }
+        }
+    }
+
+    return pt;
+}
+
+Nary_tree parseInputSourceCode(char *testcaseFile) {
+    FILE *fp = fopen(testcaseFile, "r");
+    if (fp == NULL) {
+        exit_msg("Could not open test case file");
+    }
+
+    // initialise lexer
+    TwinBuffer *tb = initLexer(&fp);
+    printf("Initialised lexer\n");
+
+    // initialise parser
+    Grammar g = initParser(GRAMMAR_FILE);
+    printf("Loaded grammar\n");
+    FirstAndFollow *fnf = computeFirstAndFollow(g);
+    printf("Computed first and follow\n");
+    printFirstAndFollow(fnf);
+    ParseTable pt = createParseTable(fnf);
+    printParseTable(pt);
+    printf("Constructed Parse Table\n");
+
+    // setup stack for parsing
+    Stack *s = calloc(1, sizeof(Stack));
+    st_push(s, TK_EOF, TYPE_TK);
+    st_push(s, program, TYPE_NT); // start symbol
+
+    // start building the parse tree
+    Nary_tree parsetree =
+        nary_newNode(program, false, duplicate_str("----"), 1, duplicate_str(getNonTerimnalName(program)));
+    TreeNode *tn = parsetree; // keeps track of the current node
+
+    // begin parsing
+    TokenInfo t          = getNextToken(tb);
+    bool      has_errors = false;
+    for (;;) {
+
+        // empty stack
+        StackElement *se = st_top(s); // declare it outside?
+        if (se == NULL) {
+            break;
+        }
+
+        // redundant checks sometimes, can be optimized
+        if (t.tk_type == END_TOKENTYPE) {
+            freeToken(&t);
+            t = getNextToken(tb);
+
+            has_errors = true;
+            continue;
+        }
+
+        // ignore comments
+        while (t.tk_type == TK_COMMENT) {
+            freeToken(&t);
+            t = getNextToken(tb);
+            continue;
+        }
+
+#ifdef LOGGING
+        if (se->type == TYPE_NT)
+            printf("Top of the stack: %s. Current input token: %s. Current lexeme: %s\n", getNonTerimnalName(se->val),
+                   getTokenTypeName(t.tk_type), t.lexeme);
+        else
+            printf("Top of the stack: %s. Current input token: %s. Current lexeme: %s\n", getTokenTypeName(se->val),
+                   getTokenTypeName(t.tk_type), t.lexeme);
+#endif
+
+        // top of the stack is a token
+        if (se->type == TYPE_TK) {
+            if (se->val == t.tk_type) {
+                st_pop(s); // stack and input match
+
+                // update parse tree
+                nary_addChild(tn, t.tk_type, true, duplicate_str(t.lexeme), t.line_no, duplicate_str("----"));
+                while (tn && !tn->next_sibling)
+                    tn = tn->parent;
+                if (tn)
+                    tn = tn->next_sibling;
+
+                freeToken(&t);
+                t = getNextToken(tb);
+            } else {
+                has_errors = true;
+                printf("Line %3d Error: The token %s for lexeme %s does not match with the expected token %s\n",
+                       t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getTokenTypeName(se->val));
+                st_pop(s);
+
+                // update parse tree node pointer
+                while (tn && !tn->next_sibling)
+                    tn = tn->parent;
+                if (tn)
+                    tn = tn->next_sibling;
+
+                freeToken(&t);
+                t = getNextToken(tb);
+
+                // required?
+                if (t.tk_type == TK_EOF)
+                    break;
+            }
+        }
+
+        // top of the stack is a nonterminal
+        else {
+            NonTerminal    stack_val  = se->val;
+            TokenType      curr_input = t.tk_type;
+            ParseTableInfo pti        = pt[stack_val][curr_input];
+
+            // corresponding entry exsits in parse table
+            if (pti.filled) {
+                st_pop(s);
+
+                // fill production rule symbols in reverse order
+                SymbolNode *tr = pti.rule.tail;
+                while (tr != NULL) {
+                    st_push(s, tr->val.val_nt, tr->type);
+                    tr = tr->prev;
+                }
+
+                // populate the tree with the symbols of production rule
+                tr = pti.rule.head;
+                while (tr != NULL) {
+                    int   val = (tr->type == TYPE_NT) ? tr->val.val_nt : tr->val.val_tk;
+                    char *lex =
+                        (tr->type == TYPE_NT) ? getNonTerimnalName(tr->val.val_nt) : getTokenTypeName(tr->val.val_tk);
+
+                    nary_addChild(tn, val, false, duplicate_str("----"), t.line_no, duplicate_str(lex));
+                    tr = tr->next;
+                }
+
+                // move current tree node pointer
+                if (pti.rule.rule_length != 0)
+                    tn = tn->first_child;
+                else {
+                    while (tn && !tn->next_sibling)
+                        tn = tn->parent;
+                    if (tn)
+                        tn = tn->next_sibling;
+                }
+            }
+
+            // no corresponding entry in parse table
+            else {
+                // TODO: check if legal (ignore extra semicolons)
+                if (t.tk_type != TK_SEM) {
+                    printf("Line %3d Error: Invalid token %s encountered with value %s stack top %s\n", t.line_no,
+                           getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
+                    has_errors = true;
+
+                    // panic mode
+                    // recovery strategy - ignore input till syn symbol is read
+                    bool has_syn = false;
+                    do {
+                        freeToken(&t);
+                        t = getNextToken(tb);
+                        if (t.tk_type == END_TOKENTYPE || t.tk_type == TK_EOF) {
+                            break;
+                        }
+                        if (pt[stack_val][t.tk_type].syn)
+                            has_syn = true;
+                    } while (has_syn);
+
+                    if (has_syn) {
+                        st_pop(s);
+
+                        // update parse tree node pointer
+                        while (tn && !tn->next_sibling)
+                            tn = tn->parent;
+                        if (tn)
+                            tn = tn->next_sibling;
+                    }
+                } else {
+                    freeToken(&t);
+                    t = getNextToken(tb);
+                }
+            }
+        }
+
+        // if eof stop parsing
+        if (t.tk_type == TK_EOF) {
+            StackElement *se = st_top(s);
+            if (!(se && se->val == TK_EOF)) {
+                has_errors = true;
+            }
+            break;
+        }
+    }
+
+    if (!has_errors)
+        printf("Input source code is syntatically correct\n");
+    else
+        printf("Syntax errors found\n");
+
+    // free up resources
+    freeToken(&t);
+    freeParserData(&g, fnf, pt);
+    freeTwinBuffer(tb);
+    st_free(s);
+    free(s);
+
+    return parsetree;
+}
+
+// get name from the enumerated nonterminal value
+char *getNonTerimnalName(NonTerminal nt) { return NonTerminalNames[nt]; }
+
+/********************************** HELPER FUNCTION DEFINITIONS **********************************/
 
 /**
  * NOTE: The grammar file must have nonterminals
@@ -103,9 +401,11 @@ Grammar loadGrammarFromFile(char *grammarFile) {
         exit_msg("Could not open grammar file");
     }
 
-    Grammar g = (Grammar){.num_nonterminals = NONTERMINAL_COUNT,
-                          .start_symbol     = program, // FIXME: hardcoded
-                          .derivations      = calloc(NONTERMINAL_COUNT, sizeof *g.derivations)};
+    Grammar g = (Grammar){
+        .num_nonterminals = NONTERMINAL_COUNT,
+        .start_symbol     = program, // care, hardcoded
+        .derivations      = calloc(NONTERMINAL_COUNT, sizeof *g.derivations),
+    };
 
     const int   buffsize = 1024;
     char       *buffer   = malloc(sizeof *buffer * buffsize);
@@ -141,7 +441,7 @@ Grammar loadGrammarFromFile(char *grammarFile) {
                 }
                 // make room for another production rule
                 // A -> BC
-                // A -> DE *(here)
+                // A -> DE <-- here
                 else {
                     rule_no = g.derivations[lhs].num_rhs;
                     g.derivations[lhs].num_rhs++;
@@ -157,7 +457,7 @@ Grammar loadGrammarFromFile(char *grammarFile) {
             TorNT tornt;
             int   type;
             uint  rule_no = g.derivations[curr_lhs].num_rhs - 1; // 0 indexed
-            // NOTE: can cause problems
+            // NOTE: care, can cause problems
             if (word[0] == 'T') {
                 type         = TYPE_TK;
                 tornt.val_tk = ht_lookup(TkToEnum, word);
@@ -167,7 +467,7 @@ Grammar loadGrammarFromFile(char *grammarFile) {
             }
             // SymbolNode curr_sn = {.val = tornt, .type = type, .prev = NULL, .next = NULL};
 
-            // in case pointer is reqd
+            // prefer heap allocations
             SymbolNode *curr_sn = malloc(sizeof *curr_sn);
             curr_sn->val        = tornt;
             curr_sn->type       = type;
@@ -186,18 +486,21 @@ Grammar loadGrammarFromFile(char *grammarFile) {
     return g;
 }
 
+// hashtable for nonterminals
 void populateNtToEnum() {
     for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
         ht_insert(&NtToEnum, getNonTerimnalName(i), i);
     }
 }
 
+// hashtable for terminals
 void populateTkToEnum() {
     for (uint i = 0; i < TOKEN_COUNT; i++) {
         ht_insert(&TkToEnum, getTokenTypeName(i), i);
     }
 }
 
+// for a production rule
 void appendSymbolNode(ProductionRule *rule, SymbolNode *sn) {
 
     // first symbol in the rule
@@ -214,17 +517,19 @@ void appendSymbolNode(ProductionRule *rule, SymbolNode *sn) {
     rule->rule_length++;
 }
 
-// recursively compute first sets
-bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed) {
+// recursively compute first sets for all nonterminals
+Bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed) {
     if (first_computed[nt]) {
         return fnf[nt].first;
     }
+
+    // initialize the bitvector to store the first set
     bv_init(&fnf[nt].first, TOKEN_COUNT);
 
     for (uint i = 0; i < g.derivations[nt].num_rhs; i++) {
         ProductionRule rule = g.derivations[nt].rhs[i];
 
-        // epsilon production
+        // epsilon production, add eps and continue
         if (rule.rule_length == 0) {
             fnf[nt].has_eps = true;
             continue;
@@ -244,7 +549,7 @@ bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
             // rule is of the form A -> BC..., nonterminal B
 
             // 1. recursively compute first(B)
-            bitvector bv = computeFirst(curr_symbol->val.val_nt, fnf, first_computed);
+            Bitvector bv = computeFirst(curr_symbol->val.val_nt, fnf, first_computed);
             // 2. all elements in first(B) are in first(A)
             fnf[nt].first = bv_union(fnf[nt].first, bv, TOKEN_COUNT);
             // 3. if first(B) has eps, we need to add first(C) as well...
@@ -265,7 +570,7 @@ bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
 }
 
 /**
- * Time Complexity: O(NUM_NONTERMINALS * NUM_TERMINALS^2 * NUM_PRODUCTION_RULES * max(NUM_NONTERMINALS_IN_RULE))
+ * Time Complexity: O(NUM_NONTERMINALS * NUM_TERMINALS^2 * NUM_PRODUCTION_RULES * max(NUM_NONTERMINALS_IN_RULE^2))
  * Actual running time will be much lower as most rules are short/many epsilon rules
  * Can be improved by early stopping - when the follow sets no longer change
  * But would require additional functionality to detect changes in the follow sets
@@ -274,6 +579,7 @@ void computeFollow(FirstAndFollow *fnf) {
 
     // perform many rounds
     for (uint round = 0; round < NONTERMINAL_COUNT * TOKEN_COUNT + 1; round++) {
+        // next 2 loops goes over each production rule
         for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
             for (uint j = 0; j < g.derivations[i].num_rhs; j++) {
                 ProductionRule rule = g.derivations[i].rhs[j];
@@ -282,7 +588,8 @@ void computeFollow(FirstAndFollow *fnf) {
                 if (rule.rule_length == 0)
                     continue;
 
-                // A -> BCDE; follow(B) += first(C), follow(C) += first(D)...
+                // case 1:
+                // A -> BCDE; follow(B) += first(CDE), follow(C) += first(DE)...
                 NonTerminal ntA = g.derivations[i].lhs;
                 SymbolNode *t   = rule.head->next;
                 while (t != NULL) {
@@ -299,7 +606,6 @@ void computeFollow(FirstAndFollow *fnf) {
                         fnf[ntB].follow = bv_union(fnf[ntB].follow, fnf[ntC].first, TOKEN_COUNT);
                     }
 
-                    // TODO CHECK
                     SymbolNode *t2 = t->next;
                     while (t2 != NULL) {
                         if (!fnf[t2->prev->val.val_nt].has_eps) {
@@ -319,6 +625,7 @@ void computeFollow(FirstAndFollow *fnf) {
                     t = t->next;
                 }
 
+                // case 2:
                 // A -> BCDE; if first(E) has eps, follow(D) += follow(A)
                 // if first(E) and first(D) have eps, follow(C) += follow(A)
                 // ...
@@ -336,6 +643,7 @@ void computeFollow(FirstAndFollow *fnf) {
                     t = t->prev;
                 }
 
+                // case 3:
                 // A -> DBC; add all of follow(A) to follow(C)
                 if (rule.tail->type == TYPE_NT) {
                     NonTerminal ntC = rule.tail->val.val_nt;
@@ -346,62 +654,51 @@ void computeFollow(FirstAndFollow *fnf) {
     }
 }
 
-FirstAndFollow *computeFirstAndFollow(const Grammar g) {
-    FirstAndFollow *fnf = calloc(NONTERMINAL_COUNT, sizeof(*fnf));
-
-    // keep track of what all first sets have been computed
-    bool first_computed[NONTERMINAL_COUNT];
-    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        first_computed[i] = false;
-    }
-
-    // recursively compute first
-    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        NonTerminal lhs = g.derivations[i].lhs;
-        if (first_computed[lhs]) {
+// helper function to fill an entry in the parsetable
+void fillPTCells(ParseTable pt, Bitvector bv, ProductionRule rule, NonTerminal row) {
+    for (uint i = 0; i < TOKEN_COUNT; i++) {
+        if (!bv_contains(bv, i))
             continue;
+        if (pt[row][i].filled) {
+            printf("Duplicate entry at [%s, %s]\n", getNonTerimnalName(row), getTokenTypeName(i));
         }
-
-        computeFirst(lhs, fnf, first_computed);
+        pt[row][i].filled = true;
+        pt[row][i].rule   = rule;
     }
-
-    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        bv_init(&fnf[i].follow, TOKEN_COUNT);
-    }
-    // add '$' to follow(start symbol)
-    bv_set(fnf[program].follow, TK_EOF); // FIXME hardcoded start symbol
-    // iteratively compute follow in rounds
-    computeFollow(fnf);
-
-    return fnf;
 }
 
+/********************************** PRINTING FUNCTIONS FOR LOGGING **********************************/
+
+#define GROUTPUT_FILE "output/firstandfollow.txt"
 void printGrammar(Grammar g) {
+    FILE *fp = fopen(GROUTPUT_FILE, "w");
+    if (fp == NULL) {
+        exit_msg("Could not open test case file");
+    }
+
     for (int i = 0; i < NONTERMINAL_COUNT; i++) {
         Derivation curr_derivation = g.derivations[i];
-        printf("\n%d. LHS: %s\n", i, NonTerminalNames[curr_derivation.lhs]);
-        printf("RHS: %d rules\n", curr_derivation.num_rhs);
+        fprintf(fp, "\n%d. LHS: %s\n", i, NonTerminalNames[curr_derivation.lhs]);
+        fprintf(fp, "RHS: %d rules\n", curr_derivation.num_rhs);
 
         for (int j = 0; j < curr_derivation.num_rhs; j++) {
             ProductionRule curr_rule = curr_derivation.rhs[j];
             SymbolNode    *trav      = curr_rule.head;
-            printf("Rule Length: %d-> ", curr_rule.rule_length);
+            fprintf(fp, "Rule Length: %d-> ", curr_rule.rule_length);
             if (curr_rule.rule_length == 0) {
-                printf("epsilon");
+                fprintf(fp, "epsilon");
             }
             while (trav != NULL) {
                 if (trav->type == TYPE_TK) {
-                    printf("%s ", getTokenTypeName(trav->val.val_tk));
+                    fprintf(fp, "%s ", getTokenTypeName(trav->val.val_tk));
                 } else {
-                    printf("%s ", getNonTerimnalName(trav->val.val_nt));
+                    fprintf(fp, "%s ", getNonTerimnalName(trav->val.val_nt));
                 }
                 trav = trav->next;
             }
             printf("\n");
         }
     }
-
-    printf("-----------------------------------------------------\n");
 }
 
 #define FNFOUTPUT_FILE "output/firstandfollow.txt"
@@ -436,62 +733,6 @@ void printFirstAndFollow(FirstAndFollow *fnf) {
     fclose(fp);
 }
 
-void fillPTCells(ParseTable pt, bitvector bv, ProductionRule rule, NonTerminal row) {
-    for (uint i = 0; i < TOKEN_COUNT; i++) {
-        if (!bv_contains(bv, i))
-            continue;
-        if (pt[row][i].filled) {
-            printf("Duplicate entry at [%s, %s]\n", getNonTerimnalName(row), getTokenTypeName(i));
-        }
-        pt[row][i].filled = true;
-        pt[row][i].rule   = rule;
-    }
-}
-
-ParseTable createParseTable(FirstAndFollow *fnf) {
-
-    // init the parse table
-    ParseTable pt = calloc(NONTERMINAL_COUNT, sizeof(ParseTableInfo *));
-    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        pt[i] = calloc(TOKEN_COUNT, sizeof *pt[i]);
-    }
-
-    // loop through all production rules
-    for (uint i = 0; i < g.num_nonterminals; i++) {
-        NonTerminal lhs = g.derivations[i].lhs;
-        for (uint j = 0; j < g.derivations[i].num_rhs; j++) {
-            ProductionRule rule = g.derivations[i].rhs[j];
-            if (rule.rule_length == 0) {
-                fillPTCells(pt, fnf[lhs].follow, rule, lhs);
-            } else {
-                SymbolNode *t = rule.head;
-                if (t->type == TYPE_TK) {
-                    bitvector bv;
-                    bv_init(&bv, TOKEN_COUNT);
-                    bv_set(bv, rule.head->val.val_tk);
-                    fillPTCells(pt, bv, rule, lhs);
-                    free(bv);
-                } else {
-                    fillPTCells(pt, fnf[t->val.val_nt].first, rule, lhs);
-                    if (fnf[t->val.val_nt].has_eps)
-                        fillPTCells(pt, fnf[t->val.val_nt].follow, rule, lhs);
-                }
-            }
-        }
-    }
-
-    // syn flag for the follow set
-    for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        for (uint j = 0; j < TOKEN_COUNT; j++) {
-            if (bv_contains(fnf[i].follow, j)) {
-                pt[i][j].syn = true;
-            }
-        }
-    }
-
-    return pt;
-}
-
 #define PTOUTPUT_FILE "output/parsetable.txt"
 void printParseTable(ParseTable pt) {
     FILE *fp = fopen(PTOUTPUT_FILE, "w");
@@ -524,142 +765,14 @@ void printParseTable(ParseTable pt) {
     fclose(fp);
 }
 
-void parseInputSourceCode(char *testcaseFile) {
-    FILE *fp = fopen(testcaseFile, "r");
-    if (fp == NULL) {
-        exit_msg("Could not open test case file");
-    }
-
-    // initialise lexer
-    TwinBuffer *tb = initLexer(&fp);
-    printf("Initialised lexer\n");
-
-    // initialise parser
-    Grammar g = initParser(GRAMMAR_FILE);
-    printf("Loaded grammar\n");
-    FirstAndFollow *fnf = computeFirstAndFollow(g);
-    printf("Computed first and follow\n");
-    printFirstAndFollow(fnf);
-    ParseTable pt = createParseTable(fnf);
-    printParseTable(pt);
-    printf("Constructed Parse Table\n");
-
-    // setup stack for parsing
-    stack *s = calloc(1, sizeof(stack));
-    st_push(s, TK_EOF, TYPE_TK);
-    st_push(s, program, TYPE_NT); // start symbol
-
-    // begin parsing
-    TokenInfo t          = getNextToken(tb);
-    bool      has_errors = false;
-    for (;;) {
-        StackElement *se = st_top(s); // declare it outside?
-        if (se == NULL) {
-            break;
-        }
-
-        // redundant checks sometimes, can be optimized
-        if (t.tk_type == END_TOKENTYPE) {
-            freeToken(&t);
-            t = getNextToken(tb);
-
-            has_errors = true;
-            continue;
-        }
-
-        while (t.tk_type == TK_COMMENT) {
-            freeToken(&t);
-            t = getNextToken(tb);
-            continue;
-        }
-
-        /* if (se->type == TYPE_NT)
-            printf("Top of the stack: %s. Current input token: %s. Current lexeme: %s\n", getNonTerimnalName(se->val),
-                   getTokenTypeName(t.tk_type), t.lexeme);
-        else
-            printf("Top of the stack: %s. Current input token: %s. Current lexeme: %s\n", getTokenTypeName(se->val),
-                   getTokenTypeName(t.tk_type), t.lexeme); */
-
-        if (se->type == TYPE_TK) {
-            if (se->val == t.tk_type) {
-                st_pop(s); // stack and input match
-                freeToken(&t);
-                t = getNextToken(tb);
-            } else {
-                printf("Line %3d Error: The token %s for lexeme %s does not match with the expected token %s\n",
-                       t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getTokenTypeName(se->val));
-
-                st_pop(s);
-                freeToken(&t);
-                t          = getNextToken(tb);
-                has_errors = true;
-                if (t.tk_type == TK_EOF)
-                    break;
-            }
-        }
-
-        else {
-            NonTerminal    stack_val  = se->val;
-            TokenType      curr_input = t.tk_type;
-            ParseTableInfo pti        = pt[stack_val][curr_input];
-            if (pti.filled) {
-                st_pop(s);
-                // fill in reverse order
-                SymbolNode *t = pti.rule.tail;
-                while (t != NULL) {
-                    st_push(s, t->val.val_nt, t->type);
-                    t = t->prev;
-                }
-            } else {
-                // TODO: check if legal
-                if (t.tk_type != TK_SEM) {
-                    printf("Line %3d Error: Invalid token %s encountered with value %s stack top %s\n", t.line_no,
-                           getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
-                    has_errors   = true;
-                    bool has_syn = false;
-                    do {
-                        freeToken(&t);
-                        t = getNextToken(tb);
-                        if (t.tk_type == END_TOKENTYPE || t.tk_type == TK_EOF) {
-                            break;
-                        }
-                        if (pt[stack_val][t.tk_type].syn)
-                            has_syn = true;
-                    } while (has_syn);
-                    if (has_syn) {
-                        st_pop(s);
-                    }
-                } else {
-                    freeToken(&t);
-                    t = getNextToken(tb);
-                }
-            }
-        }
-
-        // eof check
-        if (t.tk_type == TK_EOF) {
-            StackElement *se = st_top(s);
-            if (!(se && se->val == TK_EOF)) {
-                has_errors = true;
-            }
-            break;
-        }
-    }
-
-    if (!has_errors)
-        printf("Input source code is syntatically correct\n");
-
-    // free up resources
-    freeToken(&t);
-    freeParserData(&g, fnf, pt);
-    freeTwinBuffer(tb);
-    st_free(s);
-    free(s);
+void printParseTree(Nary_tree pt, char *outfile) {
+    FILE *fp = fopen(outfile, "w");
+    nary_printInorder(pt, &fp);
+    fclose(fp);
 }
 
-char *getNonTerimnalName(NonTerminal nt) { return NonTerminalNames[nt]; }
+/****************************** FREE UP ALL (C/M)ALLOCd ENTITIES **********************************/
 
-/****************** FREE UP ALL (C/M)ALLOCd ENTITIES ***********************/
 void freeProductionRules(uint num_productions, ProductionRule *rule) {
     for (uint i = 0; i < num_productions; i++) {
         // free up the linked list of symbols
@@ -706,3 +819,5 @@ void freeParserData(Grammar *g, FirstAndFollow *fnf, ParseTable pt) {
     if (pt)
         freePT(pt);
 }
+
+/**************************************************************************************************/
