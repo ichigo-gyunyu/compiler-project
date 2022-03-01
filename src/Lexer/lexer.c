@@ -80,7 +80,6 @@ static char *const valid_starting_characters[] = {
 /********************************** HELPER FUNCTION DECLERATIONS **********************************/
 
 // note - not visible outside the lexer
-uint      initBuffer(int buff_no);
 char      nextChar(char **lex);
 void      retract();
 void      initLookupTable();
