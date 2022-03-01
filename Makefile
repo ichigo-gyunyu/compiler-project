@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -g -fsanitize=address
 INC = -I./src
 EXE = $(wildcard *.exe)
-OUT = $(wildcard *.out)
+OUT = stage1exe
 
 # TODO use wildcards/pattern subst instead
 SRC = ./src/Lexer/lexer.c \
@@ -25,12 +25,15 @@ OBJ = lexer.o \
 	  nary.o \
 	  driver.o
 
+TXT = output_firstandfollow.txt \
+	  output_parsetable.txt
+
 all: compile
-	$(CC) $(CFLAGS) $(OBJ)
-	./a.out
+	$(CC) $(CFLAGS) $(OBJ) -o $(OUT)
+	@echo -e "\nDone. Usage: ./$(OUT) testCasefile.txt parseTreeOutFile.txt"
 
 compile:
 	$(CC) $(CFLAGS) $(INC) -c $(SRC)
 
 clean:
-	rm -rf $(EXE) $(OUT) $(OBJ)
+	rm -rf $(EXE) $(OUT) $(OBJ) $(TXT)

@@ -186,7 +186,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
     // initialise lexer
     TwinBuffer *tb = initLexer(&fp);
-    printf("Initialised lexer\n");
+    printf("\nInitialized lexer\n");
 
     // initialise parser
     Grammar g = initParser(GRAMMAR_FILE);
@@ -196,7 +196,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     printFirstAndFollow(fnf);
     ParseTable pt = createParseTable(fnf);
     printParseTable(pt);
-    printf("Constructed Parse Table\n");
+    printf("Constructed Parse Table\n\n");
 
     // setup stack for parsing
     Stack *s = calloc(1, sizeof(Stack));
@@ -260,7 +260,8 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 t = getNextToken(tb);
             } else {
                 has_errors = true;
-                printf("Line %3d Error: The token %s for lexeme %s does not match with the expected token %s\n",
+                printf(RED "Line %3d Error: The token %s for lexeme %s does not match with the expected token %s" RESET
+                           "\n",
                        t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getTokenTypeName(se->val));
                 st_pop(s);
 
@@ -322,8 +323,8 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
             else {
                 // TODO: check if legal (ignore extra semicolons)
                 if (t.tk_type != TK_SEM) {
-                    printf("Line %3d Error: Invalid token %s encountered with value %s stack top %s\n", t.line_no,
-                           getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
+                    printf(RED "Line %3d Error: Invalid token %s encountered with value %s stack top %s" RESET "\n",
+                           t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
                     has_errors = true;
 
                     // panic mode
@@ -366,9 +367,11 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     }
 
     if (!has_errors)
-        printf("Input source code is syntatically correct\n");
+        printf(GRN "Input source code is syntatically correct" RESET "\n");
     else
-        printf("Syntax errors found\n");
+        printf(RED "Syntax errors found" RESET "\n");
+
+    printf("\nFirst and Follow sets, parse table and parse tree written to output files\n");
 
     // free up resources
     freeToken(&t);
@@ -659,9 +662,6 @@ void fillPTCells(ParseTable pt, Bitvector bv, ProductionRule rule, NonTerminal r
     for (uint i = 0; i < TOKEN_COUNT; i++) {
         if (!bv_contains(bv, i))
             continue;
-        if (pt[row][i].filled) {
-            printf("Duplicate entry at [%s, %s]\n", getNonTerimnalName(row), getTokenTypeName(i));
-        }
         pt[row][i].filled = true;
         pt[row][i].rule   = rule;
     }
@@ -669,11 +669,11 @@ void fillPTCells(ParseTable pt, Bitvector bv, ProductionRule rule, NonTerminal r
 
 /********************************** PRINTING FUNCTIONS FOR LOGGING **********************************/
 
-#define GROUTPUT_FILE "output/firstandfollow.txt"
+#define GROUTPUT_FILE "output_grammarverification.txt"
 void printGrammar(Grammar g) {
     FILE *fp = fopen(GROUTPUT_FILE, "w");
     if (fp == NULL) {
-        exit_msg("Could not open test case file");
+        exit_msg("Could not open output file");
     }
 
     for (int i = 0; i < NONTERMINAL_COUNT; i++) {
@@ -696,16 +696,16 @@ void printGrammar(Grammar g) {
                 }
                 trav = trav->next;
             }
-            printf("\n");
+            fprintf(fp, "\n");
         }
     }
 }
 
-#define FNFOUTPUT_FILE "output/firstandfollow.txt"
+#define FNFOUTPUT_FILE "output_firstandfollow.txt"
 void printFirstAndFollow(FirstAndFollow *fnf) {
     FILE *fp = fopen(FNFOUTPUT_FILE, "w");
     if (fp == NULL) {
-        exit_msg("Could not open test case file");
+        exit_msg("Could not open file to print first and follow");
     }
 
     for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
@@ -713,7 +713,7 @@ void printFirstAndFollow(FirstAndFollow *fnf) {
 
         fprintf(fp, "First Set:  ");
         if (fnf[i].has_eps)
-            fprintf(fp, "eps, ");
+            fprintf(fp, "eps ");
         for (uint j = 0; j < TOKEN_COUNT; j++) {
             if (bv_contains(fnf[i].first, j)) {
                 fprintf(fp, "%s ", getTokenTypeName(j));
@@ -733,11 +733,11 @@ void printFirstAndFollow(FirstAndFollow *fnf) {
     fclose(fp);
 }
 
-#define PTOUTPUT_FILE "output/parsetable.txt"
+#define PTOUTPUT_FILE "output_parsetable.txt"
 void printParseTable(ParseTable pt) {
     FILE *fp = fopen(PTOUTPUT_FILE, "w");
     if (fp == NULL) {
-        exit_msg("Could not open test case file");
+        exit_msg("Could not open file to print parse table");
     }
 
     for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
@@ -767,6 +767,8 @@ void printParseTable(ParseTable pt) {
 
 void printParseTree(Nary_tree pt, char *outfile) {
     FILE *fp = fopen(outfile, "w");
+    if (!fp)
+        exit_msg("Could not open parse tree output file\n");
     nary_printInorder(pt, &fp);
     fclose(fp);
 }

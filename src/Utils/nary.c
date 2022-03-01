@@ -55,7 +55,7 @@ void nary_printInorder(TreeNode *root, FILE **fp) {
     else
         par = "ROOT";
 
-    fprintf(*fp, "%10s %3d %15s %15s %4s %15s\n", root->lexeme, root->line_num, root->token_name, par, isleaf,
+    fprintf(*fp, "%10s %3d %30s %30s %4s %15s\n", root->lexeme, root->line_num, root->token_name, par, isleaf,
             root->token_name);
 
     if (root->first_child) {

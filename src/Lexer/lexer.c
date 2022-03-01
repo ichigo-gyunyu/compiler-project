@@ -585,14 +585,14 @@ TokenInfo getNextToken(TwinBuffer *tb) {
             char *tmp = calloc(2, sizeof *tmp);
             tmp[0]    = c;
             if (err_from_state_0) {
-                printf("Line %3d Error: Unknown symbol <%c>\n", line_number, c);
+                printf(YEL "Line %3d Error: Unknown symbol <%c>" RESET "\n", line_number, c);
                 tb_moveBegin(tb);
                 return (TokenInfo){.line_no = line_number, .lexeme = tmp, .tk_type = END_TOKENTYPE};
             }
 
             tb_retract(tb, &line_number);
             char *lex = tb_getLexeme(tb);
-            printf("Line %3d Error: Unknown pattern <%s>\n", line_number, lex);
+            printf(YEL "Line %3d Error: Unknown pattern <%s>" RESET "\n", line_number, lex);
             /* if (ht_lookup(valid_chars, tmp) == -1)
                 tb_nextChar(tb, &line_number); */
             free(tmp);
@@ -608,7 +608,11 @@ void removeComments(char *testcaseFile, char *cleanFile) {
     char       line[buf_size];
     uint       a  = 0;
     FILE      *f1 = fopen(testcaseFile, "r");
-    FILE      *f2 = fopen(cleanFile, "w");
+    FILE      *f2;
+    if (cleanFile == NULL)
+        f2 = stdout;
+    else
+        f2 = fopen(cleanFile, "w");
 
     while (fgets(line, buf_size, f1) != NULL) {
         for (a = 0; a < buf_size; a++) {
@@ -626,13 +630,29 @@ void removeComments(char *testcaseFile, char *cleanFile) {
             }
         }
     }
-
     fclose(f1);
-    fclose(f2);
+    if (cleanFile)
+        fclose(f2);
 }
 
 // get name from the enumerated token type value
 char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
+
+void runLexerOnInputSourceCode(char *testcaseFile) {
+    FILE       *fp = fopen(testcaseFile, "r");
+    TwinBuffer *tb = initLexer(&fp);
+    TokenInfo   t  = getNextToken(tb);
+    while (t.tk_type != TK_EOF) {
+        if (t.tk_type != END_TOKENTYPE)
+            printTokenInfo(t);
+        freeToken(&t);
+        t = getNextToken(tb);
+    }
+    freeToken(&t);
+    freeTwinBuffer(tb);
+
+    return;
+}
 
 /********************************** HELPER FUNCTION DEFINITIONS **********************************/
 
@@ -724,7 +744,8 @@ TokenInfo accept6(TwinBuffer *tb) {
     TokenType t   = TK_ID;
 
     if (t == TK_ID && strlen(lex) > ID_MAX_LENGTH) {
-        printf("Line %3d Error: Variable identifier is longer than prescribed length of 20 characters\n", line_number);
+        printf(YEL "Line %3d Error: Variable identifier is longer than prescribed length of 20 characters" RESET "\n",
+               line_number);
         return (TokenInfo){.lexeme = lex, .tk_type = END_TOKENTYPE, .line_no = line_number};
     }
     return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};
@@ -736,7 +757,8 @@ TokenInfo accept19(TwinBuffer *tb) {
     TokenType t   = getMainOrFunID(lex);
 
     if (t == TK_FUNID && strlen(lex) > FUNID_MAX_LENGTH) {
-        printf("Line %3d Error: Variable identifier is longer than prescribed length of 30 characters\n", line_number);
+        printf(YEL "Line %3d Error: Function identifier is longer than prescribed length of 30 characters" RESET "\n",
+               line_number);
         return (TokenInfo){.lexeme = lex, .tk_type = END_TOKENTYPE, .line_no = line_number};
     }
     return (TokenInfo){.lexeme = lex, .tk_type = t, .line_no = line_number};

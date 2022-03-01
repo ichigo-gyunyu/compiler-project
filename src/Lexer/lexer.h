@@ -34,6 +34,13 @@ void removeComments(char *testcaseFile, char *cleanFile);
 char *getTokenTypeName(TokenType tk);
 
 /**
+ * Run the lexical analyzer module on the input source code
+ * Detect errors
+ * Free up memory
+ */
+void runLexerOnInputSourceCode(char *testcaseFile);
+
+/**
  * Print out all the information in a toke
  */
 void printTokenInfo(TokenInfo t);
