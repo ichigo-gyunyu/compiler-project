@@ -18,7 +18,6 @@ typedef struct TreeNode {
     bool      is_leaf;
     TokenInfo t_info;
     char     *node_symbol;
-    int       line_no;
 
     struct TreeNode *next_sibling;
     struct TreeNode *first_child;
