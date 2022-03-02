@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
+# CFLAGS = -Wall -g -fsanitize=address
 INC = -I./src
 EXE = $(wildcard *.exe)
 OUT = stage1exe
@@ -26,7 +27,9 @@ OBJ = lexer.o \
 	  driver.o
 
 TXT = output_firstandfollow.txt \
-	  output_parsetable.txt
+	  output_parsetable.txt \
+	  output_pt.txt \
+	  output_partsetree.txt
 
 all: compile
 	$(CC) $(CFLAGS) $(OBJ) -o $(OUT) -lm
