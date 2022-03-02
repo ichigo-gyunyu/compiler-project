@@ -1,3 +1,13 @@
+
+/**
+ * Group 2
+ * Sanjeet Kapadia   2018B4A70137P
+ * Lingesh Kumaar    2018B4A70857P
+ * Aman Mishra       2018B4A70877P
+ * Sidharth Varghese 2019A7PS1133P
+ * Edara Bala Mukesh 2019A7PS0081P
+ */
+
 #ifndef PARSER_H
 #define PARSER_H
 
@@ -33,9 +43,9 @@ Nary_tree parseInputSourceCode(char *testcaseFile);
 /**
  * Printing functions for logging
  */
-void printGrammar(Grammar g);
-void printFirstAndFollow(FirstAndFollow *fnf);
-void printParseTable(ParseTable pt);
+void      printGrammar(Grammar g);
+void      printFirstAndFollow(FirstAndFollow *fnf);
+void      printParseTable(ParseTable pt);
 Nary_tree printParseTree(Nary_tree pt, char *outfile);
 
 /**

@@ -1,3 +1,13 @@
+
+/**
+ * Group 2
+ * Sanjeet Kapadia   2018B4A70137P
+ * Lingesh Kumaar    2018B4A70857P
+ * Aman Mishra       2018B4A70877P
+ * Sidharth Varghese 2019A7PS1133P
+ * Edara Bala Mukesh 2019A7PS0081P
+ */
+
 #include "parser.h"
 #include "Utils/stack.h"
 
@@ -204,9 +214,8 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     st_push(s, program, TYPE_NT); // start symbol
 
     // start building the parse tree
-    Nary_tree parsetree =
-        nary_newNode((TokenInfo){.line_no = 1}, duplicate_str("program"), false);
-    TreeNode *tn = parsetree; // keeps track of the current node
+    Nary_tree parsetree = nary_newNode((TokenInfo){.line_no = 1}, duplicate_str("program"), false);
+    TreeNode *tn        = parsetree; // keeps track of the current node
 
     // begin parsing
     TokenInfo t          = getNextToken(tb);
@@ -251,13 +260,12 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
                 // update parse tree
                 // nary_addChild(tn, t.tk_type, true, duplicate_str(t.lexeme), t.line_no, duplicate_str("----"));
-                tn->t_info = t;
+                tn->t_info        = t;
                 tn->t_info.lexeme = duplicate_str(t.lexeme);
-                tn->is_leaf = true;
+                tn->is_leaf       = true;
                 free(tn->node_symbol);
                 tn->node_symbol = duplicate_str("----");
-                
-                
+
                 while (tn && !tn->next_sibling)
                     tn = tn->parent;
                 if (tn)
@@ -308,11 +316,11 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 tr = pti.rule.head;
                 while (tr != NULL) {
                     // int   val = (tr->type == TYPE_NT) ? tr->val.val_nt : tr->val.val_tk;
-                    char *lex =
-                        (tr->type == TYPE_NT) ? duplicate_str(getNonTerimnalName(tr->val.val_nt)) : duplicate_str("----");
+                    char *lex = (tr->type == TYPE_NT) ? duplicate_str(getNonTerimnalName(tr->val.val_nt))
+                                                      : duplicate_str("----");
 
                     // nary_addChild(tn, val, false, duplicate_str("----"), t.line_no, duplicate_str(lex));
-                    nary_addChild(tn,(TokenInfo){.line_no = t.line_no}, lex, false);
+                    nary_addChild(tn, (TokenInfo){.line_no = t.line_no}, lex, false);
                     tr = tr->next;
                 }
 
@@ -379,7 +387,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     else
         printf(RED "Syntax errors found" RESET "\n");
 
-    if(!has_errors)
+    if (!has_errors)
         printf("\nFirst and Follow sets, parse table and parse tree written to output files\n");
 
     // free up resources
@@ -389,7 +397,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     st_free(s);
     free(s);
 
-    if(!has_errors)
+    if (!has_errors)
         return parsetree;
 
     nary_free(parsetree);
@@ -778,11 +786,9 @@ void printParseTable(ParseTable pt) {
     fclose(fp);
 }
 
-
-
 Nary_tree printParseTree(Nary_tree pt, char *outfile) {
-    if(!pt){
-        printf(RED"Not generating parse tree\n"RESET);
+    if (!pt) {
+        printf(RED "Not generating parse tree\n" RESET);
         return NULL;
     }
     FILE *fp = fopen(outfile, "w");
