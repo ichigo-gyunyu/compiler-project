@@ -604,34 +604,34 @@ TokenInfo getNextToken(TwinBuffer *tb) {
 
 // handled independently of other functions in lexer
 void removeComments(char *testcaseFile, char *cleanFile) {
-    const uint buf_size = 512;
-    char       line[buf_size];
-    uint       a  = 0;
-    FILE      *f1 = fopen(testcaseFile, "r");
-    FILE      *f2;
-    if (cleanFile == NULL)
-        f2 = stdout;
-    else
+    char  c;
+    FILE *f1, *f2;
+    f1 = fopen(testcaseFile, "r");
+    if (cleanFile != NULL)
         f2 = fopen(cleanFile, "w");
+    else
+        f2 = stdout;
 
-    while (fgets(line, buf_size, f1) != NULL) {
-        for (a = 0; a < buf_size; a++) {
-            if (line[a] == '\0') {
-                break;
-            }
-        }
+    bool is_comment = false;
+    do {
 
-        for (uint i = 0; i < a; i++) {
-            if (line[i] == '%') {
-                fprintf(f2, "\n");
-                break;
-            } else {
-                fprintf(f2, "%c", line[i]);
-            }
+        c = getc(f1);
+        if (c == '%') {
+            is_comment = true;
         }
-    }
+        if (c == '\n') {
+            is_comment = false;
+        }
+        if (!is_comment) {
+            fprintf(f2, "%c", c);
+        }
+        if (feof(f1)) {
+            break;
+        }
+    } while (1);
+
     fclose(f1);
-    if (cleanFile)
+    if (cleanFile != NULL)
         fclose(f2);
 }
 

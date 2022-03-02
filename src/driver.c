@@ -3,8 +3,7 @@
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
 
-#define GRAMMARFILE "data/grammar.txt"
-#define OUTFILE     "./stage1exe"
+#define OUTFILE "./stage1exe"
 
 void usageError() {
     printf("Usage error: " OUTFILE " testCase.txt parseTreeOut.txt\n");
@@ -18,8 +17,8 @@ int main(int argc, char **argv) {
 
     printf("***************** Compiler Stage 1 - Group 2 *****************\n\n");
     printf(GRN "Status:" RESET "\n");
-    printf("Both lexical and syntax analysis modules implemented\n");
-    printf("FIRST and FOLLOW set automated\n");
+    printf("Both lexical and syntax analyzer modules implemented\n");
+    printf("FIRST and FOLLOW sets automated\n");
     printf("Module works with all 6 testcases\n");
     printf("Error handling and recovery implemented\n");
     printf("Parse tree can be constructed\n");
@@ -63,7 +62,7 @@ int main(int argc, char **argv) {
             total_CPU_time            = (double)(end_time - start_time);
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
 
-            printf("\nTotal CPU time = %f\nTotal CPU time in seconds = %f\n", total_CPU_time,
+            printf("\nTotal CPU time            = %f\nTotal CPU time in seconds = %f\n", total_CPU_time,
                    total_CPU_time_in_seconds);
             break;
         }
