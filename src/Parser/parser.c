@@ -204,9 +204,8 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     st_push(s, program, TYPE_NT); // start symbol
 
     // start building the parse tree
-    char *temp = duplicate_str("program");
     Nary_tree parsetree =
-        nary_newNode((TokenInfo){.line_no = 1}, false, temp);
+        nary_newNode((TokenInfo){.line_no = 1}, duplicate_str("program"), false);
     TreeNode *tn = parsetree; // keeps track of the current node
 
     // begin parsing

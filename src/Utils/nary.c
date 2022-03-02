@@ -80,7 +80,7 @@ void nary_printInorder(TreeNode *root, FILE **fp) {
             isleaf, root->node_symbol);
         
         else if(root->t_info.tk_type == TK_RNUM)
-            fprintf(*fp, "%10s %3d %30s %.10f %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no, 
+            fprintf(*fp, "%10s %3d %30s %10.6f %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no, 
             getTokenTypeName(root->t_info.tk_type), root->t_info.val.val_real, par, 
             isleaf, root->node_symbol);
 
