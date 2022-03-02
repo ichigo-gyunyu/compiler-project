@@ -67,6 +67,24 @@ void nary_printInorder(TreeNode *root, FILE **fp) {
     }
 }
 
+void nary_free(TreeNode *root){
+    if(!root)
+        return;
+
+    if(root->first_child)
+        nary_free(root->first_child);
+    
+    if(root->next_sibling)
+        nary_free(root->next_sibling);
+    
+    free(root->lexeme);
+    free(root->token_name);
+    free(root);
+    
+}
+
+
+
 /* int main() {
     TreeNode *n1 = nary_newNode(1, 0, "j", 0, "ds");
     nary_addChild(n1, 2, 0, "j", 0, "ds");

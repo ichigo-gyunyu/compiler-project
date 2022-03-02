@@ -765,12 +765,13 @@ void printParseTable(ParseTable pt) {
     fclose(fp);
 }
 
-void printParseTree(Nary_tree pt, char *outfile) {
+Nary_tree printParseTree(Nary_tree pt, char *outfile) {
     FILE *fp = fopen(outfile, "w");
     if (!fp)
         exit_msg("Could not open parse tree output file\n");
     nary_printInorder(pt, &fp);
     fclose(fp);
+    return pt;
 }
 
 /****************************** FREE UP ALL (C/M)ALLOCd ENTITIES **********************************/

@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
             break;
 
         case 3:
-            printParseTree(parseInputSourceCode(argv[1]), argv[2]);
+            nary_free(printParseTree(parseInputSourceCode(argv[1]), argv[2]));
             break;
 
         case 4: {
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
             double  total_CPU_time, total_CPU_time_in_seconds;
             start_time = clock();
 
-            parseInputSourceCode(argv[1]); // utilizes the lexer as well
+            nary_free(parseInputSourceCode(argv[1])); // utilizes the lexer as well
 
             end_time                  = clock();
             total_CPU_time            = (double)(end_time - start_time);

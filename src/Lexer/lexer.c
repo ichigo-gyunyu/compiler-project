@@ -622,12 +622,13 @@ void removeComments(char *testcaseFile, char *cleanFile) {
         if (c == '\n') {
             is_comment = false;
         }
-        if (!is_comment) {
-            fprintf(f2, "%c", c);
-        }
         if (feof(f1)) {
             break;
         }
+        if (!is_comment) {
+            fprintf(f2, "%c", c);
+        }
+        
     } while (1);
 
     fclose(f1);

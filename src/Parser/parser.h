@@ -36,7 +36,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile);
 void printGrammar(Grammar g);
 void printFirstAndFollow(FirstAndFollow *fnf);
 void printParseTable(ParseTable pt);
-void printParseTree(Nary_tree pt, char *outfile);
+Nary_tree printParseTree(Nary_tree pt, char *outfile);
 
 /**
  * Memory cleanup functions
