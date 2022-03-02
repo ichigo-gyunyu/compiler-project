@@ -73,6 +73,11 @@ typedef enum TokenType {
 static const unsigned int TOKEN_COUNT   = END_TOKENTYPE - TK_ASSIGNOP;
 static const unsigned int KEYWORD_COUNT = 28; // care, hardcoded
 
+/**
+ * Lexeme is stored as a string
+ * Can be converted to int or real when needed
+ * by matching TokenType
+ */
 typedef struct TokenInfo {
     TokenType tk_type;
     char     *lexeme;
