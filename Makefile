@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -fsanitize=address -lm
+CFLAGS = -Wall -g -fsanitize=address
 INC = -I./src
 EXE = $(wildcard *.exe)
 OUT = stage1exe
@@ -29,7 +29,7 @@ TXT = output_firstandfollow.txt \
 	  output_parsetable.txt
 
 all: compile
-	$(CC) $(CFLAGS) $(OBJ) -o $(OUT)
+	$(CC) $(CFLAGS) $(OBJ) -o $(OUT) -lm
 	@echo -e "\nDone. Usage: ./$(OUT) testCasefile.txt parseTreeOutFile.txt"
 
 compile:
