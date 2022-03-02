@@ -86,6 +86,7 @@ void      initLookupTable();
 void      initValidCharsTable();
 void      updateLexeme(char **lex, char c);
 void      retractLexeme(char **lex);
+void      lexemeToValue(TokenInfo *t);
 TokenType getTokenFromKeyword(char *lex);
 TokenType getMainOrFunID(char *lex);
 TokenInfo accept(TwinBuffer *tb, TokenType t);
@@ -310,8 +311,11 @@ TokenInfo getNextToken(TwinBuffer *tb) {
                 dfa_state = 8;
             break;
 
-        case 8:
-            return accept(tb, TK_NUM);
+        case 8: {
+            TokenInfo tf = accept(tb, TK_NUM);
+            lexemeToValue(&tf);
+            return tf;
+        }
 
         case 9:
             c = tb_nextChar(tb, &line_number);
@@ -363,11 +367,17 @@ TokenInfo getNextToken(TwinBuffer *tb) {
                 dfa_state = ERROR_STATE;
             break;
 
-        case 15:
-            return accept_noretract(tb, TK_RNUM);
+        case 15: {
+            TokenInfo tf = accept_noretract(tb, TK_RNUM);
+            lexemeToValue(&tf);
+            return tf;
+        }
 
-        case 16:
-            return accept(tb, TK_RNUM);
+        case 16: {
+            TokenInfo tf = accept(tb, TK_RNUM);
+            lexemeToValue(&tf);
+            return tf;
+        }
 
         case 17:
             c = tb_nextChar(tb, &line_number);
@@ -628,7 +638,7 @@ void removeComments(char *testcaseFile, char *cleanFile) {
         if (!is_comment) {
             fprintf(f2, "%c", c);
         }
-        
+
     } while (1);
 
     fclose(f1);
@@ -714,6 +724,32 @@ TokenType getMainOrFunID(char *lex) {
     if (res == TK_MAIN)
         return res;
     return TK_FUNID;
+}
+
+// convert string lexeme to number (bit of a hack)
+// lots of hardcoding, care
+void lexemeToValue(TokenInfo *t) {
+    size_t m = strlen(t->lexeme);
+    char   tmp[256];
+    if (t->tk_type == TK_NUM) {
+        t->val.val_int = strtoll(t->lexeme, NULL, 10);
+    } else if (t->tk_type == TK_RNUM) {
+        double exp = (t->lexeme[m - 1] - '0') + 10 * (t->lexeme[m - 2] - '0');
+        if (t->lexeme[m - 3] == 'E') {
+            strncpy(tmp, t->lexeme, m - 3);
+            tmp[m - 3]      = '\0';
+            double mantissa = strtod(tmp, NULL);
+            t->val.val_real = mantissa * pow(10, exp);
+        } else if (t->lexeme[m - 4] == 'E') {
+            strncpy(tmp, t->lexeme, m - 4);
+            tmp[m - 4]      = '\0';
+            double mantissa = strtod(tmp, NULL);
+            exp             = (t->lexeme[m - 3] == '+') ? exp : -exp;
+            t->val.val_real = mantissa * pow(10, exp);
+        } else {
+            t->val.val_real = strtod(t->lexeme, NULL);
+        }
+    }
 }
 
 /********************************** PRINTING FUNCTIONS FOR LOGGING **********************************/

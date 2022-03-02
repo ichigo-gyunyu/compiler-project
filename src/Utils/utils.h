@@ -2,6 +2,7 @@
 #define UTILS_H
 
 // required standard library headers
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
