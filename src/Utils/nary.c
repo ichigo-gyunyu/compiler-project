@@ -1,12 +1,10 @@
 #include "nary.h"
 
-TreeNode *nary_newNode(int val, bool is_leaf, char *lexeme, uint line_num, char *token_name) {
+TreeNode *nary_newNode(TokenInfo t, char  *node_symbol, bool is_leaf) {
     TreeNode *node     = calloc(1, sizeof *node);
-    node->val          = val;
+    node->t_info = t;
+    node->node_symbol = node_symbol;
     node->is_leaf      = is_leaf;
-    node->lexeme       = lexeme;
-    node->line_num     = line_num;
-    node->token_name   = token_name;
     node->next_sibling = NULL;
     node->first_child  = NULL;
     node->parent       = NULL;
@@ -14,8 +12,8 @@ TreeNode *nary_newNode(int val, bool is_leaf, char *lexeme, uint line_num, char 
     return node;
 }
 
-TreeNode *addSibling(TreeNode *node, int val, bool is_leaf, char *lexeme, uint line_num, char *token_name) {
-    TreeNode *tmp = nary_newNode(val, is_leaf, lexeme, line_num, token_name);
+TreeNode *addSibling(TreeNode *node, TokenInfo t, char  *node_symbol, bool is_leaf) {
+    TreeNode *tmp = nary_newNode(t, node_symbol, is_leaf);
 
     while (node->next_sibling)
         node = node->next_sibling;
@@ -25,47 +23,18 @@ TreeNode *addSibling(TreeNode *node, int val, bool is_leaf, char *lexeme, uint l
     return tmp;
 }
 
-TreeNode *nary_addChild(TreeNode *node, int val, bool is_leaf, char *lexeme, uint line_num, char *token_name) {
+TreeNode *nary_addChild(TreeNode *node, TokenInfo t, char  *node_symbol, bool is_leaf){
     TreeNode *tmp;
     if (!node->first_child) {
-        tmp               = nary_newNode(val, is_leaf, lexeme, line_num, token_name);
+        tmp               = nary_newNode(t, node_symbol, is_leaf);
         node->first_child = tmp;
     } else
-        tmp = addSibling(node->first_child, val, is_leaf, lexeme, line_num, token_name);
+        tmp = addSibling(node->first_child, t, node_symbol, is_leaf);
 
     tmp->parent = node;
     return tmp;
 }
 
-void nary_printInorder(TreeNode *root, FILE **fp) {
-    if (!root)
-        return;
-
-    nary_printInorder(root->first_child, fp);
-
-    char *isleaf;
-    if (root->is_leaf)
-        isleaf = "yes";
-    else
-        isleaf = "no";
-
-    char *par;
-    if (root->parent)
-        par = root->parent->token_name;
-    else
-        par = "ROOT";
-
-    fprintf(*fp, "%10s %3d %30s %30s %4s %15s\n", root->lexeme, root->line_num, root->token_name, par, isleaf,
-            root->token_name);
-
-    if (root->first_child) {
-        TreeNode *temp = root->first_child->next_sibling;
-        while (temp) {
-            nary_printInorder(temp, fp);
-            temp = temp->next_sibling;
-        }
-    }
-}
 
 void nary_free(TreeNode *root){
     if(!root)
@@ -77,10 +46,56 @@ void nary_free(TreeNode *root){
     if(root->next_sibling)
         nary_free(root->next_sibling);
     
-    free(root->lexeme);
-    free(root->token_name);
+    free(root->node_symbol);
+    free(root->t_info.lexeme);
     free(root);
     
+}
+
+void nary_printInorder(TreeNode *root, FILE **fp) {
+    if (!root)
+        return;
+
+
+    nary_printInorder(root->first_child, fp);
+
+    char *isleaf;
+    if (root->is_leaf)
+        isleaf = "yes";
+    else
+        isleaf = "no";
+
+    //Insert number
+    if(root->is_leaf){
+        if(root->t_info.tk_type == TK_NUM)
+            fprintf(*fp, "%10s %3d %30s %10lld %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no, 
+            getTokenTypeName(root->t_info.tk_type), root->t_info.val.val_int, root->parent->node_symbol, 
+            isleaf, root->node_symbol);
+        
+        else if(root->t_info.tk_type == TK_RNUM)
+            fprintf(*fp, "%10s %3d %30s %.10f %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no, 
+            getTokenTypeName(root->t_info.tk_type), root->t_info.val.val_real, root->parent->node_symbol, 
+            isleaf, root->node_symbol);
+
+        else
+            fprintf(*fp, "%10s %3d %30s %10s %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no, 
+                getTokenTypeName(root->t_info.tk_type), "NaN", root->parent->node_symbol, 
+                isleaf, root->node_symbol);
+        
+    }
+    else
+        fprintf(*fp, "%10s %3d %30s %10s %30s %4s %15s\n", "----", root->t_info.line_no, 
+            "----", "NaN", root->parent->node_symbol, 
+            isleaf, root->node_symbol);
+
+    
+    if (root->first_child) {
+        TreeNode *temp = root->first_child->next_sibling;
+        while (temp) {
+            nary_printInorder(temp, fp);
+            temp = temp->next_sibling;
+        }
+    }
 }
 
 

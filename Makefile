@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -fsanitize=address
+CFLAGS = -Wall -g -fsanitize=address -lm
 INC = -I./src
 EXE = $(wildcard *.exe)
 OUT = stage1exe

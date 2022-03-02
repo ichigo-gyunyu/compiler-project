@@ -2,13 +2,13 @@
 #define NARY_H
 
 #include "utils.h"
+#include "Lexer/lexer.h"
 
 typedef struct TreeNode {
-    int   val;
     bool  is_leaf;
-    uint  line_num;
-    char *lexeme;
-    char *token_name;
+    TokenInfo t_info;
+    char *node_symbol;
+    int line_no;
 
     struct TreeNode *next_sibling;
     struct TreeNode *first_child;
@@ -17,9 +17,9 @@ typedef struct TreeNode {
 
 typedef TreeNode *Nary_tree;
 
-TreeNode *nary_newNode(int val, bool is_leaf, char *lexeme, uint line_num, char *token_name);
-TreeNode *nary_addChild(TreeNode *node, int val, bool is_leaf, char *lexeme, uint line_num, char *token_name);
-void      nary_printInorder(TreeNode *root, FILE **fp);
+TreeNode *nary_newNode(TokenInfo t, char  *node_symbol, bool is_leaf);
+TreeNode *nary_addChild(TreeNode *node, TokenInfo t, char  *node_symbol, bool is_leaf);
 void      nary_free(TreeNode *root);
+void nary_printInorder(TreeNode *root, FILE **fp);
 
 #endif

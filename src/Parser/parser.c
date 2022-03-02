@@ -205,7 +205,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
     // start building the parse tree
     Nary_tree parsetree =
-        nary_newNode(program, false, duplicate_str("----"), 1, duplicate_str(getNonTerimnalName(program)));
+        nary_newNode((TokenInfo){.line_no = 1}, false, duplicate_str("program"));
     TreeNode *tn = parsetree; // keeps track of the current node
 
     // begin parsing
@@ -250,7 +250,14 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 st_pop(s); // stack and input match
 
                 // update parse tree
-                nary_addChild(tn, t.tk_type, true, duplicate_str(t.lexeme), t.line_no, duplicate_str("----"));
+                // nary_addChild(tn, t.tk_type, true, duplicate_str(t.lexeme), t.line_no, duplicate_str("----"));
+                tn->t_info = t;
+                tn->t_info.lexeme = duplicate_str(t.lexeme);
+                tn->is_leaf = true;
+                free(tn->node_symbol);
+                tn->node_symbol = duplicate_str("----");
+                
+                
                 while (tn && !tn->next_sibling)
                     tn = tn->parent;
                 if (tn)
@@ -300,11 +307,12 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 // populate the tree with the symbols of production rule
                 tr = pti.rule.head;
                 while (tr != NULL) {
-                    int   val = (tr->type == TYPE_NT) ? tr->val.val_nt : tr->val.val_tk;
+                    // int   val = (tr->type == TYPE_NT) ? tr->val.val_nt : tr->val.val_tk;
                     char *lex =
-                        (tr->type == TYPE_NT) ? getNonTerimnalName(tr->val.val_nt) : getTokenTypeName(tr->val.val_tk);
+                        (tr->type == TYPE_NT) ? duplicate_str(getNonTerimnalName(tr->val.val_nt)) : duplicate_str("----");
 
-                    nary_addChild(tn, val, false, duplicate_str("----"), t.line_no, duplicate_str(lex));
+                    // nary_addChild(tn, val, false, duplicate_str("----"), t.line_no, duplicate_str(lex));
+                    nary_addChild(tn,(TokenInfo){.line_no = t.line_no}, lex, false);
                     tr = tr->next;
                 }
 
@@ -371,7 +379,8 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     else
         printf(RED "Syntax errors found" RESET "\n");
 
-    printf("\nFirst and Follow sets, parse table and parse tree written to output files\n");
+    if(!has_errors)
+        printf("\nFirst and Follow sets, parse table and parse tree written to output files\n");
 
     // free up resources
     freeToken(&t);
@@ -380,7 +389,11 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     st_free(s);
     free(s);
 
-    return parsetree;
+    if(!has_errors)
+        return parsetree;
+
+    nary_free(parsetree);
+    return NULL;
 }
 
 // get name from the enumerated nonterminal value
@@ -765,7 +778,13 @@ void printParseTable(ParseTable pt) {
     fclose(fp);
 }
 
+
+
 Nary_tree printParseTree(Nary_tree pt, char *outfile) {
+    if(!pt){
+        printf(RED"Not generating parse tree\n"RESET);
+        return NULL;
+    }
     FILE *fp = fopen(outfile, "w");
     if (!fp)
         exit_msg("Could not open parse tree output file\n");
