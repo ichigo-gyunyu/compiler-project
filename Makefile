@@ -26,10 +26,7 @@ OBJ = lexer.o \
 	  nary.o \
 	  driver.o
 
-TXT = output_firstandfollow.txt \
-	  output_parsetable.txt \
-	  output_pt.txt \
-	  output_partsetree.txt
+TXT = $(wildcard output_*.txt)
 
 all: compile
 	$(CC) $(CFLAGS) $(OBJ) -o $(OUT) -lm

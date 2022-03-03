@@ -190,6 +190,7 @@ TokenInfo getNextToken(TwinBuffer *tb) {
             case '9':
                 dfa_state = 7;
                 break;
+            case '\r':
             case ' ':
             case '\n':
             case '\t':
