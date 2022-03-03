@@ -1,0 +1,18 @@
+_main
+	record #marks
+		type real : maths;
+		type real: physics;
+		type real: chemistry;
+	endrecord
+	% each field above represents the marks obtained in corresponding subject
+
+    % testing if nested structures fail
+    record #taggedunionexample
+        type int : tagvalue;
+        type union #student                                 %NOT CORRECT SYNTACTICALLY
+            type int:rollno;
+            type real marks;
+            type int age;
+        endunion : field;
+    endrecord
+end

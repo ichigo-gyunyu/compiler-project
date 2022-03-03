@@ -1,0 +1,5 @@
+*.exe
+*.o
+*.out
+stage1exe
+output_*
