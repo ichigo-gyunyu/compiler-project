@@ -1,6 +1,6 @@
 CC = gcc
 # CFLAGS = -O2 -w
-CFLAGS = -Wall -g -fsanitize=address
+CFLAGS = -Wall -g -fsanitize=address -fsanitize=leak
 LDFLAGS = -lm
 INC = -I./src
 EXE = $(wildcard *.exe)
