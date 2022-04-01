@@ -10,14 +10,35 @@
 
 #include "twinbuffer.h"
 
+TwinBuffer *tb_init(FILE *fp) {
+
+    TwinBuffer *tb = malloc(sizeof *tb);
+
+    *tb = (TwinBuffer){
+        .used[0]           = 0,
+        .used[1]           = 0,
+        .begin_buffnum     = 0,
+        .lookahead_buffnum = 0,
+        .fp                = fp,
+    };
+
+    tb->begin     = tb->buff[tb->begin_buffnum];
+    tb->lookahead = tb->buff[tb->lookahead_buffnum];
+
+    return tb;
+}
+
 void tb_loadNextBuff(TwinBuffer *tb) {
-    uint bytes_read = fread(tb->buff[tb->lookahead_buffnum], 1, BLOCKSZ, *(tb->fp));
-    if (ferror(*tb->fp)) {
+
+    // read upto BLOCKSZ bytes from file
+    uint bytes_read = fread(tb->buff[tb->lookahead_buffnum], 1, BLOCKSZ, tb->fp);
+    if (ferror(tb->fp)) {
         perror("Error when initializing buffer");
         exit(EXIT_FAILURE);
     }
 
-    if (feof(*(tb->fp))) {
+    // if the file pointer has reached EOF, it is made known to the tb
+    if (feof(tb->fp)) {
         tb->buff[tb->lookahead_buffnum][bytes_read] = EOF;
     }
 
@@ -33,28 +54,28 @@ char tb_nextChar(TwinBuffer *tb, uint *linenum) {
 
     // check for buffer overflow
     if (tb->lookahead - tb->buff[tb->lookahead_buffnum] >= BLOCKSZ) {
-        tb->lookahead_buffnum = !tb->lookahead_buffnum;
-        tb_loadNextBuff(tb);
-        tb->lookahead = tb->buff[tb->lookahead_buffnum];
+        tb->lookahead_buffnum = !tb->lookahead_buffnum;  // switch buffers
+        tb_loadNextBuff(tb);                             // read from file
+        tb->lookahead = tb->buff[tb->lookahead_buffnum]; // move to the beginning of the new buffer
     }
 
     return c;
 }
 
 void tb_retract(TwinBuffer *tb, uint *linenum) {
-    // switch to the previous buffer in case of underflow
-    // and move the file pointer back
+
+    // underflow - switch buffers and move file pointer back
     if (tb->lookahead == tb->buff[tb->lookahead_buffnum]) {
-        long seek_back = (long)(tb->used[tb->lookahead_buffnum]) * -1;
-        fseek(*(tb->fp), seek_back, SEEK_CUR);
-        tb->lookahead_buffnum = !tb->lookahead_buffnum;
-        tb->lookahead         = tb->buff[tb->lookahead_buffnum] + tb->used[tb->lookahead_buffnum] - 1;
-    } else {
-        tb->lookahead--;
+        long seek_back = (long)(tb->used[tb->lookahead_buffnum]) * -1; // how much to move file pointer back
+        fseek(tb->fp, seek_back, SEEK_CUR);                            // move the file pointer
+        tb->lookahead_buffnum = !tb->lookahead_buffnum;                // switch buffers
+        tb->lookahead =
+            tb->buff[tb->lookahead_buffnum] + tb->used[tb->lookahead_buffnum] - 1; // update lookahead pointer
     }
 
-    if (tb->lookahead == tb->buff[tb->lookahead_buffnum] - 1)
-        printf("XXX\n");
+    else {
+        tb->lookahead--;
+    }
 
     if (*tb->lookahead == '\n')
         *linenum = *linenum - 1;
@@ -74,12 +95,16 @@ char tb_moveBegin(TwinBuffer *tb) {
 }
 
 char *tb_getLexeme(TwinBuffer *tb) {
-    char *lex = calloc(128, sizeof *lex); // care
-    uint  i   = 0;
+    char tmp_buf[TMP_BUFLEN];
+    uint i = 0;
     while (tb->begin != tb->lookahead) {
-        char c   = tb_moveBegin(tb);
-        lex[i++] = c;
+        char c       = tb_moveBegin(tb);
+        tmp_buf[i++] = c;
     }
+
+    tmp_buf[i++] = '\0';
+    char *lex    = calloc(i, sizeof *lex);
+    memcpy(lex, tmp_buf, i);
 
     return lex;
 }

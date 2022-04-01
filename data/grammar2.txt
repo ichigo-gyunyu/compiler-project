@@ -1,2 +1,0 @@
-program -> otherFunctions mainFunction
-mainFunction -> TK_MAIN stmts TK_END

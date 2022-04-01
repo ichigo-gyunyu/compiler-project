@@ -12,11 +12,11 @@
 
 /********************************** DATA DEFINITIONS **********************************/
 
-uint             line_number = 1;
-Hashtable        lookup_table;
-bool             seen_eof = false;
-static Hashtable valid_chars;
-static bool      htinit = false;
+uint              line_number = 1;
+Hashtable        *lookup_table;
+bool              seen_eof = false;
+static Hashtable *valid_chars; // char -> int
+static bool       htinit = false;
 
 // useful for printing relevant information
 static char *const TokenTypeNames[] = {
@@ -109,21 +109,15 @@ TokenInfo accept_noretract(TwinBuffer *tb, TokenType t);
 /********************************** API FUNCTION DEFINITIONS **********************************/
 
 // entry point for the lexical analyzer
-TwinBuffer *initLexer(FILE **src_ptr) {
+TwinBuffer *initLexer(FILE *src_ptr) {
     line_number = 1;
     seen_eof    = false;
 
-    // initialize the twin buffer
-    TwinBuffer *tb = calloc(1, sizeof *tb);
-    tb->buff[0]    = calloc(BLOCKSZ, sizeof *tb->buff[0]);
-    tb->buff[1]    = calloc(BLOCKSZ, sizeof *tb->buff[1]);
-    tb->begin      = tb->buff[0];
-    tb->lookahead  = tb->buff[0];
-    tb->used[0]    = 0;
-    tb->used[1]    = 0;
-    tb->fp         = src_ptr;
+    // setup the twin buffer
+    TwinBuffer *tb = tb_init(src_ptr);
     tb_loadNextBuff(tb);
 
+    // initialize some hashtables
     if (!htinit) {
         initLookupTable();
         initValidCharsTable();
@@ -662,8 +656,10 @@ char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
 
 void runLexerOnInputSourceCode(char *testcaseFile) {
     FILE       *fp = fopen(testcaseFile, "r");
-    TwinBuffer *tb = initLexer(&fp);
+    TwinBuffer *tb = initLexer(fp);
     TokenInfo   t  = getNextToken(tb);
+
+    // read token stream
     while (t.tk_type != TK_EOF) {
         if (t.tk_type != END_TOKENTYPE)
             printTokenInfo(t);
@@ -680,71 +676,136 @@ void runLexerOnInputSourceCode(char *testcaseFile) {
 
 // hashtable for valid characters
 void initValidCharsTable() {
+
+    valid_chars =
+        ht_init(sizeof(char), sizeof(int), (ht_hash)ht_moduloHash, NULL, NULL, NULL, NULL, NULL, HT_START_SIZE);
+
     uint n = NUM_ELEM(valid_starting_characters);
-    ht_init(&valid_chars, n);
     for (uint i = 0; i < n; i++) {
-        ht_insert(&valid_chars, valid_starting_characters[i], i);
+        ht_insert(&valid_chars, valid_starting_characters + i, &i);
     }
 }
 
 // hashtable for all keywords
 void initLookupTable() {
-    ht_init(&lookup_table, KEYWORD_COUNT);
 
-    // clang-format off
-    ht_insert(&lookup_table, "with",        TK_WITH);
-    ht_insert(&lookup_table, "parameters",  TK_PARAMETERS);
-    ht_insert(&lookup_table, "end",         TK_END);
-    ht_insert(&lookup_table, "while",       TK_WHILE);
-    ht_insert(&lookup_table, "union",       TK_UNION);
-    ht_insert(&lookup_table, "endunion",    TK_ENDUNION);
-    ht_insert(&lookup_table, "definetype",  TK_DEFINETYPE);
-    ht_insert(&lookup_table, "as",          TK_AS);
-    ht_insert(&lookup_table, "type",        TK_TYPE);
-    ht_insert(&lookup_table, "_main",       TK_MAIN);
-    ht_insert(&lookup_table, "global",      TK_GLOBAL);
-    ht_insert(&lookup_table, "parameter",   TK_PARAMETER);
-    ht_insert(&lookup_table, "list",        TK_LIST);
-    ht_insert(&lookup_table, "input",       TK_INPUT);
-    ht_insert(&lookup_table, "output",      TK_OUTPUT);
-    ht_insert(&lookup_table, "int",         TK_INT);
-    ht_insert(&lookup_table, "real",        TK_REAL);
-    ht_insert(&lookup_table, "endwhile",    TK_ENDWHILE);
-    ht_insert(&lookup_table, "if",          TK_IF);
-    ht_insert(&lookup_table, "then",        TK_THEN);
-    ht_insert(&lookup_table, "endif",       TK_ENDIF);
-    ht_insert(&lookup_table, "read",        TK_READ);
-    ht_insert(&lookup_table, "write",       TK_WRITE);
-    ht_insert(&lookup_table, "return",      TK_RETURN);
-    ht_insert(&lookup_table, "call",        TK_CALL);
-    ht_insert(&lookup_table, "record",      TK_RECORD);
-    ht_insert(&lookup_table, "endrecord",   TK_ENDRECORD);
-    ht_insert(&lookup_table, "else",        TK_ELSE);
-    // clang-format on
+    lookup_table = ht_init(sizeof(char *), sizeof(int), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr, NULL,
+                           (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
+
+    char     *keyword_name;
+    TokenType keyword_token;
+    keyword_name  = "with";
+    keyword_token = TK_WITH;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "parameters";
+    keyword_token = TK_PARAMETERS;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "end";
+    keyword_token = TK_END;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "while";
+    keyword_token = TK_WHILE;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "union";
+    keyword_token = TK_UNION;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "endunion";
+    keyword_token = TK_ENDUNION;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "definetype";
+    keyword_token = TK_DEFINETYPE;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "as";
+    keyword_token = TK_AS;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "type";
+    keyword_token = TK_TYPE;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "_main";
+    keyword_token = TK_MAIN;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "global";
+    keyword_token = TK_GLOBAL;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "parameter";
+    keyword_token = TK_PARAMETER;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "list";
+    keyword_token = TK_LIST;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "input";
+    keyword_token = TK_INPUT;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "output";
+    keyword_token = TK_OUTPUT;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "int";
+    keyword_token = TK_INT;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "real";
+    keyword_token = TK_REAL;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "endwhile";
+    keyword_token = TK_ENDWHILE;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "if";
+    keyword_token = TK_IF;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "then";
+    keyword_token = TK_THEN;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "endif";
+    keyword_token = TK_ENDIF;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "read";
+    keyword_token = TK_READ;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "write";
+    keyword_token = TK_WRITE;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "return";
+    keyword_token = TK_RETURN;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "call";
+    keyword_token = TK_CALL;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "record";
+    keyword_token = TK_RECORD;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "endrecord";
+    keyword_token = TK_ENDRECORD;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
+    keyword_name  = "else";
+    keyword_token = TK_ELSE;
+    ht_insert(&lookup_table, &keyword_name, &keyword_token);
 }
 
 TokenType getTokenFromKeyword(char *lex) {
-    int res = ht_lookup(lookup_table, lex);
-    if (res == -1)
+    int *res = ht_lookup(lookup_table, &lex);
+    if (res == NULL)
         return TK_FIELDID;
-    return res;
+    return *res;
 }
 
 TokenType getMainOrFunID(char *lex) {
-    int res = ht_lookup(lookup_table, lex);
-    if (res == TK_MAIN)
-        return res;
+    int *res = ht_lookup(lookup_table, &lex);
+    if (res && *res == TK_MAIN)
+        return *res;
     return TK_FUNID;
 }
 
-// convert string lexeme to number (bit of a hack)
-// lots of hardcoding, care
+// convert string lexeme to int or real
 void lexemeToValue(TokenInfo *t) {
     size_t m = strlen(t->lexeme);
-    char   tmp[256];
+    char   tmp[TMP_BUFLEN];
+
+    // integer
     if (t->tk_type == TK_NUM) {
         t->val.val_int = strtoll(t->lexeme, NULL, 10);
-    } else if (t->tk_type == TK_RNUM) {
+    }
+
+    // real
+    else if (t->tk_type == TK_RNUM) {
         double exp = (t->lexeme[m - 1] - '0') + 10 * (t->lexeme[m - 2] - '0');
         if (t->lexeme[m - 3] == 'E') {
             strncpy(tmp, t->lexeme, m - 3);
@@ -814,7 +875,7 @@ TokenInfo accept19(TwinBuffer *tb) {
 
 TokenInfo accept31(TwinBuffer *tb) {
     tb_retract(tb, &line_number);
-    return (TokenInfo){.lexeme = duplicate_str("%"), .tk_type = TK_COMMENT, .line_no = line_number};
+    return (TokenInfo){.lexeme = str_dup("%"), .tk_type = TK_COMMENT, .line_no = line_number};
 }
 
 TokenInfo accept_noretract(TwinBuffer *tb, TokenType t) {
@@ -834,11 +895,7 @@ void freeToken(TokenInfo *t) {
 
 void freeTwinBuffer(TwinBuffer *tb) {
     if (tb) {
-        fclose(*(tb->fp));
-        if (tb->buff[0])
-            free(tb->buff[0]);
-        if (tb->buff[1])
-            free(tb->buff[1]);
+        fclose(tb->fp);
         free(tb);
     }
 }

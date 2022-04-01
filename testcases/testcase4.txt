@@ -1,18 +1,14 @@
+% To demonstrate syntax error when record/unions are defined inside another
 _main
-	record #marks
-		type real : maths;
-		type real: physics;
-		type real: chemistry;
-	endrecord
-	% each field above represents the marks obtained in corresponding subject
-
-    % testing if nested structures fail
     record #taggedunionexample
         type int : tagvalue;
         type union #student                                 %NOT CORRECT SYNTACTICALLY
             type int:rollno;
             type real marks;
             type int age;
-        endunion : field;
+        endunion : field;   %add # before newname which was missing in the document earlier.
     endrecord
+
+    type real: b2c3;
+    return;
 end

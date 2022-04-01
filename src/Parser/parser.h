@@ -54,7 +54,7 @@ Nary_tree printParseTree(Nary_tree pt, char *outfile);
 void freeParserData(Grammar *g, FirstAndFollow *fnf, ParseTable pt);
 
 // might be required in other stages
-extern Hashtable NtToEnum;
-extern Hashtable TkToEnum;
+extern Hashtable *NtToEnum;
+extern Hashtable *TkToEnum;
 
 #endif

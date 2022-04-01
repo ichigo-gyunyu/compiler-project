@@ -8,5 +8,6 @@ AlignConsecutiveDeclarations: Consecutive
 AlignConsecutiveMacros: Consecutive
 AlignOperands: Align
 AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
 
 ColumnLimit: 120

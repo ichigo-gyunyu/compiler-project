@@ -21,7 +21,7 @@
  * Sets the begin and lookahead pointers
  * Initializes starting character hashtable
  */
-TwinBuffer *initLexer(FILE **src_ptr);
+TwinBuffer *initLexer(FILE *src_ptr);
 
 /**
  * Reads the source file using a twin buffering
@@ -62,6 +62,6 @@ void freeToken(TokenInfo *t);
 void freeTwinBuffer(TwinBuffer *tb);
 
 // might be required in later stages
-extern Hashtable lookup_table;
+extern Hashtable *lookup_table;
 
 #endif

@@ -40,8 +40,8 @@ void bv_set(const Bitvector bv, int pos);
 int bv_contains(const Bitvector bv, int pos);
 
 /**
- * Returns the union of 2 bitvectors
+ * Performs a = a U b
  */
-Bitvector bv_union(const Bitvector a, const Bitvector b, uint max_size);
+void bv_union(Bitvector a, const Bitvector b, uint max_size);
 
 #endif

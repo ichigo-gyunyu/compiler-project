@@ -15,9 +15,20 @@ void exit_msg(char *msg) {
     exit(EXIT_FAILURE);
 }
 
-char *duplicate_str(char *str) {
+void exit_perror(char *msg) {
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
+
+char *str_dup(char *str) {
     char *tmp = calloc(strlen(str) + 1, sizeof *tmp);
     memcpy(tmp, str, strlen(str) + 1);
 
     return tmp;
 }
+
+void str_cpyctr(char **dest, const char **src) { *dest = strdup(*src); }
+
+void str_dtr(char **p) { free(*p); }
+
+bool str_equal(const char **s1, const char **s2) { return !(strcmp(*s1, *s2)); }

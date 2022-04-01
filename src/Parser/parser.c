@@ -16,8 +16,8 @@
 #define GRAMMAR_FILE "data/grammar.txt"
 
 static Grammar g;
-Hashtable      NtToEnum;
-Hashtable      TkToEnum;
+Hashtable     *NtToEnum;
+Hashtable     *TkToEnum;
 static bool    htinit = false;
 
 // useful for printing relevant information
@@ -95,10 +95,7 @@ Grammar initParser(char *grammarFile) {
 
     // populate hashtables to reference terminals and nonterminals
     if (!htinit) {
-        ht_init(&NtToEnum, NONTERMINAL_COUNT);
         populateNtToEnum();
-
-        ht_init(&TkToEnum, TOKEN_COUNT);
         populateTkToEnum();
     }
 
@@ -109,6 +106,7 @@ Grammar initParser(char *grammarFile) {
 }
 
 FirstAndFollow *computeFirstAndFollow(const Grammar g) {
+
     FirstAndFollow *fnf = calloc(NONTERMINAL_COUNT, sizeof(*fnf));
 
     // keep track of what all first sets have been computed
@@ -132,6 +130,7 @@ FirstAndFollow *computeFirstAndFollow(const Grammar g) {
     }
     // add '$' to follow(start symbol)
     bv_set(fnf[program].follow, TK_EOF); // care, hardcoded start symbol
+
     // iteratively compute follow in rounds
     computeFollow(fnf);
 
@@ -158,13 +157,13 @@ ParseTable createParseTable(FirstAndFollow *fnf) {
             }
 
             else {
-                SymbolNode *t = rule.head;
+                SymbolNode *t = vec_getAt(rule.symbols, 0);
 
                 // if A -> BCDE, add this rule to [A, b] for all b in first(BCDE)
                 if (t->type == TYPE_TK) {
                     Bitvector bv;
                     bv_init(&bv, TOKEN_COUNT);
-                    bv_set(bv, rule.head->val.val_tk);
+                    bv_set(bv, t->val.val_tk);
                     fillPTCells(pt, bv, rule, lhs);
                     free(bv);
                 } else {
@@ -195,7 +194,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     }
 
     // initialise lexer
-    TwinBuffer *tb = initLexer(&fp);
+    TwinBuffer *tb = initLexer(fp);
     printf("\nInitialized lexer\n");
 
     // initialise parser
@@ -209,21 +208,30 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     printf("Constructed Parse Table\n\n");
 
     // setup stack for parsing
-    Stack *s = calloc(1, sizeof(Stack));
-    st_push(s, TK_EOF, TYPE_TK);
-    st_push(s, program, TYPE_NT); // start symbol
+    Stack *s = st_init(sizeof(SymbolNode), NULL, NULL);
+
+    // push $
+    st_push(s, &(SymbolNode){
+                   .type       = TYPE_TK,
+                   .val.val_tk = TK_EOF,
+               });
+
+    // push start symbol
+    st_push(s, &(SymbolNode){
+                   .type       = TYPE_NT,
+                   .val.val_nt = program,
+               });
 
     // start building the parse tree
-    Nary_tree parsetree = nary_newNode((TokenInfo){.line_no = 1}, duplicate_str("program"), false);
+    Nary_tree parsetree = nary_newNode((TokenInfo){.line_no = 1}, str_dup("program"), false);
     TreeNode *tn        = parsetree; // keeps track of the current node
 
     // begin parsing
     TokenInfo t          = getNextToken(tb);
     bool      has_errors = false;
     for (;;) {
-
         // empty stack
-        StackElement *se = st_top(s); // declare it outside?
+        SymbolNode *se = st_top(s); // declare it outside?
         if (se == NULL) {
             break;
         }
@@ -255,21 +263,26 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
         // top of the stack is a token
         if (se->type == TYPE_TK) {
-            if (se->val == t.tk_type) {
+            if (se->val.val_tk == t.tk_type) {
                 st_pop(s); // stack and input match
+
+                if (t.tk_type == TK_EOF)
+                    break;
 
                 // update parse tree
                 // nary_addChild(tn, t.tk_type, true, duplicate_str(t.lexeme), t.line_no, duplicate_str("----"));
-                tn->t_info        = t;
-                tn->t_info.lexeme = duplicate_str(t.lexeme);
-                tn->is_leaf       = true;
-                free(tn->node_symbol);
-                tn->node_symbol = duplicate_str("----");
+                if (!has_errors) {
+                    tn->t_info        = t;
+                    tn->t_info.lexeme = str_dup(t.lexeme);
+                    tn->is_leaf       = true;
+                    free(tn->node_symbol);
+                    tn->node_symbol = str_dup("----");
 
-                while (tn && !tn->next_sibling)
-                    tn = tn->parent;
-                if (tn)
-                    tn = tn->next_sibling;
+                    while (tn && !tn->next_sibling)
+                        tn = tn->parent;
+                    if (tn)
+                        tn = tn->next_sibling;
+                }
 
                 freeToken(&t);
                 t = getNextToken(tb);
@@ -277,14 +290,16 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 has_errors = true;
                 printf(RED "Line %3d Error: The token %s for lexeme %s does not match with the expected token %s" RESET
                            "\n",
-                       t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getTokenTypeName(se->val));
+                       t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getTokenTypeName(se->val.val_tk));
                 st_pop(s);
 
                 // update parse tree node pointer
-                while (tn && !tn->next_sibling)
-                    tn = tn->parent;
-                if (tn)
-                    tn = tn->next_sibling;
+                if (!has_errors) {
+                    while (tn && !tn->next_sibling)
+                        tn = tn->parent;
+                    if (tn)
+                        tn = tn->next_sibling;
+                }
 
                 freeToken(&t);
                 t = getNextToken(tb);
@@ -297,7 +312,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
         // top of the stack is a nonterminal
         else {
-            NonTerminal    stack_val  = se->val;
+            NonTerminal    stack_val  = se->val.val_nt;
             TokenType      curr_input = t.tk_type;
             ParseTableInfo pti        = pt[stack_val][curr_input];
 
@@ -306,32 +321,37 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 st_pop(s);
 
                 // fill production rule symbols in reverse order
-                SymbolNode *tr = pti.rule.tail;
-                while (tr != NULL) {
-                    st_push(s, tr->val.val_nt, tr->type);
-                    tr = tr->prev;
-                }
+                Vector *symbols = pti.rule.symbols;
+                for (int i = symbols->size - 1; i >= 0; i--)
+                    st_push(s, vec_getAt(symbols, i));
 
-                // populate the tree with the symbols of production rule
-                tr = pti.rule.head;
-                while (tr != NULL) {
-                    // int   val = (tr->type == TYPE_NT) ? tr->val.val_nt : tr->val.val_tk;
-                    char *lex = (tr->type == TYPE_NT) ? duplicate_str(getNonTerimnalName(tr->val.val_nt))
-                                                      : duplicate_str("----");
+                if (!has_errors) {
 
-                    // nary_addChild(tn, val, false, duplicate_str("----"), t.line_no, duplicate_str(lex));
-                    nary_addChild(tn, (TokenInfo){.line_no = t.line_no}, lex, false);
-                    tr = tr->next;
-                }
+                    if (pti.rule.rule_length == 0) {
+                        nary_addChild(tn, (TokenInfo){.line_no = t.line_no, .lexeme = str_dup("----")},
+                                      str_dup("epsilon"), true);
+                    }
 
-                // move current tree node pointer
-                if (pti.rule.rule_length != 0)
-                    tn = tn->first_child;
-                else {
-                    while (tn && !tn->next_sibling)
-                        tn = tn->parent;
-                    if (tn)
-                        tn = tn->next_sibling;
+                    // populate the tree with the symbols of production rule
+                    for (int i = 0; i < symbols->size; i++) {
+                        SymbolNode *curr_symbol = vec_getAt(symbols, i);
+
+                        char *tmp = (curr_symbol->type == TYPE_NT)
+                                        ? str_dup(getNonTerimnalName(curr_symbol->val.val_nt))
+                                        : str_dup("----");
+
+                        nary_addChild(tn, (TokenInfo){.line_no = t.line_no}, tmp, false);
+                    }
+
+                    // move current tree node pointer
+                    if (pti.rule.rule_length != 0)
+                        tn = tn->first_child;
+                    else {
+                        while (tn && !tn->next_sibling)
+                            tn = tn->parent;
+                        if (tn)
+                            tn = tn->next_sibling;
+                    }
                 }
             }
 
@@ -340,7 +360,7 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                 // TODO: check if legal (ignore extra semicolons)
                 if (t.tk_type != TK_SEM) {
                     printf(RED "Line %3d Error: Invalid token %s encountered with value %s stack top %s" RESET "\n",
-                           t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val));
+                           t.line_no, getTokenTypeName(t.tk_type), t.lexeme, getNonTerimnalName(se->val.val_nt));
                     has_errors = true;
 
                     // panic mode
@@ -356,16 +376,22 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
                             has_syn = true;
                     } while (has_syn);
 
+                    // found syn
                     if (has_syn) {
                         st_pop(s);
 
-                        // update parse tree node pointer
-                        while (tn && !tn->next_sibling)
-                            tn = tn->parent;
-                        if (tn)
-                            tn = tn->next_sibling;
+                        if (!has_errors) {
+                            // update parse tree node pointer
+                            while (tn && !tn->next_sibling)
+                                tn = tn->parent;
+                            if (tn)
+                                tn = tn->next_sibling;
+                        }
                     }
-                } else {
+                }
+
+                // ignore semicolon
+                else {
                     freeToken(&t);
                     t = getNextToken(tb);
                 }
@@ -374,10 +400,11 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
         // if eof stop parsing
         if (t.tk_type == TK_EOF) {
-            StackElement *se = st_top(s);
-            if (!(se && se->val == TK_EOF)) {
+            SymbolNode *se = st_top(s);
+            if (!(se && se->type == TYPE_TK && se->val.val_tk == TK_EOF)) {
                 has_errors = true;
             }
+
             break;
         }
     }
@@ -395,7 +422,6 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
     freeParserData(&g, fnf, pt);
     freeTwinBuffer(tb);
     st_free(s);
-    free(s);
 
     if (!has_errors)
         return parsetree;
@@ -431,10 +457,11 @@ Grammar loadGrammarFromFile(char *grammarFile) {
         .derivations      = calloc(NONTERMINAL_COUNT, sizeof *g.derivations),
     };
 
-    const int   buffsize = 1024;
+    const int   buffsize = TMP_BUFLEN;
     char       *buffer   = malloc(sizeof *buffer * buffsize);
     NonTerminal curr_lhs = -1;
     char       *word;
+
     // read a line
     while (fgets(buffer, buffsize, fp) != NULL) {
         char *line       = buffer;
@@ -453,8 +480,9 @@ Grammar loadGrammarFromFile(char *grammarFile) {
 
             words_read++;
             if (words_read == 1) {
-                NonTerminal lhs = ht_lookup(NtToEnum, word);
-                uint        rule_no;
+                NonTerminal lhs =
+                    *(NonTerminal *)ht_lookup(NtToEnum, &word); // NOTE: not checking for error in grammar.txt
+                uint rule_no;
 
                 // new lhs, new set of derivations
                 if (lhs != curr_lhs) {
@@ -473,7 +501,13 @@ Grammar loadGrammarFromFile(char *grammarFile) {
                     g.derivations[lhs].rhs =
                         realloc(g.derivations[lhs].rhs, g.derivations[lhs].num_rhs * sizeof(ProductionRule));
                 }
-                g.derivations[lhs].rhs[rule_no] = (ProductionRule){.rule_length = 0, .tail = NULL, .head = NULL};
+
+                // initialize a new production rule (A -> BCDE)
+                g.derivations[lhs].rhs[rule_no] = (ProductionRule){
+                    .rule_length = 0,
+                    .symbols     = vec_init(sizeof(SymbolNode), NULL, NULL, VEC_START_SIZE),
+                };
+
                 continue;
             }
 
@@ -481,25 +515,23 @@ Grammar loadGrammarFromFile(char *grammarFile) {
             TorNT tornt;
             int   type;
             uint  rule_no = g.derivations[curr_lhs].num_rhs - 1; // 0 indexed
-            // NOTE: care, can cause problems
+            // NOTE: assumes terminals start with T
             if (word[0] == 'T') {
                 type         = TYPE_TK;
-                tornt.val_tk = ht_lookup(TkToEnum, word);
+                tornt.val_tk = *(TokenType *)ht_lookup(TkToEnum, &word);
             } else {
                 type         = TYPE_NT;
-                tornt.val_nt = ht_lookup(NtToEnum, word);
+                tornt.val_nt = *(NonTerminal *)ht_lookup(NtToEnum, &word);
             }
-            // SymbolNode curr_sn = {.val = tornt, .type = type, .prev = NULL, .next = NULL};
 
-            // prefer heap allocations
-            SymbolNode *curr_sn = malloc(sizeof *curr_sn);
-            curr_sn->val        = tornt;
-            curr_sn->type       = type;
-            curr_sn->prev       = NULL;
-            curr_sn->next       = NULL;
+            SymbolNode curr_sn = {
+                .type = type,
+                .val  = tornt,
+            };
 
-            // append the symbol node the current derivation's rhs
-            appendSymbolNode(&g.derivations[curr_lhs].rhs[rule_no], curr_sn);
+            // add this symbol node to the rhs vector
+            vec_pushBack(g.derivations[curr_lhs].rhs[rule_no].symbols, &curr_sn);
+            g.derivations[curr_lhs].rhs[rule_no].rule_length++;
         }
     }
 
@@ -512,37 +544,32 @@ Grammar loadGrammarFromFile(char *grammarFile) {
 
 // hashtable for nonterminals
 void populateNtToEnum() {
+
+    NtToEnum = ht_init(sizeof(char *), sizeof(int), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr, NULL,
+                       (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
+
     for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
-        ht_insert(&NtToEnum, getNonTerimnalName(i), i);
+        char *nt = getNonTerimnalName(i);
+        ht_insert(&NtToEnum, &nt, &i);
     }
 }
 
 // hashtable for terminals
 void populateTkToEnum() {
+
+    TkToEnum = ht_init(sizeof(char *), sizeof(int), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr, NULL,
+                       (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
+
     for (uint i = 0; i < TOKEN_COUNT; i++) {
-        ht_insert(&TkToEnum, getTokenTypeName(i), i);
+        char *t = getTokenTypeName(i);
+        ht_insert(&TkToEnum, &t, &i);
     }
-}
-
-// for a production rule
-void appendSymbolNode(ProductionRule *rule, SymbolNode *sn) {
-
-    // first symbol in the rule
-    if (rule->rule_length == 0) {
-        rule->head = sn;
-        rule->tail = sn;
-        rule->rule_length++;
-        return;
-    }
-
-    rule->tail->next = sn;
-    sn->prev         = rule->tail;
-    rule->tail       = sn;
-    rule->rule_length++;
 }
 
 // recursively compute first sets for all nonterminals
 Bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed) {
+
+    // recursion base case
     if (first_computed[nt]) {
         return fnf[nt].first;
     }
@@ -559,8 +586,12 @@ Bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
             continue;
         }
 
-        bool        more_symbols;
-        SymbolNode *curr_symbol = rule.head;
+        // Traverse the symbols B, C, D... in A -> BCD...
+        bool    more_symbols;
+        Vector *symbols = rule.symbols;
+        uint    i       = 0;
+
+        SymbolNode *curr_symbol = vec_getAt(symbols, i++);
         do {
             more_symbols = false;
 
@@ -575,17 +606,18 @@ Bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
             // 1. recursively compute first(B)
             Bitvector bv = computeFirst(curr_symbol->val.val_nt, fnf, first_computed);
             // 2. all elements in first(B) are in first(A)
-            fnf[nt].first = bv_union(fnf[nt].first, bv, TOKEN_COUNT);
+            bv_union(fnf[nt].first, bv, TOKEN_COUNT);
             // 3. if first(B) has eps, we need to add first(C) as well...
-            if (fnf[curr_symbol->val.val_nt].has_eps)
+            if (fnf[curr_symbol->val.val_nt].has_eps) {
                 more_symbols = true;
+            }
 
-            curr_symbol = curr_symbol->next;
-        } while (curr_symbol != NULL && more_symbols);
+            curr_symbol = vec_getAt(symbols, i++);
+        } while (i <= symbols->size && more_symbols);
 
         // 4. for A -> BCD, if we are still looking for more symbols
         // i.e. first(B), first(C), first(D) all have eps; first(A) has eps
-        if (curr_symbol == NULL && more_symbols)
+        if (i > symbols->size && more_symbols)
             fnf[nt].has_eps = true;
     }
 
@@ -595,6 +627,7 @@ Bitvector computeFirst(NonTerminal nt, FirstAndFollow *fnf, bool *first_computed
 
 /**
  * Time Complexity: O(NUM_NONTERMINALS * NUM_TERMINALS^2 * NUM_PRODUCTION_RULES * max(NUM_NONTERMINALS_IN_RULE^2))
+ *
  * Actual running time will be much lower as most rules are short/many epsilon rules
  * Can be improved by early stopping - when the follow sets no longer change
  * But would require additional functionality to detect changes in the follow sets
@@ -603,6 +636,7 @@ void computeFollow(FirstAndFollow *fnf) {
 
     // perform many rounds
     for (uint round = 0; round < NONTERMINAL_COUNT * TOKEN_COUNT + 1; round++) {
+
         // next 2 loops goes over each production rule
         for (uint i = 0; i < NONTERMINAL_COUNT; i++) {
             for (uint j = 0; j < g.derivations[i].num_rhs; j++) {
@@ -614,25 +648,30 @@ void computeFollow(FirstAndFollow *fnf) {
 
                 // case 1:
                 // A -> BCDE; follow(B) += first(CDE), follow(C) += first(DE)...
-                NonTerminal ntA = g.derivations[i].lhs;
-                SymbolNode *t   = rule.head->next;
-                while (t != NULL) {
-                    if (t->prev->type == TYPE_TK) {
-                        t = t->next;
+                NonTerminal ntA     = g.derivations[i].lhs;
+                Vector     *symbols = rule.symbols;           // the symbols B, C, D, E...
+                int         ii      = 1;                      // C
+                SymbolNode *t       = vec_getAt(symbols, ii); // current symbol
+                while (ii < symbols->size) {
+                    SymbolNode *tprev = vec_getAt(symbols, ii - 1);
+                    if (tprev->type == TYPE_TK) {
+                        t = vec_getAt(symbols, ++ii);
                         continue;
                     }
 
-                    NonTerminal ntB = t->prev->val.val_nt;
+                    NonTerminal ntB = tprev->val.val_nt;
                     if (t->type == TYPE_TK) {
                         bv_set(fnf[ntB].follow, t->val.val_tk);
                     } else {
                         NonTerminal ntC = t->val.val_nt;
-                        fnf[ntB].follow = bv_union(fnf[ntB].follow, fnf[ntC].first, TOKEN_COUNT);
+                        bv_union(fnf[ntB].follow, fnf[ntC].first, TOKEN_COUNT);
                     }
 
-                    SymbolNode *t2 = t->next;
-                    while (t2 != NULL) {
-                        if (!fnf[t2->prev->val.val_nt].has_eps) {
+                    int         jj = ii + 1;
+                    SymbolNode *t2 = vec_getAt(symbols, jj);
+                    while (jj < symbols->size) {
+                        SymbolNode *t2prev = vec_getAt(symbols, jj - 1);
+                        if (!fnf[t2prev->val.val_nt].has_eps) {
                             break;
                         }
 
@@ -642,36 +681,39 @@ void computeFollow(FirstAndFollow *fnf) {
                         }
 
                         NonTerminal ntD = t2->val.val_nt;
-                        fnf[ntB].follow = bv_union(fnf[ntB].follow, fnf[ntD].first, TOKEN_COUNT);
+                        bv_union(fnf[ntB].follow, fnf[ntD].first, TOKEN_COUNT);
 
-                        t2 = t2->next;
+                        t2 = vec_getAt(symbols, ++jj);
                     }
-                    t = t->next;
+                    t = vec_getAt(symbols, ++ii);
                 }
 
                 // case 2:
                 // A -> BCDE; if first(E) has eps, follow(D) += follow(A)
                 // if first(E) and first(D) have eps, follow(C) += follow(A)
                 // ...
-                t = rule.tail->prev;
-                while (t != NULL) {
-                    if (t->type == TYPE_TK || t->next->type == TYPE_TK)
+                ii = symbols->size - 2;
+                t  = vec_getAt(symbols, ii);
+                while (ii >= 0) {
+                    SymbolNode *tnext = vec_getAt(symbols, ii + 1);
+                    if (t->type == TYPE_TK || tnext->type == TYPE_TK)
                         break;
 
                     NonTerminal ntD = t->val.val_nt;
-                    if (!fnf[t->next->val.val_nt].has_eps)
+                    if (!fnf[tnext->val.val_nt].has_eps)
                         break;
 
-                    fnf[ntD].follow = bv_union(fnf[ntD].follow, fnf[ntA].follow, TOKEN_COUNT);
+                    bv_union(fnf[ntD].follow, fnf[ntA].follow, TOKEN_COUNT);
 
-                    t = t->prev;
+                    t = vec_getAt(symbols, --ii);
                 }
 
                 // case 3:
                 // A -> DBC; add all of follow(A) to follow(C)
-                if (rule.tail->type == TYPE_NT) {
-                    NonTerminal ntC = rule.tail->val.val_nt;
-                    fnf[ntC].follow = bv_union(fnf[ntC].follow, fnf[ntA].follow, TOKEN_COUNT);
+                SymbolNode *tail = vec_getAt(symbols, symbols->size - 1);
+                if (tail->type == TYPE_NT) {
+                    NonTerminal ntC = tail->val.val_nt;
+                    bv_union(fnf[ntC].follow, fnf[ntA].follow, TOKEN_COUNT);
                 }
             }
         }
@@ -704,18 +746,20 @@ void printGrammar(Grammar g) {
 
         for (int j = 0; j < curr_derivation.num_rhs; j++) {
             ProductionRule curr_rule = curr_derivation.rhs[j];
-            SymbolNode    *trav      = curr_rule.head;
+            uint           ii        = 0;
+            Vector        *symbols   = curr_rule.symbols;
+            SymbolNode    *trav      = vec_getAt(symbols, ii);
             fprintf(fp, "Rule Length: %d-> ", curr_rule.rule_length);
             if (curr_rule.rule_length == 0) {
                 fprintf(fp, "epsilon");
             }
-            while (trav != NULL) {
+            while (ii < symbols->size) {
                 if (trav->type == TYPE_TK) {
                     fprintf(fp, "%s ", getTokenTypeName(trav->val.val_tk));
                 } else {
                     fprintf(fp, "%s ", getNonTerimnalName(trav->val.val_nt));
                 }
-                trav = trav->next;
+                trav = vec_getAt(symbols, ++ii);
             }
             fprintf(fp, "\n");
         }
@@ -770,14 +814,16 @@ void printParseTable(ParseTable pt) {
             }
 
             fprintf(fp, "%s -> ", getNonTerimnalName(i));
-            SymbolNode *trav = pt[i][j].rule.head;
+            uint        ii      = 0;
+            Vector     *symbols = pt[i][j].rule.symbols;
+            SymbolNode *trav    = vec_getAt(symbols, ii);
             while (trav != NULL) {
                 if (trav->type == TYPE_TK) {
                     fprintf(fp, "%s ", getTokenTypeName(trav->val.val_tk));
                 } else {
                     fprintf(fp, "%s ", getNonTerimnalName(trav->val.val_nt));
                 }
-                trav = trav->next;
+                trav = vec_getAt(symbols, ++ii);
             }
             fprintf(fp, "\n");
         }
@@ -803,14 +849,8 @@ Nary_tree printParseTree(Nary_tree pt, char *outfile) {
 
 void freeProductionRules(uint num_productions, ProductionRule *rule) {
     for (uint i = 0; i < num_productions; i++) {
-        // free up the linked list of symbols
-        SymbolNode *t = rule[i].head;
-        while (t != NULL) {
-            SymbolNode *tmp = t;
-
-            t = t->next;
-            free(tmp);
-        }
+        // free vector of symbols
+        vec_free(rule[i].symbols);
     }
     free(rule);
 }

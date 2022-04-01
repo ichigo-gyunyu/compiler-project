@@ -13,7 +13,7 @@
 
 #include "utils.h"
 
-#define BLOCKSZ 512
+#define BLOCKSZ 64 // must be at least half the size of the largest lexeme
 
 /**
  * Twin buffer data structure to read the source file
@@ -21,14 +21,19 @@
  * for efficient reading of lexemes
  */
 typedef struct TwinBuffer {
-    char  *buff[2];
-    uint   used[2];
-    char  *begin;
-    char  *lookahead;
-    int    begin_buffnum;
-    int    lookahead_buffnum;
-    FILE **fp;
+    char  buff[2][BLOCKSZ];
+    uint  used[2]; // how many bytes are valid in each buffer
+    char *begin;
+    char *lookahead;
+    int   begin_buffnum;
+    int   lookahead_buffnum;
+    FILE *fp; // input source file
 } TwinBuffer;
+
+/**
+ * Initialize the twin buffer
+ */
+TwinBuffer *tb_init(FILE *fp);
 
 /**
  * Load a block of the file into one

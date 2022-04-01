@@ -11,40 +11,100 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
+/**
+ * Generic Hashtable ADT
+ *
+ * (type unsafe!)
+ *
+ * Dynamic growth (doubles capacity when full)
+ * Open addressing to resolve collisions
+ */
+
+#define HT_START_SIZE 64
+
 #include "utils.h"
 
-typedef struct data {
-    char *key;
-    int   val;
-} ht_data;
+// typedefs for some function pointers
+typedef void (*ht_kcopy)(void *dest, const void *src);
+typedef void (*ht_vcopy)(void *dest, const void *src);
+typedef void (*ht_kdtr)(void *p);
+typedef void (*ht_vdtr)(void *p);
+typedef bool (*ht_kequal)(const void *k1, const void *k2);
+typedef u_long (*ht_hash)(const void *key);
 
-typedef struct hashtable {
-    ht_data **table;
-    uint      size;
+/**
+ * Buckets hold key value pairs
+ */
+typedef struct Bucket {
+    void *key;
+    void *val;
+} Bucket;
+
+/**
+ * Hashtable implemented as an array of buckets
+ * Size dynamically grows
+ * Supports generic keys and values with optional
+ * copy constructors and destructors
+ */
+typedef struct Hashtable {
+    Bucket  **table;     // array of bucket pointers
+    uint      size;      // number of valid entries in the ht
+    uint      capacity;  // current max number of buckets
+    size_t    key_width; // size of key data type
+    size_t    val_width; // size of value data type
+    ht_kcopy  kcopy;     // copy constructor for the key
+    ht_vcopy  vcopy;     // copy constructor for the value
+    ht_kdtr   kdtr;      // destructor for the key type
+    ht_vdtr   vdtr;      // destructor for the value type
+    ht_kequal kequal;    // function to check equality of keys
+    ht_hash   hash_fn;   // hash function
 } Hashtable;
 
 /**
- * Initializes a hash table of given size
+ * Initialize a hashtable
+ * Requires the sizeof key and value data types
+ * Requires the hash function
+ * Optional constructors and destructors for key and values
+ * Recommended capacity is HT_START_SIZE
  */
-int ht_init(Hashtable *ht, uint sz);
+Hashtable *ht_init(const size_t key_width, const size_t val_width, const ht_hash hash_fn, const ht_kcopy kcopy,
+                   const ht_vcopy vcopy, const ht_kdtr kdtr, const ht_vdtr vdtr, const ht_kequal kequal,
+                   const uint capacity);
 
 /**
- * Print the hash table
+ * Inserts (a copy of) key value pair into the hash table
+ * Pointer to hashtable pointer is required as it can be
+ * modified when resizing
+ * No type checking on key and value is done
+ * Open addressing is used to resolve collisions
+ *
+ * Returns true on successful insertion, false otherwise
  */
-void ht_print(Hashtable ht);
+bool ht_insert(Hashtable **ht, const void *key, const void *val);
 
 /**
- * Tries to insert d into the hashtable
- * Returns -1 if not successful
- * Returns indx if successful
+ * Perform a lookup operation with the given key
+ *
+ * Returns pointer to value if key exists, NULL otherwise
  */
-int ht_insert(Hashtable *ht, char *key, int val);
+void *ht_lookup(Hashtable *ht, const void *key);
 
 /**
- * Checks if the data is in the hashtable
- * Returns -1 if data is not in hashtable
- * Returns the kay if data is in
+ * Cleans up all allocations
  */
-int ht_lookup(Hashtable ht, char *key);
+void ht_free(Hashtable *ht);
+
+/**
+ * Doubles the hashtable capacity
+ * Primarily used in ht_insert, but the functionality
+ * is also exposed to the user
+ */
+Hashtable *ht_grow(Hashtable *ht);
+
+/**
+ * Some standard hash functions
+ */
+u_long ht_polyRollingHash(const char **key);
+u_long ht_moduloHash(int key);
 
 #endif

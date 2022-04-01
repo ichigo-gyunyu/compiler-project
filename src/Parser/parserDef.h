@@ -14,9 +14,10 @@
 #include "Lexer/lexer.h"
 #include "Utils/bitvector.h"
 #include "Utils/hashtable.h"
+#include "Utils/vector.h"
 
-#define TYPE_TK 1
-#define TYPE_NT 2
+#define TYPE_TK 1 // terminal symbol
+#define TYPE_NT 2 // nonterminal symbol
 
 typedef enum Nonterminals {
     actualOrRedefined,
@@ -86,37 +87,32 @@ typedef struct FirstAndFollow {
 
 // terminal or nonterminal
 typedef union TorNT {
-    TokenType   val_tk;
     NonTerminal val_nt;
+    TokenType   val_tk;
 } TorNT;
 
 // terminal or nonterminal in the RHS of a production rule
 typedef struct SymbolNode {
     TorNT val;
     int   type; // Terminal or NonTerminal
-
-    struct SymbolNode *prev;
-    struct SymbolNode *next;
 } SymbolNode;
 
-// TODO consider making a vector ds
-// linked lists are slow
+// list of symbols (vector)
 typedef struct ProductionRule {
-    SymbolNode *head;
-    SymbolNode *tail;
-    uint        rule_length;
+    Vector *symbols;
+    uint    rule_length;
 } ProductionRule;
 
 typedef struct Derivation {
     NonTerminal     lhs; // lhs
     uint            num_rhs;
-    ProductionRule *rhs;
+    ProductionRule *rhs; // lhs->rhs1, lhs->rhs2...
 } Derivation;
 
 typedef struct Grammar {
     uint        num_nonterminals;
     NonTerminal start_symbol;
-    Derivation *derivations;
+    Derivation *derivations; // lhs1->... lhs2->...
 } Grammar;
 
 typedef struct ParseTableInfo {

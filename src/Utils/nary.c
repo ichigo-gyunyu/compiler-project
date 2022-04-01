@@ -81,19 +81,20 @@ void nary_printInorder(TreeNode *root, FILE **fp) {
     // Insert number
     if (root->is_leaf) {
         if (root->t_info.tk_type == TK_NUM)
-            fprintf(*fp, "%10s %3d %30s %10lld %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no,
+            fprintf(*fp, "%30s %3d %20s %10lld %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no,
                     getTokenTypeName(root->t_info.tk_type), root->t_info.val.val_int, par, isleaf, root->node_symbol);
-
         else if (root->t_info.tk_type == TK_RNUM)
-            fprintf(*fp, "%10s %3d %30s %10.6f %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no,
+            fprintf(*fp, "%30s %3d %20s %10.6f %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no,
                     getTokenTypeName(root->t_info.tk_type), root->t_info.val.val_real, par, isleaf, root->node_symbol);
-
+        else if (strncmp(root->node_symbol, "epsilon", sizeof("epsilon")) == 0)
+            fprintf(*fp, "%30s %3d %20s %10s %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no, "----", "NaN",
+                    par, isleaf, root->node_symbol);
         else
-            fprintf(*fp, "%10s %3d %30s %10s %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no,
+            fprintf(*fp, "%30s %3d %20s %10s %30s %4s %15s\n", root->t_info.lexeme, root->t_info.line_no,
                     getTokenTypeName(root->t_info.tk_type), "NaN", par, isleaf, root->node_symbol);
 
     } else
-        fprintf(*fp, "%10s %3d %30s %10s %30s %4s %15s\n", "----", root->t_info.line_no, "----", "NaN", par, isleaf,
+        fprintf(*fp, "%30s %3d %20s %10s %30s %4s %15s\n", "----", root->t_info.line_no, "----", "NaN", par, isleaf,
                 root->node_symbol);
 
     if (root->first_child) {

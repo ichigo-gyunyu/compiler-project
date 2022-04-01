@@ -12,8 +12,9 @@
 
 #define WORDSIZE 32
 #define WS_BITS  5
+#define MASK     0x1f // for easy modulo computation
 
-#define MASK 0x1f // for easy modulo computation
+#define POS_MASK(pos) (1 << (pos & MASK))
 
 uint bv_getsize(uint max) { return max / WORDSIZE + 1; }
 
@@ -22,16 +23,12 @@ int bv_init(Bitvector *bv, uint max) {
     return *bv != NULL;
 }
 
-void bv_set(const Bitvector bv, int pos) { bv[pos >> WS_BITS] |= (1 << (pos & MASK)); }
+void bv_set(const Bitvector bv, int pos) { bv[pos >> WS_BITS] |= POS_MASK(pos); }
 
-int bv_contains(const Bitvector bv, int pos) { return bv[pos >> WS_BITS] & (1 << (pos & MASK)); }
+int bv_contains(const Bitvector bv, int pos) { return bv[pos >> WS_BITS] & POS_MASK(pos); }
 
-// TODO ensure a and b are of equal size
-Bitvector bv_union(const Bitvector a, const Bitvector b, uint max) {
-    Bitvector un = a;
-
+void bv_union(Bitvector a, const Bitvector b, uint max) {
     for (uint i = 0; i < max; i++) {
-        un[i >> WS_BITS] |= ((1 << (i & MASK)) & b[i >> WS_BITS]);
+        a[i >> WS_BITS] |= (POS_MASK(i) & b[i >> WS_BITS]);
     }
-    return un;
 }
