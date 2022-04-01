@@ -236,7 +236,6 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
             break;
         }
 
-        // redundant checks sometimes, can be optimized
         if (t.tk_type == END_TOKENTYPE) {
             freeToken(&t);
             t = getNextToken(tb);
