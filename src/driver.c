@@ -50,6 +50,8 @@ int main(int argc, char **argv) {
         switch (choice) {
 
         case 0:
+            lexerCleanup();
+            parserCleanup();
             exit(EXIT_SUCCESS);
 
         case 1:

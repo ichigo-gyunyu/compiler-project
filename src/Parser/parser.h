@@ -51,6 +51,7 @@ Nary_tree printParseTree(Nary_tree pt, char *outfile);
 /**
  * Memory cleanup functions
  */
+void parserCleanup();
 void freeParserData(Grammar *g, FirstAndFollow *fnf, ParseTable pt);
 
 // might be required in other stages

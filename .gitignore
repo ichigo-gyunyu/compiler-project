@@ -3,3 +3,4 @@
 *.out
 stage1exe
 output_*
+vgcore*

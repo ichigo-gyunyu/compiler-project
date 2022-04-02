@@ -16,9 +16,9 @@
 #define GRAMMAR_FILE "data/grammar.txt"
 
 static Grammar g;
-Hashtable     *NtToEnum;
-Hashtable     *TkToEnum;
-static bool    htinit = false;
+Hashtable     *NtToEnum = NULL;
+Hashtable     *TkToEnum = NULL;
+static bool    htinit   = false;
 
 // useful for printing relevant information
 static char *const NonTerminalNames[] = {
@@ -431,6 +431,13 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
 
 // get name from the enumerated nonterminal value
 char *getNonTerimnalName(NonTerminal nt) { return NonTerminalNames[nt]; }
+
+void parserCleanup() {
+    if (NtToEnum)
+        ht_free(NtToEnum);
+    if (TkToEnum)
+        ht_free(TkToEnum);
+}
 
 /********************************** HELPER FUNCTION DEFINITIONS **********************************/
 

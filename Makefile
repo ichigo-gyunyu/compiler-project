@@ -1,21 +1,10 @@
 CC = gcc
 # CFLAGS = -O2 -w
-CFLAGS = -Wall -g -fsanitize=address -fsanitize=leak
+CFLAGS = -Wall -g -fsanitize=address
 LDFLAGS = -lm
 INC = -I./src
 EXE = $(wildcard *.exe)
 OUT = stage1exe
-
-# TODO use wildcards/pattern subst instead
-SRC = ./src/Lexer/lexer.c \
-./src/Parser/parser.c \
-./src/Utils/utils.c \
-./src/Utils/bitvector.c \
-./src/Utils/hashtable.c \
-./src/Utils/twinbuffer.c \
-./src/Utils/stack.c \
-./src/Utils/nary.c \
- ./src/driver.c
 
 OBJS = lexer.o \
 	  parser.o \
@@ -63,6 +52,10 @@ vector.o: $(wildcard src/Utils/vector*)
 
 driver.o: src/driver.c
 	$(CC) $(CFLAGS) $(INC) -c src/driver.c
+
+leakcheck: $(OUT)
+	valgrind --leak-check=full --show-leak-kinds=all -s ./stage1exe testcases/testcase2.txt output_pt.txt
+	@echo Remove address sanitizer before using valgrind
 
 clean:
 	rm -rf $(EXE) $(OUT) $(OBJS) $(TXT)

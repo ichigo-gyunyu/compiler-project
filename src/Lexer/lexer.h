@@ -58,10 +58,12 @@ void printTokenInfo(TokenInfo t);
 /**
  * Memory cleanup functions
  */
+void lexerCleanup();
 void freeToken(TokenInfo *t);
 void freeTwinBuffer(TwinBuffer *tb);
 
 // might be required in later stages
 extern Hashtable *lookup_table;
+extern Hashtable *valid_chars;
 
 #endif

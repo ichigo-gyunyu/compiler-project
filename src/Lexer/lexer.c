@@ -12,11 +12,11 @@
 
 /********************************** DATA DEFINITIONS **********************************/
 
-uint              line_number = 1;
-Hashtable        *lookup_table;
-bool              seen_eof = false;
-static Hashtable *valid_chars; // char -> int
-static bool       htinit = false;
+uint        line_number  = 1;
+Hashtable  *lookup_table = NULL; // char * -> int
+Hashtable  *valid_chars  = NULL; // char -> int
+bool        seen_eof     = false;
+static bool htinit       = false;
 
 // useful for printing relevant information
 static char *const TokenTypeNames[] = {
@@ -97,6 +97,8 @@ void      initValidCharsTable();
 void      updateLexeme(char **lex, char c);
 void      retractLexeme(char **lex);
 void      lexemeToValue(TokenInfo *t);
+void      freeValidChars();
+void      freeLookupTable();
 TokenType getTokenFromKeyword(char *lex);
 TokenType getMainOrFunID(char *lex);
 TokenInfo accept(TwinBuffer *tb, TokenType t);
@@ -654,6 +656,11 @@ void removeComments(char *testcaseFile, char *cleanFile) {
 // get name from the enumerated token type value
 char *getTokenTypeName(TokenType tk) { return TokenTypeNames[tk]; }
 
+void lexerCleanup() {
+    freeValidChars();
+    freeLookupTable();
+}
+
 void runLexerOnInputSourceCode(char *testcaseFile) {
     FILE       *fp = fopen(testcaseFile, "r");
     TwinBuffer *tb = initLexer(fp);
@@ -898,6 +905,16 @@ void freeTwinBuffer(TwinBuffer *tb) {
         fclose(tb->fp);
         free(tb);
     }
+}
+
+void freeValidChars() {
+    if (valid_chars)
+        ht_free(valid_chars);
+}
+
+void freeLookupTable() {
+    if (lookup_table)
+        ht_free(lookup_table);
 }
 
 /**************************************************************************************************/
