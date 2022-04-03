@@ -12,12 +12,12 @@
 #define HASHTABLE_H
 
 /**
- * Generic Hashtable ADT
+ * Generic Hashtable ADT.
  *
  * (type unsafe!)
  *
- * Dynamic growth (doubles capacity when full)
- * Open addressing to resolve collisions
+ * Dynamic growth (doubles capacity when full).
+ * Open addressing to resolve collisions.
  */
 
 #define HT_START_SIZE 64
@@ -33,7 +33,7 @@ typedef bool (*ht_kequal)(const void *k1, const void *k2);
 typedef u_long (*ht_hash)(const void *key);
 
 /**
- * Buckets hold key value pairs
+ * Buckets hold key value pairs.
  */
 typedef struct Bucket {
     void *key;
@@ -41,10 +41,10 @@ typedef struct Bucket {
 } Bucket;
 
 /**
- * Hashtable implemented as an array of buckets
- * Size dynamically grows
+ * Hashtable implemented as an array of buckets.
+ * Size dynamically grows.
  * Supports generic keys and values with optional
- * copy constructors and destructors
+ * copy constructors and destructors.
  */
 typedef struct Hashtable {
     Bucket  **table;     // array of bucket pointers
@@ -61,48 +61,48 @@ typedef struct Hashtable {
 } Hashtable;
 
 /**
- * Initialize a hashtable
- * Requires the sizeof key and value data types
- * Requires the hash function
- * Optional constructors and destructors for key and values
- * Recommended capacity is HT_START_SIZE
+ * Initialize a hashtable.
+ * Requires the sizeof key and value data types.
+ * Requires the hash function.
+ * Optional constructors and destructors for key and values.
+ * Recommended capacity is HT_START_SIZE.
  */
 Hashtable *ht_init(const size_t key_width, const size_t val_width, const ht_hash hash_fn, const ht_kcopy kcopy,
                    const ht_vcopy vcopy, const ht_kdtr kdtr, const ht_vdtr vdtr, const ht_kequal kequal,
                    const uint capacity);
 
 /**
- * Inserts (a copy of) key value pair into the hash table
+ * Inserts (a copy of) key value pair into the hash table.
  * Pointer to hashtable pointer is required as it can be
- * modified when resizing
- * No type checking on key and value is done
- * Open addressing is used to resolve collisions
+ * modified when resizing.
+ * No type checking on key and value is done.
+ * Open addressing is used to resolve collisions.
  *
- * Returns true on successful insertion, false otherwise
+ * Returns true on successful insertion, false otherwise.
  */
 bool ht_insert(Hashtable **ht, const void *key, const void *val);
 
 /**
- * Perform a lookup operation with the given key
+ * Perform a lookup operation with the given key.
  *
- * Returns pointer to value if key exists, NULL otherwise
+ * Returns pointer to value if key exists, NULL otherwise.
  */
 void *ht_lookup(Hashtable *ht, const void *key);
 
 /**
- * Cleans up all allocations
+ * Cleans up all allocations.
  */
 void ht_free(Hashtable *ht);
 
 /**
- * Doubles the hashtable capacity
+ * Doubles the hashtable capacity.
  * Primarily used in ht_insert, but the functionality
- * is also exposed to the user
+ * is also exposed to the user.
  */
 Hashtable *ht_grow(Hashtable *ht);
 
 /**
- * Some standard hash functions
+ * Some standard hash functions.
  */
 u_long ht_polyRollingHash(const char **key);
 u_long ht_moduloHash(int key);

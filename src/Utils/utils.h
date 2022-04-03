@@ -36,28 +36,28 @@
 #define NUM_ELEM(x) (sizeof(x) / sizeof((x)[0]))
 
 /**
- * Error printing function
- * In case of a fatal error, print the error message and exit
+ * Error printing function.
+ * In case of a fatal error, print the error message and exit.
  */
 void exit_msg(char *msg);
 
 /**
- * Also an error printing function
- * Uses perror (for system call errors) and exits
+ * Also an error printing function.
+ * Uses perror (for system call errors) and exits.
  */
 void exit_perror(char *msg);
 
 /**
- * Allocates memory and copies the input string into it
+ * Allocates memory and copies the input string into it.
  * Slightly inefficient, but helps avoiding double frees
  * (Turns out there is a library function strdup, but it is
- * not a standard C function)
+ * not a standard C function).
  */
 char *str_dup(char *str);
 
 /**
- * Useful constroctors for strings
- * Is used in the various generic ADT implementations
+ * Useful constroctors for strings.
+ * Is used in the various generic ADT implementations.
  */
 void str_cpyctr(char **dest, const char **src);
 void str_dtr(char **p);

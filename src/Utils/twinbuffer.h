@@ -16,9 +16,9 @@
 #define BLOCKSZ 64 // must be at least half the size of the largest lexeme
 
 /**
- * Twin buffer data structure to read the source file
+ * Twin buffer data structure to read the source file.
  * Also makes use of two pointers begin and lookahead
- * for efficient reading of lexemes
+ * for efficient reading of lexemes.
  */
 typedef struct TwinBuffer {
     char  buff[2][BLOCKSZ];
@@ -31,40 +31,40 @@ typedef struct TwinBuffer {
 } TwinBuffer;
 
 /**
- * Initialize the twin buffer
+ * Initialize the twin buffer.
  */
 TwinBuffer *tb_init(FILE *fp);
 
 /**
  * Load a block of the file into one
- * of the twin buffers
+ * of the twin buffers.
  */
 void tb_loadNextBuff(TwinBuffer *tb);
 
 /**
- * Consume a character from the twin buffer
- * Swap buffers if needed
+ * Consume a character from the twin buffer.
+ * Swap buffers if needed.
  */
 char tb_nextChar(TwinBuffer *tb, uint *linenum);
 
 /**
- * Exude out a character from the twin buffer
- * Swap buffers if needed
+ * Exude out a character from the twin buffer.
+ * Swap buffers if needed.
  */
 void tb_retract(TwinBuffer *tb, uint *linenum);
 
 /**
- * Move the begin pointer (incase of a lexical error)
+ * Move the begin pointer (incase of a lexical error).
  */
 char tb_moveBegin(TwinBuffer *tb);
 
 /**
- * Get the string between the begin and lookahead pointers
+ * Get the string between the begin and lookahead pointers.
  */
 char *tb_getLexeme(TwinBuffer *tb);
 
 /**
- * Match the begin pointer to the lookahead pointer
+ * Match the begin pointer to the lookahead pointer.
  */
 void tb_resetBegin(TwinBuffer *tb);
 

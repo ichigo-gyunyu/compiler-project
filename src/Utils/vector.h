@@ -26,10 +26,10 @@ typedef void (*vec_copyctr)(void *dest, const void *src); // copy constructor
 typedef void (*vec_dtr)(void *p);                         // destructor
 
 /**
- * Generic Vector implementation
- * Doubles capacity when full
+ * Generic Vector implementation.
+ * Doubles capacity when full.
  * Supports optional copy constructors and
- * destructors
+ * destructors.
  */
 typedef struct Vector {
     void      **vec;      // dynamic array of generic type
@@ -42,58 +42,58 @@ typedef struct Vector {
 
 /**
  * Initialize a vector.
- * Requres sizeof the data type stored
- * Copy constructors and destructional are optional
- * Recommended capacity is VEC_START_SIZE
+ * Requres sizeof the data type stored.
+ * Copy constructors and destructional are optional.
+ * Recommended capacity is VEC_START_SIZE.
  */
 Vector *vec_init(const size_t width, const vec_copyctr copyctr, const vec_dtr dtr, const uint capacity);
 
 /**
- * Checks for empty vector
+ * Checks for empty vector.
  */
 bool vec_isEmpty(const Vector *v);
 
 /**
- * Adds an element to the end of the vector
- * Resizing is done if required
+ * Adds an element to the end of the vector.
+ * Resizing is done if required.
  *
- * Returns true on successful insertion
+ * Returns true on successful insertion.
  */
 bool vec_pushBack(Vector *v, const void *e);
 
 /**
- * Add an element at the given position
+ * Add an element at the given position.
  *
- * Returns true on successful insertion
- * Returns false if failed or invalid position
+ * Returns true on successful insertion.
+ * Returns false if failed or invalid position.
  */
 bool vec_insertAt(Vector *v, const void *e, const uint pos);
 
 /**
- * Returns a pointer to the element at given position
- * Returns NULL if position is invalid
+ * Returns a pointer to the element at given position.
+ * Returns NULL if position is invalid.
  */
 void *vec_getAt(const Vector *v, const uint pos);
 
 /**
- * Remove the last element from vector and returns true
- * Returns false if the vector is empty
+ * Remove the last element from vector and returns true.
+ * Returns false if the vector is empty.
  */
 bool vec_popBack(Vector *v);
 
 /**
- * Removes the element at the specified position
- * Returns false if invalid position
+ * Removes the element at the specified position.
+ * Returns false if invalid position.
  */
 bool vec_removeAt(Vector *v, const uint pos);
 
 /**
- * Cleans up all allocations
+ * Cleans up all allocations.
  */
 void vec_free(Vector *v);
 
 /**
- * Doubles the vector capacity
+ * Doubles the vector capacity.
  */
 bool vec_grow(Vector *v);
 

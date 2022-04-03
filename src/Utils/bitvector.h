@@ -17,30 +17,30 @@ typedef int *Bitvector;
 
 /**
  * Initializes a bitvector
- * with capacity given by max
+ * with capacity given by max.
  */
 int bv_init(Bitvector *bv, uint max);
 
 /**
  * Returns capacity of the bitvector
- * specified by max
+ * specified by max.
  */
 uint bv_getsize(uint max);
 
 /**
  * Sets the bit at position
- * in the given bitvector
+ * in the given bitvector.
  */
 void bv_set(const Bitvector bv, int pos);
 
 /**
  * Checkif the bit at pos
- * is set in the given bitvector
+ * is set in the given bitvector.
  */
 int bv_contains(const Bitvector bv, int pos);
 
 /**
- * Performs a = a U b
+ * Performs a = a U b.
  */
 void bv_union(Bitvector a, const Bitvector b, uint max_size);
 
