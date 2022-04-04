@@ -100,17 +100,18 @@ typedef struct SymbolNode {
 // list of symbols (vector)
 typedef struct ProductionRule {
     Vector *symbols;
-    uint    rule_length;
+    uint8_t rule_length;
+    uint8_t rule_no; // according to grammar.txt
 } ProductionRule;
 
 typedef struct Derivation {
     NonTerminal     lhs; // lhs
-    uint            num_rhs;
+    uint8_t         num_rhs;
     ProductionRule *rhs; // lhs->rhs1, lhs->rhs2...
 } Derivation;
 
 typedef struct Grammar {
-    uint        num_nonterminals;
+    uint8_t     num_nonterminals;
     NonTerminal start_symbol;
     Derivation *derivations; // lhs1->... lhs2->...
 } Grammar;

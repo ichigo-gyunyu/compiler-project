@@ -319,6 +319,9 @@ Nary_tree parseInputSourceCode(char *testcaseFile) {
             if (pti.filled) {
                 st_pop(s);
 
+                // which rule the current parse tree node (nonterminal) is deriving
+                tn->rule_no = pti.rule.rule_no;
+
                 // fill production rule symbols in reverse order
                 Vector *symbols = pti.rule.symbols;
                 for (int i = symbols->size - 1; i >= 0; i--)
@@ -467,6 +470,7 @@ Grammar loadGrammarFromFile(char *grammarFile) {
     char       *buffer   = malloc(sizeof *buffer * buffsize);
     NonTerminal curr_lhs = -1;
     char       *word;
+    uint8_t     total_rules = 0;
 
     // read a line
     while (fgets(buffer, buffsize, fp) != NULL) {
@@ -491,6 +495,9 @@ Grammar loadGrammarFromFile(char *grammarFile) {
                 uint rule_no;
 
                 // new lhs, new set of derivations
+                // S -> AB
+                // A -> BC <-- here
+                // A -> DE
                 if (lhs != curr_lhs) {
                     curr_lhs = lhs;
                     rule_no  = 0;
@@ -498,6 +505,7 @@ Grammar loadGrammarFromFile(char *grammarFile) {
                     g.derivations[lhs] = (Derivation){.lhs = lhs, .num_rhs = 1, .rhs = malloc(sizeof(ProductionRule))};
                 }
                 // make room for another production rule
+                // S -> AB
                 // A -> BC
                 // A -> DE <-- here
                 else {
@@ -509,7 +517,9 @@ Grammar loadGrammarFromFile(char *grammarFile) {
                 }
 
                 // initialize a new production rule (A -> BCDE)
+                total_rules++;
                 g.derivations[lhs].rhs[rule_no] = (ProductionRule){
+                    .rule_no     = total_rules,
                     .rule_length = 0,
                     .symbols     = vec_init(sizeof(SymbolNode), NULL, NULL, VEC_START_SIZE),
                 };

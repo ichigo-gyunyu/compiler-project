@@ -14,6 +14,7 @@
 // required standard library headers
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,7 +50,7 @@ void exit_perror(char *msg);
 
 /**
  * Allocates memory and copies the input string into it.
- * Slightly inefficient, but helps avoiding double frees
+ * Slightly inefficient, but helps avoiding double frees.
  * (Turns out there is a library function strdup, but it is
  * not a standard C function).
  */
