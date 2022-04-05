@@ -22,10 +22,9 @@ typedef struct astFieldID                     astFieldID;
 typedef struct astStmtDeclaration             astStmtDeclaration;
 typedef struct astStmtAssignment              astStmtAssignment;
 typedef struct astID                          astID;
+typedef struct astSingleOrRecID               astSingleOrRecID;
 typedef struct astStmtIterative               astStmtIterative;
 typedef struct astStmtConditional             astStmtConditional;
-typedef struct astStmtIORead                  astStmtIORead;
-typedef struct astStmtIOWrite                 astStmtIOWrite;
 typedef struct astStmtFunCall                 astStmtFunCall;
 typedef struct astStmtDefineType              astStmtDefineType;
 typedef struct astStmtReturn                  astStmtReturn;
@@ -35,6 +34,8 @@ typedef struct astBooleanExpressionLogical    astBooleanExpressionLogical;
 typedef struct astBooleanExpressionRelational astBooleanExpressionRelational;
 typedef struct astBooleanExpressionNegation   astBooleanExpressionNegation;
 typedef struct astVar                         astVar;
+typedef struct astVar                         astStmtIORead;
+typedef struct astVar                         astStmtIOWrite;
 
 struct astProgram {
     Vector      *otherFunctions; // Vector<astFunction *>
@@ -47,7 +48,7 @@ struct astFunction {
     char   *functionName;
     Vector *inputParams;  // Vector<astID *>
     Vector *outputParams; // Vector<astID *>
-    Vector *statements;   // Vector<genericStatement>
+    Vector *statements;   // Vector<genericStatement *>
 };
 
 typedef enum StatementTypeID {
@@ -72,7 +73,7 @@ typedef enum RecOrUnion { RECORD, UNION } RecOrUnion;
 struct astStmtTypeDefinition {
     RecOrUnion tag_rec_or_union;
     int        ruid;
-    Vector    *fieldDefinitions; // Vector<astFieldID> (size >= 2)
+    Vector    *fieldDefinitions; // Vector<astFieldID *> (size >= 2)
 };
 
 struct astStmtDefineType {
@@ -81,18 +82,17 @@ struct astStmtDefineType {
 };
 
 struct astFieldID {
-    int   type;
+    void *type; // TODO
     char *id;
 };
 
 struct astStmtDeclaration {
-    int   type;
-    char *id;
-    bool  global;
+    astID *id;
+    bool   global;
 };
 
 struct astID {
-    int   type;
+    void *type; // TODO
     char *id;
 };
 
@@ -100,7 +100,7 @@ typedef enum VarOrConst { VAR, INT, REAL } VarOrConst;
 
 struct astVar {
     VarOrConst tag_var_or_const;
-    void      *var;
+    void      *var; // astSingleOrRecID *, int64_t * or double *
 };
 
 typedef enum ArithmeticOps { PLUS, MINUS, MUL, DIV } ArithmeticOps;
@@ -141,31 +141,35 @@ struct astBooleanExpressionNegation {
     astBooleanExpression *exp;
 };
 
+struct astSingleOrRecID {
+    astID  *id;
+    Vector *fields; // Vector<astFieldID *> (NULL if not record id)
+};
+
 struct astStmtAssignment {
-    astID                   *lhs_id;
-    Vector                  *lhs_fields; // Vector<astFieldID>
+    astSingleOrRecID        *lhs;
     astArithmeticExpression *rhs;
 };
 
 struct astStmtFunCall {
-    Vector *outputParams; // Vector<astID>
-    int     funid;
-    Vector *inputParams; // Vector<astID> (size >= 1)
+    Vector *outputParams; // Vector<astID *>
+    char   *functionName;
+    Vector *inputParams; // Vector<astID *> (size >= 1)
 };
 
 struct astStmtIterative {
     astBooleanExpression *precondition;
-    Vector               *statements; // Vector<genericStatement>
+    Vector               *statements; // Vector<genericStatement *>
 };
 
 struct astStmtConditional {
     astBooleanExpression *condition;
-    Vector               *ifStatements;   // Vector<genericStatement>
-    Vector               *elseStatements; // Vector<genericStatement> (can be NULL)
+    Vector               *ifStatements;   // Vector<genericStatement *>
+    Vector               *elseStatements; // Vector<genericStatement *> (can be NULL)
 };
 
 struct astStmtReturn {
-    Vector *returnList; // Vector<astID> (can be NULL)
+    Vector *returnList; // Vector<astID *> (can be NULL)
 };
 
 typedef astProgram *AST;
