@@ -103,9 +103,32 @@ int main(int argc, char **argv) {
             break;
         }
 
-        case 4:
-            printf("TODO\n");
+        case 4: {
+            Nary_tree pt = parseInputSourceCode(argv[1]);
+            if (pt == NULL) {
+                printf("source code is not syntatically correct\n");
+
+                break;
+            }
+
+            printf("\n");
+
+            int count = nary_TreeCount(pt);
+            int mem   = count * sizeof(*pt);
+            printf("Parse tree Number of nodes = %d Allocated Memory = %d Bytes\n", count, mem);
+
+            AST      ast       = constructAST(pt);
+            uint32_t ast_mem   = 0;
+            uint32_t ast_nodes = 0;
+            computeMemoryAllocated(ast, &ast_mem, &ast_nodes);
+
+            printf("AST Number of nodes = %d Allocated Memory = %d Bytes\n", ast_nodes, ast_mem);
+
+            double compression = (mem - ast_mem) / (double)mem * 100.0;
+            printf("Compression percentage = %f\n", compression);
+
             break;
+        }
 
         case 5: {
             Nary_tree pt = parseInputSourceCode(argv[1]);

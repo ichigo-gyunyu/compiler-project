@@ -31,5 +31,6 @@ TreeNode *nary_newNode(TokenInfo t, char *node_symbol, bool is_leaf);
 TreeNode *nary_addChild(TreeNode *node, TokenInfo t, char *node_symbol, bool is_leaf);
 void      nary_free(TreeNode *root);
 void      nary_printInorder(TreeNode *root, FILE **fp);
+int       nary_TreeCount(TreeNode *root);
 
 #endif

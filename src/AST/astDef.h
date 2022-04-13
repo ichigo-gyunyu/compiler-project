@@ -155,9 +155,9 @@ struct astStmtAssignment {
 };
 
 struct astStmtFunCall {
-    Vector *outputParams; // Vector<astID *>
+    Vector *outputParams; // Vector<astID *> (can be NULL)
     char   *functionName;
-    Vector *inputParams; // Vector<astID *> (size >= 1)
+    Vector *inputParams; // Vector<astID *>  (can be NULL)
 };
 
 struct astStmtIterative {

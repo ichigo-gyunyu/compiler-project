@@ -47,6 +47,15 @@ void print_astBooleanExpressionNegation(const astBooleanExpressionNegation *node
 void print_astVar(const astVar *node, const int depth);
 void print_tabs(const int n);
 
+void mem_astFunction(const astFunction *fn, uint32_t *mem, uint32_t *nodes);
+void mem_astID(const astID *id, uint32_t *mem, uint32_t *nodes);
+void mem_stmt(const genericStatement *stmt, uint32_t *mem, uint32_t *nodes);
+void mem_astFieldID(const astFieldID *fid, uint32_t *mem, uint32_t *nodes);
+void mem_astSingleOrRecID(const astSingleOrRecID *sori, uint32_t *mem, uint32_t *nodes);
+void mem_astAE(const astArithmeticExpression *ae, uint32_t *mem, uint32_t *nodes);
+void mem_astBE(const astBooleanExpression *be, uint32_t *mem, uint32_t *nodes);
+void mem_astVar(const astVar *var, uint32_t *mem, uint32_t *nodes);
+
 AST constructAST(const Nary_tree pt) { return (AST)constructRecursively(pt); }
 
 void *constructRecursively(const Nary_tree pt) {
@@ -1474,4 +1483,262 @@ void print_astVar(const astVar *node, const int depth) {
 void print_tabs(const int n) {
     for (int i = 0; i < n; i++)
         printf("\t");
+}
+
+void computeMemoryAllocated(const AST ast, uint32_t *mem, uint32_t *nodes) {
+
+    // root node
+    *mem += sizeof(astProgram);
+
+    // other functions
+    for (int i = 0; i < ast->otherFunctions->size; i++) {
+        astFunction *fn = *(astFunction **)vec_getAt(ast->otherFunctions, i);
+        mem_astFunction(fn, mem, nodes);
+    }
+
+    // main function
+    mem_astFunction(ast->mainFunction, mem, nodes);
+}
+
+void mem_astFunction(const astFunction *fn, uint32_t *mem, uint32_t *nodes) {
+
+    *mem += sizeof(astFunction);
+    *nodes += 1;
+
+    if (fn->inputParams != NULL) {
+        for (int i = 0; i < fn->inputParams->size; i++) {
+            astID *id = *(astID **)vec_getAt(fn->inputParams, i);
+            mem_astID(id, mem, nodes);
+        }
+    }
+
+    if (fn->outputParams != NULL) {
+        for (int i = 0; i < fn->outputParams->size; i++) {
+            astID *id = *(astID **)vec_getAt(fn->outputParams, i);
+            mem_astID(id, mem, nodes);
+        }
+    }
+
+    for (int i = 0; i < fn->statements->size; i++) {
+        genericStatement *stmt = *(genericStatement **)vec_getAt(fn->statements, i);
+        mem_stmt(stmt, mem, nodes);
+    }
+}
+
+void mem_astID(const astID *id, uint32_t *mem, uint32_t *nodes) {
+
+    *mem += sizeof(astID);
+    *nodes += 1;
+}
+
+void mem_stmt(const genericStatement *stmt, uint32_t *mem, uint32_t *nodes) {
+
+    switch (stmt->tag_stmt_type) {
+
+    case STMT_TYPEDEFINITION: {
+        *mem += sizeof(astStmtTypeDefinition);
+        *nodes += 1;
+
+        astStmtTypeDefinition *td = stmt->stmt;
+
+        for (int i = 0; i < td->fieldDefinitions->size; i++) {
+            astFieldID *fid = *(astFieldID **)vec_getAt(td->fieldDefinitions, i);
+            mem_astFieldID(fid, mem, nodes);
+        }
+
+        break;
+    }
+
+    case STMT_DEFINETYPE: {
+
+        *mem += sizeof(astStmtDefineType);
+        *nodes += 1;
+
+        break;
+    }
+
+    case STMT_DECLARATION: {
+        *mem += sizeof(astStmtDeclaration);
+        *nodes += 1;
+
+        astStmtDeclaration *dec = stmt->stmt;
+
+        mem_astID(dec->id, mem, nodes);
+
+        break;
+    }
+
+    case STMT_ASSIGNMENT: {
+        *mem += sizeof(astStmtAssignment);
+        *nodes += 1;
+
+        astStmtAssignment *assign = stmt->stmt;
+
+        mem_astSingleOrRecID(assign->lhs, mem, nodes);
+        mem_astAE(assign->rhs, mem, nodes);
+
+        break;
+    }
+
+    case STMT_ITERATIVE: {
+        *mem += sizeof(astStmtIterative);
+        *nodes += 1;
+
+        astStmtIterative *it = stmt->stmt;
+        mem_astBE(it->precondition, mem, nodes);
+        for (int i = 0; i < it->statements->size; i++) {
+            genericStatement *stmt = *(genericStatement **)vec_getAt(it->statements, i);
+            mem_stmt(stmt, mem, nodes);
+        }
+
+        break;
+    }
+
+    case STMT_CONDITIONAL: {
+        *mem += sizeof(astStmtConditional);
+        *nodes += 1;
+
+        astStmtConditional *cond = stmt->stmt;
+        mem_astBE(cond->condition, mem, nodes);
+
+        for (int i = 0; i < cond->ifStatements->size; i++) {
+            genericStatement *stmt = *(genericStatement **)vec_getAt(cond->ifStatements, i);
+            mem_stmt(stmt, mem, nodes);
+        }
+
+        if (cond->elseStatements) {
+            for (int i = 0; i < cond->elseStatements->size; i++) {
+                genericStatement *stmt = *(genericStatement **)vec_getAt(cond->ifStatements, i);
+                mem_stmt(stmt, mem, nodes);
+            }
+        }
+
+        break;
+    }
+
+    case STMT_IOREAD: {
+        astVar *var = stmt->stmt;
+        mem_astVar(var, mem, nodes);
+
+        break;
+    }
+
+    case STMT_IOWRITE: {
+
+        astVar *var = stmt->stmt;
+        mem_astVar(var, mem, nodes);
+
+        break;
+    }
+    case STMT_FNCALL: {
+        *mem += sizeof(astFunction);
+        *nodes += 1;
+
+        astStmtFunCall *fncall = stmt->stmt;
+
+        if (fncall->outputParams != NULL) {
+            for (int i = 0; i < fncall->outputParams->size; i++) {
+                astID *id = *(astID **)vec_getAt(fncall->outputParams, i);
+                mem_astID(id, mem, nodes);
+            }
+        }
+
+        if (fncall->inputParams != NULL) {
+            for (int i = 0; i < fncall->inputParams->size; i++) {
+                astID *id = *(astID **)vec_getAt(fncall->inputParams, i);
+                mem_astID(id, mem, nodes);
+            }
+        }
+
+        break;
+    }
+    case STMT_RETURN: {
+
+        *mem += sizeof(astStmtReturn);
+        *nodes += 1;
+
+        astStmtReturn *ret = stmt->stmt;
+
+        if (ret->returnList != NULL) {
+            for (int i = 0; i < ret->returnList->size; i++) {
+                astID *id = *(astID **)vec_getAt(ret->returnList, i);
+                mem_astID(id, mem, nodes);
+            }
+        }
+
+        break;
+    }
+    }
+}
+
+void mem_astFieldID(const astFieldID *fid, uint32_t *mem, uint32_t *nodes) {
+    *mem += sizeof(astFieldID);
+    *nodes += 1;
+}
+
+void mem_astSingleOrRecID(const astSingleOrRecID *sori, uint32_t *mem, uint32_t *nodes) {
+
+    *mem += sizeof(astSingleOrRecID);
+    *nodes += 1;
+
+    if (sori->fields != NULL) {
+        for (int i = 0; i < sori->fields->size; i++) {
+            astFieldID *fid = *(astFieldID **)vec_getAt(sori->fields, i);
+            mem_astFieldID(fid, mem, nodes);
+        }
+    }
+}
+
+void mem_astAE(const astArithmeticExpression *ae, uint32_t *mem, uint32_t *nodes) {
+
+    *mem += sizeof(astArithmeticExpression);
+    *nodes += 1;
+
+    if (ae->isVar) {
+        mem_astVar(ae->var, mem, nodes);
+        return;
+    }
+
+    mem_astAE(ae->lhs, mem, nodes);
+    mem_astAE(ae->rhs, mem, nodes);
+}
+
+void mem_astBE(const astBooleanExpression *be, uint32_t *mem, uint32_t *nodes) {
+
+    *mem += sizeof(astArithmeticExpression);
+    *nodes += 1;
+
+    switch (be->tag_be_type) {
+    case LOGICAL: {
+        astBooleanExpressionLogical *bel = be->be;
+        mem_astBE(bel->lhs, mem, nodes);
+        mem_astBE(bel->rhs, mem, nodes);
+
+        break;
+    }
+
+    case RELATIONAL: {
+        astBooleanExpressionRelational *ber = be->be;
+        mem_astVar(ber->lhs, mem, nodes);
+        mem_astVar(ber->rhs, mem, nodes);
+
+        break;
+    }
+
+    case NEGATION: {
+        astBooleanExpressionNegation *ben = be->be;
+        mem_astBE(ben->exp, mem, nodes);
+
+        break;
+    }
+    }
+}
+
+void mem_astVar(const astVar *var, uint32_t *mem, uint32_t *nodes) {
+
+    *mem += sizeof(astVar);
+    *nodes += 1;
+
+    if (var->tag_var_or_const == VAR)
+        mem_astSingleOrRecID((astSingleOrRecID *)var->var, mem, nodes);
 }

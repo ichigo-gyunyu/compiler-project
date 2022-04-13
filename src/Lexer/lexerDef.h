@@ -11,7 +11,7 @@
 #ifndef LEXERDEF_H
 #define LEXERDEF_H
 
-#include "utils.h"
+#include "Utils/utils.h"
 
 // Language Specifications
 #define ID_MAX_LENGTH    20

@@ -105,3 +105,24 @@ void nary_printInorder(TreeNode *root, FILE **fp) {
         }
     }
 }
+int nary_TreeCount(TreeNode *root) {
+
+    int count = 0;
+
+    if (!root)
+        return count;
+
+    count += nary_TreeCount(root->first_child);
+
+    count++;
+
+    if (root->first_child) {
+        TreeNode *temp = root->first_child->next_sibling;
+        while (temp) {
+            count += nary_TreeCount(temp);
+            temp = temp->next_sibling;
+        }
+    }
+
+    return count;
+}
