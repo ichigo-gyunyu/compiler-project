@@ -9,7 +9,7 @@ output parameter list[real d3];
 	while ( b5b567 <= d5cc34)
 		read( c3bd);
 		d3 <--- d3 + c3bd;
-		b5b567 <--- b5b567 + 1;
+		b5b567 <--- b5b567 + 1 * (c3bd - 31);
 	endwhile
 	return [d3];
 end
@@ -18,7 +18,7 @@ _main
 	type int :b3;
 	type real :c4bd56;
 	b3 <--- 7;
-	[c4bd56]<--- call _sumN with parameters [b3];
+	[c4bd56, d3]<--- call _sumN with parameters [b3];
 	write(c4bd56);
 	return;
 end

@@ -20,7 +20,7 @@ void exit_perror(char *msg) {
     exit(EXIT_FAILURE);
 }
 
-char *str_dup(char *str) {
+char *str_dup(const char *str) {
     char *tmp = calloc(strlen(str) + 1, sizeof *tmp);
     memcpy(tmp, str, strlen(str) + 1);
 

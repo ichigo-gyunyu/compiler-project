@@ -15,6 +15,8 @@ OBJS = lexer.o \
 	  stack.o \
 	  nary.o \
 	  vector.o \
+	  ast.o \
+	  symbolTable.o \
 	  driver.o
 
 TXT = $(wildcard output_*.txt)
@@ -28,6 +30,12 @@ lexer.o: $(wildcard src/Lexer/*)
 
 parser.o: $(wildcard src/Parser/*)
 	$(CC) $(CFLAGS) $(INC) -c src/Parser/parser.c
+
+ast.o: $(wildcard src/AST/*)
+	$(CC) $(CFLAGS) $(INC) -c src/AST/ast.c
+
+symbolTable.o: $(wildcard src/SymbolTable/*)
+	$(CC) $(CFLAGS) $(INC) -c src/SymbolTable/symbolTable.c
 
 utils.o: $(wildcard src/Utils/utils*)
 	$(CC) $(CFLAGS) $(INC) -c src/Utils/utils.c

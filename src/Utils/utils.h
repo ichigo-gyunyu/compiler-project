@@ -54,7 +54,7 @@ void exit_perror(char *msg);
  * (Turns out there is a library function strdup, but it is
  * not a standard C function).
  */
-char *str_dup(char *str);
+char *str_dup(const char *str);
 
 /**
  * Useful constroctors for strings.

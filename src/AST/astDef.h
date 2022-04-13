@@ -40,15 +40,14 @@ typedef struct astVar                         astStmtIOWrite;
 struct astProgram {
     Vector      *otherFunctions; // Vector<astFunction *>
     astFunction *mainFunction;
-
-    void (*print)(astProgram *node);
 };
 
 struct astFunction {
-    char   *functionName;
-    Vector *inputParams;  // Vector<astID *>
-    Vector *outputParams; // Vector<astID *>
-    Vector *statements;   // Vector<genericStatement *>
+    uint32_t line_num;
+    char    *functionName;
+    Vector  *inputParams;  // Vector<astID *>
+    Vector  *outputParams; // Vector<astID *>
+    Vector  *statements;   // Vector<genericStatement *>
 };
 
 typedef enum StatementTypeID {
@@ -61,6 +60,7 @@ typedef enum StatementTypeID {
     STMT_IOREAD,
     STMT_IOWRITE,
     STMT_FNCALL,
+    STMT_RETURN,
 } StatementTypeID;
 
 typedef struct genericStatement {
@@ -72,18 +72,20 @@ typedef enum RecOrUnion { RECORD, UNION } RecOrUnion;
 
 struct astStmtTypeDefinition {
     RecOrUnion tag_rec_or_union;
-    int        ruid;
+    char      *ruid;
     Vector    *fieldDefinitions; // Vector<astFieldID *> (size >= 2)
 };
 
 struct astStmtDefineType {
     RecOrUnion tag_rec_or_union;
-    int        ruid;
+    char      *ruid;
+    char      *ruid_as;
 };
 
 struct astFieldID {
-    void *type; // TODO
-    char *id;
+    uint32_t line_num;
+    char    *type;
+    char    *id;
 };
 
 struct astStmtDeclaration {
@@ -92,8 +94,9 @@ struct astStmtDeclaration {
 };
 
 struct astID {
-    void *type; // TODO
-    char *id;
+    uint32_t line_num;
+    char    *type;
+    char    *id;
 };
 
 typedef enum VarOrConst { VAR, INT, REAL } VarOrConst;

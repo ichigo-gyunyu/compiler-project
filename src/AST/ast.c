@@ -23,10 +23,36 @@
 
 void *constructRecursively(const Nary_tree pt);
 
+void print_astRoot(const AST root);
+void print_astFunction(const astFunction *node, const int depth);
+void print_astID(const astID *node, const int depth);
+void print_genericStatement(const genericStatement *node, const int depth);
+void print_astStmtTypeDefinition(const astStmtTypeDefinition *node, const int depth);
+void print_astStmtDefineType(const astStmtDefineType *node, const int depth);
+void print_astStmtDeclaration(const astStmtDeclaration *node, const int depth);
+void print_astStmtAssignment(const astStmtAssignment *node, const int depth);
+void print_astStmtIterative(const astStmtIterative *node, const int depth);
+void print_astStmtConditional(const astStmtConditional *node, const int depth);
+void print_astStmtIORead(const astStmtIORead *node, const int depth);
+void print_astStmtIOWrite(const astStmtIOWrite *node, const int depth);
+void print_astStmtFnCall(const astStmtFunCall *node, const int depth);
+void print_astStmtReturn(const astStmtReturn *node, const int depth);
+void print_astFieldID(const astFieldID *node, const int depth);
+void print_astSingleOrRecID(const astSingleOrRecID *node, const int depth);
+void print_astArithmeticExpression(const astArithmeticExpression *node, const int depth);
+void print_astBooleanExpression(const astBooleanExpression *node, const int depth);
+void print_astBooleanExpressionLogical(const astBooleanExpressionLogical *node, const int depth);
+void print_astBooleanExpressionRelational(const astBooleanExpressionRelational *node, const int depth);
+void print_astBooleanExpressionNegation(const astBooleanExpressionNegation *node, const int depth);
+void print_astVar(const astVar *node, const int depth);
+void print_tabs(const int n);
+
 AST constructAST(const Nary_tree pt) { return (AST)constructRecursively(pt); }
 
 void *constructRecursively(const Nary_tree pt) {
     uint8_t rule_num = pt->rule_no;
+
+    // printf("Rule: %d %s %s\n", rule_num, pt->node_symbol, pt->t_info.lexeme);
 
     switch (rule_num) {
 
@@ -34,8 +60,17 @@ void *constructRecursively(const Nary_tree pt) {
     case 1: {
         astProgram *node = malloc(sizeof *node);
 
+        Vector      *otherFunctions = vec_init(sizeof(astFunction *), NULL, NULL, VEC_START_SIZE);
+        TreeNode    *pt_copy        = pt->CHILD1;
+        astFunction *fn;
+
+        while ((fn = constructRecursively(pt_copy)) != NULL) {
+            vec_pushBack(otherFunctions, &fn);
+            pt_copy = pt_copy->CHILD2;
+        }
+
         *node = (astProgram){
-            .otherFunctions = constructRecursively(pt->CHILD1),
+            .otherFunctions = otherFunctions,
             .mainFunction   = constructRecursively(pt->CHILD2),
         };
 
@@ -47,6 +82,7 @@ void *constructRecursively(const Nary_tree pt) {
         astFunction *node = malloc(sizeof *node);
 
         *node = (astFunction){
+            .line_num     = pt->CHILD1->t_info.line_no,
             .functionName = str_dup("main"),
             .inputParams  = NULL,
             .outputParams = NULL,
@@ -57,18 +93,8 @@ void *constructRecursively(const Nary_tree pt) {
     }
 
     // otherFunctions -> function otherFunctions
-    case 3: {
-        Vector      *functions = vec_init(sizeof(astFunction *), NULL, NULL, VEC_START_SIZE);
-        astFunction *node;
-        TreeNode    *pt_copy = pt;
-
-        while ((node = constructRecursively(pt_copy->CHILD1)) != NULL) {
-            vec_pushBack(functions, &node);
-            pt_copy = pt_copy->CHILD2;
-        }
-
-        return functions;
-    }
+    case 3:
+        return constructRecursively(pt->CHILD1);
 
     // otherFunctions ->
     case 4:
@@ -79,6 +105,7 @@ void *constructRecursively(const Nary_tree pt) {
         astFunction *node = malloc(sizeof *node);
 
         *node = (astFunction){
+            .line_num     = pt->CHILD1->t_info.line_no,
             .functionName = str_dup(pt->CHILD1->t_info.lexeme),
             .inputParams  = constructRecursively(pt->CHILD2),
             .outputParams = constructRecursively(pt->CHILD3),
@@ -100,7 +127,7 @@ void *constructRecursively(const Nary_tree pt) {
     case 8:
         return NULL;
 
-    // parameter_list -> dataType TK_ID remaining_list TODO REDO
+    // parameter_list -> dataType TK_ID remaining_list
     case 9: {
         Vector   *param_list = vec_init(sizeof(astID *), NULL, NULL, VEC_START_SIZE);
         TreeNode *pt_copy    = pt;
@@ -109,8 +136,9 @@ void *constructRecursively(const Nary_tree pt) {
             astID *node = malloc(sizeof *node);
 
             *node = (astID){
-                .type = constructRecursively(pt_copy->CHILD1),
-                .id   = str_dup(pt_copy->CHILD2->t_info.lexeme),
+                .line_num = pt_copy->CHILD2->t_info.line_no,
+                .id       = str_dup(pt_copy->CHILD2->t_info.lexeme),
+                .type     = constructRecursively(pt->CHILD1),
             };
 
             vec_pushBack(param_list, &node);
@@ -131,23 +159,23 @@ void *constructRecursively(const Nary_tree pt) {
 
     // primitiveDatatype -> TK_INT
     case 12:
-        // TODO int
+        return str_dup("int");
 
     // primitiveDatatype -> TK_REAL
     case 13:
-        // TODO real
+        return str_dup("real");
 
     // constructedDatatype -> TK_RECORD TK_RUID
     case 14:
-        // TODO
+        return str_dup(pt->CHILD2->t_info.lexeme);
 
     // constructedDatatype -> TK_UNION TK_RUID
     case 15:
-        // TODO
+        return str_dup(pt->CHILD2->t_info.lexeme);
 
     // constructedDatatype -> TK_RUID
     case 16:
-        // TODO
+        return str_dup(pt->CHILD1->t_info.lexeme);
 
     // remaining_list -> TK_COMMA parameter_list
     case 17:
@@ -234,7 +262,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *stmt = (astStmtTypeDefinition){
             .tag_rec_or_union = RECORD,
-            .ruid             = 1, // TODO
+            .ruid             = str_dup(pt->CHILD2->t_info.lexeme),
             .fieldDefinitions = constructRecursively(pt->CHILD3),
         };
 
@@ -247,7 +275,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *stmt = (astStmtTypeDefinition){
             .tag_rec_or_union = UNION,
-            .ruid             = 1, // TODO
+            .ruid             = str_dup(pt->CHILD2->t_info.lexeme),
             .fieldDefinitions = constructRecursively(pt->CHILD3),
         };
 
@@ -281,8 +309,9 @@ void *constructRecursively(const Nary_tree pt) {
         astFieldID *node = malloc(sizeof *node);
 
         *node = (astFieldID){
-            .type = NULL, // TODO
-            .id   = str_dup(pt->CHILD4->t_info.lexeme),
+            .line_num = pt->CHILD4->t_info.line_no,
+            .id       = str_dup(pt->CHILD4->t_info.lexeme),
+            .type     = constructRecursively(pt->CHILD2),
         };
 
         return node;
@@ -290,11 +319,11 @@ void *constructRecursively(const Nary_tree pt) {
 
     // fieldType -> primitiveDatatype
     case 28:
-        return NULL; // TODO
+        return constructRecursively(pt->CHILD1);
 
     // fieldType -> TK_RUID
     case 29:
-        return NULL; // TODO
+        return str_dup(pt->CHILD1->t_info.lexeme);
 
     // moreFields -> fieldDefinition moreFields
     case 30:
@@ -327,7 +356,7 @@ void *constructRecursively(const Nary_tree pt) {
         void *tmp_ptr = constructRecursively(pt->CHILD5); // used to check if global
 
         *node = (astStmtDeclaration){
-            .id     = malloc(sizeof(astID *)),
+            .id     = malloc(sizeof(astID)),
             .global = (tmp_ptr) ? true : false,
         };
 
@@ -335,8 +364,9 @@ void *constructRecursively(const Nary_tree pt) {
             free(tmp_ptr);
 
         *(node->id) = (astID){
-            .type = NULL, // TODO
-            .id   = str_dup(pt->CHILD4->t_info.lexeme),
+            .line_num = pt->CHILD4->t_info.line_no,
+            .id       = str_dup(pt->CHILD4->t_info.lexeme),
+            .type     = constructRecursively(pt->CHILD2),
         };
 
         return node;
@@ -427,13 +457,13 @@ void *constructRecursively(const Nary_tree pt) {
         astSingleOrRecID *node = malloc(sizeof *node);
 
         *node = (astSingleOrRecID){
-            .id     = malloc(sizeof(astID *)),
+            .id     = malloc(sizeof(astID)),
             .fields = constructRecursively(pt->CHILD2),
         };
 
         *(node->id) = (astID){
-            .type = NULL, // TODO
-            .id   = str_dup(pt->CHILD1->t_info.lexeme),
+            .line_num = pt->CHILD1->t_info.line_no,
+            .id       = str_dup(pt->CHILD1->t_info.lexeme),
         };
 
         return node;
@@ -464,11 +494,11 @@ void *constructRecursively(const Nary_tree pt) {
         astFieldID *node = malloc(sizeof *node);
 
         *node = (astFieldID){
-            .type = NULL, // TODO
-            .id   = str_dup(pt->CHILD2->t_info.lexeme),
+            .line_num = pt->CHILD2->t_info.line_no,
+            .id       = str_dup(pt->CHILD2->t_info.lexeme),
         };
 
-        return NULL;
+        return node;
     }
 
     // moreExpansions -> oneExpansion moreExpansions
@@ -493,16 +523,46 @@ void *constructRecursively(const Nary_tree pt) {
     }
 
     // outputParameters -> TK_SQL idList TK_SQR TK_ASSIGNOP
-    case 52:
-        return constructRecursively(pt->CHILD2);
+    case 52: {
+        Vector *outputParams = vec_init(sizeof(astID *), NULL, NULL, VEC_START_SIZE);
+
+        TreeNode *pt_copy = pt->CHILD2;
+        while (pt_copy != NULL) {
+            astID *ele = malloc(sizeof(astID));
+            *ele       = (astID){
+                      .line_num = pt_copy->CHILD1->t_info.line_no,
+                      .id       = str_dup(pt_copy->CHILD1->t_info.lexeme),
+            };
+
+            vec_pushBack(outputParams, &ele);
+            pt_copy = pt_copy->CHILD2->CHILD2;
+        }
+
+        return outputParams;
+    }
 
     // outputParameters ->
     case 53:
         return NULL;
 
     // inputParameters -> TK_SQL idList TK_SQR
-    case 54:
-        return constructRecursively(pt->CHILD2);
+    case 54: {
+        Vector *inputParams = vec_init(sizeof(astID *), NULL, NULL, VEC_START_SIZE);
+
+        TreeNode *pt_copy = pt->CHILD2;
+        while (pt_copy != NULL) {
+            astID *ele = malloc(sizeof(astID));
+            *ele       = (astID){
+                      .line_num = pt_copy->CHILD1->t_info.line_no,
+                      .id       = str_dup(pt_copy->CHILD1->t_info.lexeme),
+            };
+
+            vec_pushBack(inputParams, &ele);
+            pt_copy = pt_copy->CHILD2->CHILD2;
+        }
+
+        return inputParams;
+    }
 
     // iterativeStmt -> TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE
     case 55: {
@@ -579,10 +639,12 @@ void *constructRecursively(const Nary_tree pt) {
 
         *stmt = (genericStatement){
             .tag_stmt_type = STMT_IOREAD,
-            .stmt          = malloc(sizeof(astVar *)),
+            .stmt          = malloc(sizeof(astVar)),
         };
 
         stmt->stmt = constructRecursively(pt->CHILD3);
+
+        return stmt;
     }
 
     // ioStmt -> TK_WRITE TK_OP var TK_CL TK_SEM
@@ -591,10 +653,12 @@ void *constructRecursively(const Nary_tree pt) {
 
         *stmt = (genericStatement){
             .tag_stmt_type = STMT_IOWRITE,
-            .stmt          = malloc(sizeof(astVar *)),
+            .stmt          = malloc(sizeof(astVar)),
         };
 
         stmt->stmt = constructRecursively(pt->CHILD3);
+
+        return stmt;
     }
 
     // arithmeticExpression -> term expPrime
@@ -706,8 +770,16 @@ void *constructRecursively(const Nary_tree pt) {
         return constructRecursively(pt->CHILD2);
 
     // factor -> var
-    case 68:
-        return constructRecursively(pt->CHILD1);
+    case 68: {
+        astArithmeticExpression *exp = malloc(sizeof *exp);
+
+        *exp = (astArithmeticExpression){
+            .isVar = true,
+            .var   = constructRecursively(pt->CHILD1),
+        };
+
+        return exp;
+    }
 
     // highPrecedenceOperators -> TK_MUL
     case 69: {
@@ -743,7 +815,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *node = (astBooleanExpression){
             .tag_be_type = LOGICAL,
-            .be          = malloc(sizeof(astBooleanExpressionLogical *)),
+            .be          = malloc(sizeof(astBooleanExpressionLogical)),
         };
 
         LogicalOps *operator= constructRecursively(pt->CHILD4);
@@ -765,7 +837,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *node = (astBooleanExpression){
             .tag_be_type = RELATIONAL,
-            .be          = malloc(sizeof(astBooleanExpressionRelational *)),
+            .be          = malloc(sizeof(astBooleanExpressionRelational)),
         };
 
         RelationalOps *operator= constructRecursively(pt->CHILD2);
@@ -787,7 +859,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *node = (astBooleanExpression){
             .tag_be_type = NEGATION,
-            .be          = malloc(sizeof(astBooleanExpressionNegation *)),
+            .be          = malloc(sizeof(astBooleanExpressionNegation)),
         };
 
         *((astBooleanExpressionNegation *)node->be) = (astBooleanExpressionNegation){
@@ -815,7 +887,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *node = (astVar){
             .tag_var_or_const = INT,
-            .var              = malloc(sizeof(int64_t *)),
+            .var              = malloc(sizeof(int64_t)),
         };
 
         *((int64_t *)node->var) = pt->CHILD1->t_info.val.val_int;
@@ -829,7 +901,7 @@ void *constructRecursively(const Nary_tree pt) {
 
         *node = (astVar){
             .tag_var_or_const = REAL,
-            .var              = malloc(sizeof(double *)),
+            .var              = malloc(sizeof(double)),
         };
 
         *((double *)node->var) = pt->CHILD1->t_info.val.val_real;
@@ -895,13 +967,18 @@ void *constructRecursively(const Nary_tree pt) {
 
     // returnStmt -> TK_RETURN optionalReturn TK_SEM
     case 87: {
-        astStmtReturn *node = malloc(sizeof *node);
+        genericStatement *stmt = malloc(sizeof *stmt);
 
-        *node = (astStmtReturn){
+        *stmt = (genericStatement){
+            .tag_stmt_type = STMT_RETURN,
+            .stmt          = malloc(sizeof(astStmtReturn)),
+        };
+
+        *((astStmtReturn *)stmt->stmt) = (astStmtReturn){
             .returnList = constructRecursively(pt->CHILD2),
         };
 
-        return node;
+        return stmt;
     }
 
     // optionalReturn -> TK_SQL idList TK_SQR
@@ -911,7 +988,12 @@ void *constructRecursively(const Nary_tree pt) {
         // iteratively add return list IDs
         TreeNode *pt_copy = pt->CHILD2;
         while (pt_copy != NULL) {
-            astID *ele = constructRecursively(pt_copy->CHILD1);
+            astID *ele = malloc(sizeof(astID));
+            *ele       = (astID){
+                      .line_num = pt_copy->CHILD1->t_info.line_no,
+                      .id       = str_dup(pt_copy->CHILD1->t_info.lexeme),
+            };
+
             vec_pushBack(returnList, &ele);
             pt_copy = pt_copy->CHILD2->CHILD2;
         }
@@ -928,8 +1010,8 @@ void *constructRecursively(const Nary_tree pt) {
         astID *node = malloc(sizeof *node);
 
         *node = (astID){
-            .type = NULL, // TODO
-            .id   = str_dup(pt->CHILD1->t_info.lexeme),
+            .line_num = pt->CHILD1->t_info.line_no,
+            .id       = str_dup(pt->CHILD1->t_info.lexeme),
         };
 
         return node;
@@ -953,7 +1035,8 @@ void *constructRecursively(const Nary_tree pt) {
 
         *node = (astStmtDefineType){
             .tag_rec_or_union = *ru,
-            .ruid             = 1, // TODO
+            .ruid             = str_dup(pt->CHILD3->t_info.lexeme),
+            .ruid_as          = str_dup(pt->CHILD5->t_info.lexeme),
         };
 
         free(ru);
@@ -979,4 +1062,416 @@ void *constructRecursively(const Nary_tree pt) {
         printf("Incorrect grammar rule in AST construction\n");
         return NULL; // should not be here
     }
+}
+
+void print_astRoot(const AST root) {
+
+    printf("\n------------ AST ------------\n");
+    printf(BLU "Traversal Order: top down, breadth first\n\n" RESET);
+
+    Vector *otherFunctions = root->otherFunctions;
+    for (int i = 0; i < otherFunctions->size; i++) {
+        print_astFunction(*(astFunction **)vec_getAt(otherFunctions, i), 0);
+    }
+
+    print_astFunction(root->mainFunction, 0);
+
+    printf("\n");
+}
+
+void print_astFunction(const astFunction *node, const int depth) {
+
+    printf("[astFn] ");
+    printf("name: %s\n", node->functionName);
+
+    printf("\n\t(inputParams)\n");
+    Vector *inputParams = node->inputParams;
+    if (inputParams) {
+        for (int i = 0; i < inputParams->size; i++) {
+            print_astID(*(astID **)vec_getAt(inputParams, i), 1);
+        }
+    }
+
+    printf("\n\t(outputParams)\n");
+    Vector *outputParams = node->outputParams;
+    if (outputParams) {
+        for (int i = 0; i < outputParams->size; i++) {
+            print_astID(*(astID **)vec_getAt(outputParams, i), 1);
+        }
+    }
+
+    printf("\n\t(statements)\n");
+    Vector *statements = node->statements;
+    for (int i = 0; i < statements->size; i++) {
+        print_genericStatement(*(genericStatement **)vec_getAt(statements, i), 1);
+    }
+
+    printf("\n");
+}
+
+void print_astID(const astID *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astID] ");
+    printf("id: %s\n", node->id);
+}
+
+void print_genericStatement(const genericStatement *node, const int depth) {
+
+    switch (node->tag_stmt_type) {
+    case STMT_TYPEDEFINITION:
+        print_astStmtTypeDefinition(node->stmt, depth);
+        break;
+    case STMT_DEFINETYPE:
+        print_astStmtDefineType(node->stmt, depth);
+        break;
+    case STMT_DECLARATION:
+        print_astStmtDeclaration(node->stmt, depth);
+        break;
+    case STMT_ASSIGNMENT:
+        print_astStmtAssignment(node->stmt, depth);
+        break;
+    case STMT_ITERATIVE:
+        print_astStmtIterative(node->stmt, depth);
+        break;
+    case STMT_CONDITIONAL:
+        print_astStmtConditional(node->stmt, depth);
+        break;
+    case STMT_IOREAD:
+        print_astStmtIORead(node->stmt, depth);
+        break;
+    case STMT_IOWRITE:
+        print_astStmtIOWrite(node->stmt, depth);
+        break;
+    case STMT_FNCALL:
+        print_astStmtFnCall(node->stmt, depth);
+        break;
+    case STMT_RETURN:
+        print_astStmtReturn(node->stmt, depth);
+    }
+
+    printf("\n");
+}
+
+void print_astStmtTypeDefinition(const astStmtTypeDefinition *node, const int depth) {
+
+    print_tabs(depth);
+
+    printf("[astTypeDefinition] ");
+
+    switch (node->tag_rec_or_union) {
+    case RECORD:
+        printf("r/u: RECORD ");
+        break;
+    case UNION:
+        printf("r/u: UNION ");
+        break;
+    }
+
+    printf("\n");
+
+    Vector *fieldDefinitions = node->fieldDefinitions;
+    for (int i = 0; i < fieldDefinitions->size; i++) {
+        print_astFieldID(*(astFieldID **)vec_getAt(fieldDefinitions, i), depth + 1);
+    }
+
+    printf("\n");
+}
+
+void print_astStmtDefineType(const astStmtDefineType *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astDefineType] ");
+
+    switch (node->tag_rec_or_union) {
+    case RECORD:
+        printf("r/u: RECORD ");
+        break;
+    case UNION:
+        printf("r/u: UNION ");
+        break;
+    }
+
+    printf("\n");
+}
+
+void print_astStmtDeclaration(const astStmtDeclaration *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astDeclaration] ");
+
+    printf("global: ");
+    if (node->global)
+        printf("yes ");
+    else
+        printf("no ");
+
+    print_astID(node->id, 0);
+}
+
+void print_astStmtAssignment(const astStmtAssignment *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astAssignment] ");
+
+    printf("operator: <---\n");
+
+    print_astSingleOrRecID(node->lhs, depth + 1);
+
+    print_astArithmeticExpression(node->rhs, depth + 1);
+}
+
+void print_astStmtIterative(const astStmtIterative *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astIterative]\n");
+
+    print_astBooleanExpression(node->precondition, depth + 1);
+
+    printf("\n");
+
+    Vector *statements = node->statements;
+    for (int i = 0; i < statements->size; i++) {
+        print_genericStatement(*(genericStatement **)vec_getAt(statements, i), depth + 1);
+    }
+
+    printf("\n");
+}
+
+void print_astStmtConditional(const astStmtConditional *node, const int depth) {
+    print_tabs(depth);
+    printf("[astConditional]\n");
+
+    print_astBooleanExpression(node->condition, depth + 1);
+
+    Vector *ifStatements = node->ifStatements;
+    printf("\n");
+    print_tabs(depth + 1);
+    printf("(if statements)\n");
+    for (int i = 0; i < ifStatements->size; i++) {
+        print_genericStatement(*(genericStatement **)vec_getAt(ifStatements, i), depth + 1);
+    }
+
+    Vector *elseStatements = node->elseStatements;
+    if (elseStatements == NULL)
+        return;
+
+    printf("\n");
+    print_tabs(depth + 1);
+    printf("(else statements)\n");
+    for (int i = 0; i < elseStatements->size; i++) {
+        print_genericStatement(*(genericStatement **)vec_getAt(elseStatements, i), depth + 1);
+    }
+
+    printf("\n");
+}
+
+void print_astStmtIORead(const astStmtIORead *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astIORead]\n");
+    print_astVar(node, depth + 1);
+}
+
+void print_astStmtIOWrite(const astStmtIOWrite *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astIOWrite]\n");
+    print_astVar(node, depth + 1);
+}
+
+void print_astStmtFnCall(const astStmtFunCall *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astFnCall] ");
+    printf("name: %s\n", node->functionName);
+
+    Vector *outputParams = node->outputParams;
+    if (outputParams != NULL) {
+        print_tabs(depth + 1);
+        printf("outputParams:\n");
+        for (int i = 0; i < outputParams->size; i++) {
+            print_astID(*(astID **)vec_getAt(outputParams, i), depth + 1);
+        }
+    }
+
+    print_tabs(depth + 1);
+    printf("inputParams:\n");
+    Vector *inputParams = node->inputParams;
+    for (int i = 0; i < inputParams->size; i++) {
+        print_astID(*(astID **)vec_getAt(inputParams, i), depth + 1);
+    }
+}
+
+void print_astStmtReturn(const astStmtReturn *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astReturn]\n");
+
+    Vector *returnList = node->returnList;
+    if (returnList == NULL)
+        return;
+
+    for (int i = 0; i < returnList->size; i++) {
+        print_astID(*(astID **)vec_getAt(returnList, i), depth + 1);
+    }
+}
+
+void print_astFieldID(const astFieldID *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astField] ");
+    printf("id: %s\n", node->id);
+}
+
+void print_astSingleOrRecID(const astSingleOrRecID *node, const int depth) {
+
+    print_tabs(depth);
+
+    Vector *fields = node->fields;
+
+    if (fields == NULL) {
+        print_astID(node->id, 0);
+        return;
+    }
+
+    printf("[astRecID]\n");
+    print_astID(node->id, depth);
+    for (int i = 0; i < fields->size; i++) {
+        print_astFieldID(*(astFieldID **)vec_getAt(fields, i), depth + 1);
+    }
+
+    printf("\n");
+}
+
+void print_astArithmeticExpression(const astArithmeticExpression *node, const int depth) {
+    if (node->isVar) {
+        print_astVar(node->var, depth);
+        return;
+    }
+
+    print_tabs(depth);
+
+    printf("[astAE] ");
+    printf("operator: ");
+    switch (node->operator) {
+    case PLUS:
+        printf("+ ");
+        break;
+    case MINUS:
+        printf("- ");
+        break;
+    case MUL:
+        printf("* ");
+        break;
+    case DIV:
+        printf("/ ");
+        break;
+    }
+
+    printf("\n");
+
+    print_astArithmeticExpression(node->lhs, depth + 1);
+    print_astArithmeticExpression(node->rhs, depth + 1);
+}
+
+void print_astBooleanExpression(const astBooleanExpression *node, const int depth) {
+
+    switch (node->tag_be_type) {
+    case LOGICAL:
+        print_astBooleanExpressionLogical(node->be, depth);
+        break;
+    case RELATIONAL:
+        print_astBooleanExpressionRelational(node->be, depth);
+        break;
+    case NEGATION:
+        print_astBooleanExpressionNegation(node->be, depth);
+        break;
+    }
+}
+
+void print_astBooleanExpressionLogical(const astBooleanExpressionLogical *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astBE] ");
+    printf("operator: ");
+
+    switch (node->operator) {
+    case AND:
+        printf("&&& ");
+        break;
+    case OR:
+        printf("@@@ ");
+        break;
+    }
+
+    printf("\n");
+
+    print_astBooleanExpression(node->lhs, depth + 1);
+    print_astBooleanExpression(node->rhs, depth + 1);
+}
+
+void print_astBooleanExpressionRelational(const astBooleanExpressionRelational *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astBE] ");
+    printf("operator: ");
+
+    switch (node->operator) {
+    case LT:
+        printf("< ");
+        break;
+    case LE:
+        printf("<= ");
+        break;
+    case GT:
+        printf("> ");
+        break;
+    case GE:
+        printf(">= ");
+        break;
+    case EQ:
+        printf("== ");
+        break;
+    case NE:
+        printf("!= ");
+        break;
+    }
+
+    printf("\n");
+
+    print_astVar(node->lhs, depth + 1);
+    print_astVar(node->rhs, depth + 1);
+}
+
+void print_astBooleanExpressionNegation(const astBooleanExpressionNegation *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astBE] ");
+    printf("operator: ~\n");
+
+    print_astBooleanExpression(node->exp, depth + 1);
+}
+
+void print_astVar(const astVar *node, const int depth) {
+    print_tabs(depth);
+
+    printf("[astVar] ");
+
+    switch (node->tag_var_or_const) {
+    case VAR:
+        printf("\n");
+        print_astSingleOrRecID(node->var, depth + 1);
+        break;
+    case INT:
+        printf("val: %ld\n", *((int64_t *)node->var));
+        break;
+    case REAL:
+        printf("val: %f\n", *((double *)node->var));
+    }
+}
+
+void print_tabs(const int n) {
+    for (int i = 0; i < n; i++)
+        printf("\t");
 }

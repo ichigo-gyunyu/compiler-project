@@ -8,13 +8,12 @@
  * Edara Bala Mukesh 2019A7PS0081P
  */
 
-#ifndef AST_H
-#define AST_H
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
 
-#include "Utils/nary.h"
-#include "astDef.h"
+#include "AST/ast.h"
+#include "SymbolTable/symbolTableDef.h"
 
-AST  constructAST(const Nary_tree pt);
-void print_astRoot(AST root);
+void printSymbolTable(const AST ast);
 
-#endif // AST_H
+#endif // SYMBOLTABLE_H
