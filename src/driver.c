@@ -13,6 +13,7 @@
 #include "AST/ast.h"
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
+#include "Semantics/semantics.h"
 #include "SymbolTable/symbolTable.h"
 #include "TypeChecker/typeChecker.h"
 
@@ -201,6 +202,7 @@ int main(int argc, char **argv) {
             initRecordInfo(ast);
             constructSymbolTables(ast, false, false);
             initTypeValidator(ast);
+            checkSemantics(ast);
             initTypeChecker(ast);
 
             break;

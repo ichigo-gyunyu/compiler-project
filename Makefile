@@ -19,6 +19,7 @@ OBJS = lexer.o \
 	  ast.o \
 	  symbolTable.o \
 	  typeChecker.o \
+	  semantics.o \
 	  driver.o
 
 TXT = $(wildcard output_*.txt)
@@ -41,6 +42,9 @@ symbolTable.o: $(wildcard src/SymbolTable/*)
 
 typeChecker.o: $(wildcard src/TypeChecker/*)
 	$(CC) $(CFLAGS) $(INC) -c src/TypeChecker/typeChecker.c
+
+semantics.o: $(wildcard src/Semantics/*)
+	$(CC) $(CFLAGS) $(INC) -c src/Semantics/semantics.c
 
 utils.o: $(wildcard src/Utils/utils*)
 	$(CC) $(CFLAGS) $(INC) -c src/Utils/utils.c

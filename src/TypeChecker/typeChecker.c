@@ -389,6 +389,13 @@ char *getTypeID(const astID *id, const SymbolTable *st) {
         }
     }
 
+    // union is reported as type error
+    void **lookup2 = ht_lookup(unions, &id->id);
+    if (lookup2 != NULL) {
+        printf(RED "Line: %d - ID of union type is reported an error %s" RESET "\n", id->line_num, id->id);
+        return NULL;
+    }
+
     SymbolTableEntry *ste = *lookup;
     if (ste->type_expression->is_primitive)
         return str_dup(ste->type_expression->prim_or_rec);

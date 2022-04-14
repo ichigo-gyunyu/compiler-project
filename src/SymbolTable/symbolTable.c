@@ -14,6 +14,7 @@ Vector    *ruids; // Vector <char *>
 RecordInfo rinfo;
 Hashtable *rec_defns;     // <char *, astStmtTypeDefinition *>
 Hashtable *aliases;       // <char *, Vector<char *>>
+Hashtable *unions;        // <char *, astStmtTypeDefinition *>
 Vector    *symbol_tables; // Vector <SymbolTable *>
 
 void initRecordInfo(const AST ast);
@@ -33,14 +34,6 @@ SymbolTableEntry *makeSymbolTableEntry(const char *type, const char *id, const b
 void printSymbolTableEntry(const uint32_t line_num, const char *id, const SymbolTableEntry *ste, const char *scope);
 void printTypeExpression(const TypeExpression *te);
 
-/* void printSTEFunction(const astFunction *fn, const SymbolTable *st, const SymbolTable *st_global);
-bool printSTE(const astID *astid, const SymbolTable *st);
-void printSTEStatements(const Vector *stmts, const SymbolTable *st, const SymbolTable *st_global);
-void printSTEAE(const astArithmeticExpression *ae, const SymbolTable *st, const SymbolTable *st_global);
-void printSTEBE(const astBooleanExpression *be, const SymbolTable *st, const SymbolTable *st_global);
-void printSTEVar(const astVar *var, const SymbolTable *st, const SymbolTable *st_global);
-void printSTEFnCall(const astStmtFunCall *fncall, const SymbolTable *st, const SymbolTable *st_global); */
-
 void initRecordInfo(const AST ast) {
     ruids = vec_init(sizeof(char *), (vec_copyctr)str_cpyctr, (vec_dtr)str_dtr, VEC_START_SIZE);
 
@@ -49,6 +42,9 @@ void initRecordInfo(const AST ast) {
 
     rec_defns = ht_init(sizeof(char *), sizeof(astStmtTypeDefinition *), (ht_hash)ht_polyRollingHash,
                         (ht_kcopy)str_cpyctr, NULL, (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
+
+    unions = ht_init(sizeof(char *), sizeof(astStmtTypeDefinition *), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr,
+                     NULL, (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
 
     aliases = ht_init(sizeof(char *), sizeof(Vector *), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr, NULL,
                       (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
@@ -87,9 +83,6 @@ void fillRecAliases(const Vector *statements) {
             continue;
 
         astStmtDefineType *dt = stmt->stmt;
-        // TODO
-        /* if (dt->tag_rec_or_union == UNION)
-            continue; */
 
         astStmtTypeDefinition **td = ht_lookup(rec_defns, &dt->ruid);
         if (td == NULL) {
@@ -99,6 +92,9 @@ void fillRecAliases(const Vector *statements) {
 
         ht_insert(&rec_defns, &dt->ruid_as, td);
         vec_pushBack(ruids, &(dt->ruid_as));
+
+        if (dt->tag_rec_or_union == UNION)
+            ht_insert(&unions, &dt->ruid_as, td);
 
         // make it known that ruid_as is an alias for ruid
         Vector **alias_list = ht_lookup(aliases, &dt->ruid);
@@ -121,12 +117,12 @@ void fillRecDefns(const Vector *statements) {
             continue;
 
         astStmtTypeDefinition *td = stmt->stmt;
-        // TODO
-        /* if (td->tag_rec_or_union == UNION)
-            continue; */
 
         ht_insert(&rec_defns, &(td->ruid), &td);
         vec_pushBack(ruids, &(td->ruid));
+
+        if (td->tag_rec_or_union == UNION)
+            ht_insert(&unions, &(td->ruid), &td);
     }
 }
 
@@ -219,14 +215,14 @@ void constructSymbolTables(const AST ast, const bool print_all, const bool print
         astFunction *fn = *(astFunction **)vec_getAt(ast->otherFunctions, i);
         st              = createSymbolTable(fn->functionName);
         vec_pushBack(symbol_tables, &st);
-        fillSymbolTable(st, fn, false, print_all, print_entry);
         fillSymbolTable(st_global, fn, true, print_all, print_entry);
+        fillSymbolTable(st, fn, false, print_all, print_entry);
     }
 
     st = createSymbolTable(ast->mainFunction->functionName);
     vec_pushBack(symbol_tables, &st);
-    fillSymbolTable(st, ast->mainFunction, false, print_all, print_entry);
     fillSymbolTable(st_global, ast->mainFunction, true, print_all, print_entry);
+    fillSymbolTable(st, ast->mainFunction, false, print_all, print_entry);
 }
 
 SymbolTableEntry *makeSymbolTableEntry(const char *type, const char *id, const bool is_global, const uint32_t offset,
@@ -290,6 +286,13 @@ void fillSymbolTable(SymbolTable *st, const astFunction *fn, const bool global_t
             if (ste == NULL)
                 continue;
 
+            // check for multiple declarations
+            void **lookup = ht_lookup(st->table, &id);
+            if (lookup != NULL) {
+                printf(RED "Line %d - multiple declaration of %s\n" RESET, astid->line_num, astid->id);
+                continue;
+            }
+
             st->total_width += ste->width;
             ht_insert(&st->table, &id, &ste);
             if (print_entry && print_all)
@@ -309,6 +312,13 @@ void fillSymbolTable(SymbolTable *st, const astFunction *fn, const bool global_t
 
             if (ste == NULL)
                 continue;
+
+            // check for multiple declarations
+            void **lookup = ht_lookup(st->table, &id);
+            if (lookup != NULL) {
+                printf(RED "Line %d - multiple declaration of %s\n" RESET, astid->line_num, astid->id);
+                continue;
+            }
 
             st->total_width += ste->width;
             ht_insert(&st->table, &id, &ste);
@@ -336,6 +346,13 @@ void fillSymbolTable(SymbolTable *st, const astFunction *fn, const bool global_t
 
         if (ste == NULL)
             continue;
+
+        // check for multiple declarations
+        void **lookup = ht_lookup(st->table, &id);
+        if (lookup != NULL) {
+            printf(RED "Line %d - multiple declaration of %s\n" RESET, line_num, id);
+            continue;
+        }
 
         st->total_width += ste->width;
         ht_insert(&st->table, &id, &ste);

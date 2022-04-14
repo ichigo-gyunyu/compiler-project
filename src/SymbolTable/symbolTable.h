@@ -26,5 +26,6 @@ extern RecordInfo rinfo;         // <char *, RecordInfoEntry *>
 extern Hashtable *rec_defns;     // <char *, astStmtTypeDefinition *>
 extern Hashtable *aliases;       // <char *, Vector<char *>>
 extern Vector    *symbol_tables; // Vector <SymbolTable *>
+extern Hashtable *unions;        // <char *, astStmtTypeDefinition *>
 
 #endif // SYMBOLTABLE_H
