@@ -14,11 +14,12 @@
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
 #include "SymbolTable/symbolTable.h"
+#include "TypeChecker/typeChecker.h"
 
-#define OUTFILE "./stage1exe"
+#define OUTFILE "./compiler"
 
 void usageError() {
-    printf("Usage error: " OUTFILE " testCase.txt parseTreeOut.txt\n");
+    printf("Usage error: " OUTFILE " testCase.txt code.asm\n");
     exit(EXIT_FAILURE);
 }
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
             break;
 
         case 2:
-            nary_free(printParseTree(parseInputSourceCode(argv[1]), argv[2]));
+            nary_free(parseInputSourceCode(argv[1]));
             break;
 
             /* case 4: {
@@ -134,7 +135,6 @@ int main(int argc, char **argv) {
             Nary_tree pt = parseInputSourceCode(argv[1]);
             if (pt == NULL) {
                 printf("source code is not syntatically correct\n");
-                printf("cannot print ast\n");
 
                 break;
             }
@@ -145,21 +145,66 @@ int main(int argc, char **argv) {
             break;
         }
 
-        case 6:
-            printf("TODO\n");
-            break;
+        case 6: {
+            Nary_tree pt = parseInputSourceCode(argv[1]);
+            if (pt == NULL) {
+                printf("source code is not syntatically correct\n");
 
-        case 7:
-            printf("TODO\n");
-            break;
+                break;
+            }
 
-        case 8:
-            printf("TODO\n");
-            break;
+            AST ast = constructAST(pt);
+            printGlobalVars(ast);
 
-        case 9:
-            printf("TODO\n");
             break;
+        }
+
+        case 7: {
+            Nary_tree pt = parseInputSourceCode(argv[1]);
+            if (pt == NULL) {
+                printf("source code is not syntatically correct\n");
+
+                break;
+            }
+
+            AST ast = constructAST(pt);
+            printActivationRecordInfo(ast);
+
+            break;
+        }
+
+        case 8: {
+            Nary_tree pt = parseInputSourceCode(argv[1]);
+            if (pt == NULL) {
+                printf("source code is not syntatically correct\n");
+
+                break;
+            }
+
+            AST ast = constructAST(pt);
+            printRecordInfo(ast);
+
+            break;
+        }
+
+        case 9: {
+            Nary_tree pt = parseInputSourceCode(argv[1]);
+            if (pt == NULL) {
+                printf("source code is not syntatically correct\n");
+
+                break;
+            }
+
+            printf("\n");
+
+            AST ast = constructAST(pt);
+            initRecordInfo(ast);
+            constructSymbolTables(ast, false, false);
+            initTypeValidator(ast);
+            initTypeChecker(ast);
+
+            break;
+        }
 
         case 10:
             printf("TODO\n");

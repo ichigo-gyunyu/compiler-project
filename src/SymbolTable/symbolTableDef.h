@@ -29,7 +29,7 @@ typedef struct TypeExpression {
 typedef enum UsageType { LOCAL, GLOBAL, INPARAM, OUTPARAM } UsageType;
 
 typedef struct SymbolTableEntry {
-    Vector         *type_name; // Vector<char *>
+    Vector         *type_name; // Vector<char *>, NULL if primitive type
     TypeExpression *type_expression;
     uint32_t        width;
     bool            is_global;

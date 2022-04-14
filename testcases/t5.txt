@@ -31,17 +31,17 @@ _main
 	endrecord
 	definetype record #one as #point
 	definetype record #two as #line
-	union #four
+	record #four
 		type #line : ln;
 		type #point: pt;
-		type #traingle:tr;
-	endunion;
+		type #triangle:tr;
+	endrecord;
         definetype record #three as #triangle
 	record #three
 		type #line: base;
 		type #line: height;
 	endrecord
-	definetype union #four as #shape
+	definetype record #four as #shape
 	record #variantrecord
 		type int: tag;
 		type #shape: s;

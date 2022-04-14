@@ -147,7 +147,7 @@ void *constructRecursively(const Nary_tree pt) {
             *node = (astID){
                 .line_num = pt_copy->CHILD2->t_info.line_no,
                 .id       = str_dup(pt_copy->CHILD2->t_info.lexeme),
-                .type     = constructRecursively(pt->CHILD1),
+                .type     = constructRecursively(pt_copy->CHILD1),
             };
 
             vec_pushBack(param_list, &node);
@@ -523,6 +523,7 @@ void *constructRecursively(const Nary_tree pt) {
         astStmtFunCall *stmt = malloc(sizeof *stmt);
 
         *stmt = (astStmtFunCall){
+            .line_num     = pt->CHILD2->t_info.line_no,
             .outputParams = constructRecursively(pt->CHILD1),
             .functionName = str_dup(pt->CHILD3->t_info.lexeme),
             .inputParams  = constructRecursively(pt->CHILD6),
@@ -830,9 +831,10 @@ void *constructRecursively(const Nary_tree pt) {
         LogicalOps *operator= constructRecursively(pt->CHILD4);
 
         *((astBooleanExpressionLogical *)node->be) = (astBooleanExpressionLogical){
-            .operator= * operator,
-            .lhs     = constructRecursively(pt->CHILD2),
-            .rhs     = constructRecursively(pt->CHILD6),
+            .line_num = pt->CHILD4->CHILD1->t_info.line_no,
+            .operator = * operator,
+            .lhs      = constructRecursively(pt->CHILD2),
+            .rhs      = constructRecursively(pt->CHILD6),
         };
 
         free(operator);
@@ -852,9 +854,10 @@ void *constructRecursively(const Nary_tree pt) {
         RelationalOps *operator= constructRecursively(pt->CHILD2);
 
         *((astBooleanExpressionRelational *)node->be) = (astBooleanExpressionRelational){
-            .operator= * operator,
-            .lhs     = constructRecursively(pt->CHILD1),
-            .rhs     = constructRecursively(pt->CHILD3),
+            .line_num = pt->CHILD2->CHILD1->t_info.line_no,
+            .operator = * operator,
+            .lhs      = constructRecursively(pt->CHILD1),
+            .rhs      = constructRecursively(pt->CHILD3),
         };
 
         free(operator);
@@ -872,7 +875,8 @@ void *constructRecursively(const Nary_tree pt) {
         };
 
         *((astBooleanExpressionNegation *)node->be) = (astBooleanExpressionNegation){
-            .exp = constructRecursively(pt->CHILD3),
+            .line_num = pt->CHILD1->t_info.line_no,
+            .exp      = constructRecursively(pt->CHILD3),
         };
 
         return node;
@@ -984,6 +988,7 @@ void *constructRecursively(const Nary_tree pt) {
         };
 
         *((astStmtReturn *)stmt->stmt) = (astStmtReturn){
+            .line_num   = pt->CHILD1->t_info.line_no,
             .returnList = constructRecursively(pt->CHILD2),
         };
 
@@ -1043,6 +1048,7 @@ void *constructRecursively(const Nary_tree pt) {
         RecOrUnion *ru = constructRecursively(pt->CHILD2);
 
         *node = (astStmtDefineType){
+            .line_num         = pt->CHILD1->t_info.line_no,
             .tag_rec_or_union = *ru,
             .ruid             = str_dup(pt->CHILD3->t_info.lexeme),
             .ruid_as          = str_dup(pt->CHILD5->t_info.lexeme),

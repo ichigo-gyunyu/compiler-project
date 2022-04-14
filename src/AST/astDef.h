@@ -77,6 +77,7 @@ struct astStmtTypeDefinition {
 };
 
 struct astStmtDefineType {
+    uint32_t   line_num;
     RecOrUnion tag_rec_or_union;
     char      *ruid;
     char      *ruid_as;
@@ -127,6 +128,7 @@ struct astBooleanExpression {
 typedef enum LogicalOps { AND, OR } LogicalOps;
 
 struct astBooleanExpressionLogical {
+    uint32_t              line_num;
     LogicalOps            operator;
     astBooleanExpression *lhs;
     astBooleanExpression *rhs;
@@ -135,12 +137,14 @@ struct astBooleanExpressionLogical {
 typedef enum RelationalOps { LT, LE, GT, GE, EQ, NE } RelationalOps;
 
 struct astBooleanExpressionRelational {
+    uint32_t      line_num;
     RelationalOps operator;
     astVar       *lhs;
     astVar       *rhs;
 };
 
 struct astBooleanExpressionNegation {
+    uint32_t              line_num;
     astBooleanExpression *exp;
 };
 
@@ -155,9 +159,10 @@ struct astStmtAssignment {
 };
 
 struct astStmtFunCall {
-    Vector *outputParams; // Vector<astID *> (can be NULL)
-    char   *functionName;
-    Vector *inputParams; // Vector<astID *>  (can be NULL)
+    uint32_t line_num;
+    Vector  *outputParams; // Vector<astID *> (can be NULL)
+    char    *functionName;
+    Vector  *inputParams; // Vector<astID *>  (can be NULL)
 };
 
 struct astStmtIterative {
@@ -172,7 +177,8 @@ struct astStmtConditional {
 };
 
 struct astStmtReturn {
-    Vector *returnList; // Vector<astID *> (can be NULL)
+    uint32_t line_num;
+    Vector  *returnList; // Vector<astID *> (can be NULL)
 };
 
 typedef astProgram *AST;

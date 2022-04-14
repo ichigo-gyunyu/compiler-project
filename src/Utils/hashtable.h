@@ -87,7 +87,7 @@ bool ht_insert(Hashtable **ht, const void *key, const void *val);
  *
  * Returns pointer to value if key exists, NULL otherwise.
  */
-void *ht_lookup(Hashtable *ht, const void *key);
+void *ht_lookup(const Hashtable *ht, const void *key);
 
 /**
  * Cleans up all allocations.

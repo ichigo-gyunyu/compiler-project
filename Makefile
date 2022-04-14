@@ -1,10 +1,11 @@
 CC = gcc
 # CFLAGS = -O2 -w
 CFLAGS = -Wall -g -fsanitize=address
+# CFLAGS = -Wall -g
 LDFLAGS = -lm
 INC = -I./src
 EXE = $(wildcard *.exe)
-OUT = stage1exe
+OUT = compiler
 
 OBJS = lexer.o \
 	  parser.o \
@@ -17,13 +18,14 @@ OBJS = lexer.o \
 	  vector.o \
 	  ast.o \
 	  symbolTable.o \
+	  typeChecker.o \
 	  driver.o
 
 TXT = $(wildcard output_*.txt)
 
 $(OUT): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(OUT) $(LDFLAGS)
-	@echo -e "\nDone. Usage: ./$(OUT) testCasefile.txt parseTreeOutFile.txt"
+	@echo -e "\nDone. Usage: ./$(OUT) testCasefile.txt code.asm"
 
 lexer.o: $(wildcard src/Lexer/*)
 	$(CC) $(CFLAGS) $(INC) -c src/Lexer/lexer.c
@@ -36,6 +38,9 @@ ast.o: $(wildcard src/AST/*)
 
 symbolTable.o: $(wildcard src/SymbolTable/*)
 	$(CC) $(CFLAGS) $(INC) -c src/SymbolTable/symbolTable.c
+
+typeChecker.o: $(wildcard src/TypeChecker/*)
+	$(CC) $(CFLAGS) $(INC) -c src/TypeChecker/typeChecker.c
 
 utils.o: $(wildcard src/Utils/utils*)
 	$(CC) $(CFLAGS) $(INC) -c src/Utils/utils.c
@@ -62,7 +67,7 @@ driver.o: src/driver.c
 	$(CC) $(CFLAGS) $(INC) -c src/driver.c
 
 leakcheck: $(OUT)
-	valgrind --leak-check=full --show-leak-kinds=all -s ./stage1exe testcases/testcase2.txt output_pt.txt
+	valgrind --leak-check=full --show-leak-kinds=all -s ./compiler testcases/t2.txt output_pt.txt
 	@echo Remove address sanitizer before using valgrind
 
 clean:

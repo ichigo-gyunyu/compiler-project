@@ -10,7 +10,7 @@
 
 #include "hashtable.h"
 
-u_long ht_computehash(Hashtable *ht, const void *key) { return ht->hash_fn(key) % ht->capacity; }
+u_long ht_computehash(const Hashtable *ht, const void *key) { return ht->hash_fn(key) % ht->capacity; }
 
 Hashtable *ht_init(const size_t key_width, const size_t val_width, const ht_hash hash_fn, const ht_kcopy kcopy,
                    const ht_vcopy vcopy, const ht_kdtr kdtr, const ht_vdtr vdtr, const ht_kequal kequal,
@@ -75,7 +75,7 @@ bool ht_insert(Hashtable **ht, const void *key, const void *val) {
     return false; // could not find space (shuold not happen...)
 }
 
-void *ht_lookup(Hashtable *ht, const void *key) {
+void *ht_lookup(const Hashtable *ht, const void *key) {
 
     uint pos = ht_computehash(ht, key);
 
