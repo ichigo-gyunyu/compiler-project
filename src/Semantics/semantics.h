@@ -16,4 +16,6 @@
 
 void checkSemantics(const AST ast);
 
+extern bool semantic_error;
+
 #endif

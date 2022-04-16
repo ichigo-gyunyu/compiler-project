@@ -16,6 +16,7 @@ Hashtable *rec_defns;     // <char *, astStmtTypeDefinition *>
 Hashtable *aliases;       // <char *, Vector<char *>>
 Hashtable *unions;        // <char *, astStmtTypeDefinition *>
 Vector    *symbol_tables; // Vector <SymbolTable *>
+Hashtable *scope_st;      // <char *, SymbolTable *>
 
 void initRecordInfo(const AST ast);
 
@@ -34,11 +35,15 @@ SymbolTableEntry *makeSymbolTableEntry(const char *type, const char *id, const b
 void printSymbolTableEntry(const uint32_t line_num, const char *id, const SymbolTableEntry *ste, const char *scope);
 void printTypeExpression(const TypeExpression *te);
 
+void rie_dtr(RecordInfoEntry **rie);
+void ste_dtr(SymbolTableEntry **st);
+void te_dtr(TypeExpression **te);
+
 void initRecordInfo(const AST ast) {
     ruids = vec_init(sizeof(char *), (vec_copyctr)str_cpyctr, (vec_dtr)str_dtr, VEC_START_SIZE);
 
     rinfo = ht_init(sizeof(char *), sizeof(RecordInfoEntry *), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr, NULL,
-                    (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
+                    (ht_kdtr)str_dtr, (ht_vdtr)rie_dtr, (ht_kequal)str_equal, HT_START_SIZE);
 
     rec_defns = ht_init(sizeof(char *), sizeof(astStmtTypeDefinition *), (ht_hash)ht_polyRollingHash,
                         (ht_kcopy)str_cpyctr, NULL, (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
@@ -132,8 +137,9 @@ void fillRecInfo(const char *ruid, const uint32_t line_num) {
     if (ht_lookup(rinfo, &ruid) != NULL)
         return;
 
-    uint32_t        width = 0;
-    TypeExpression *te    = malloc(sizeof *te);
+    uint32_t        width  = 0;
+    uint32_t        max_sz = 0;
+    TypeExpression *te     = malloc(sizeof *te);
 
     *te = (TypeExpression){
         .is_primitive = false,
@@ -167,6 +173,8 @@ void fillRecInfo(const char *ruid, const uint32_t line_num) {
         RecordInfoEntry *entry = *(RecordInfoEntry **)ht_lookup(rinfo, &type);
         TypeExpression  *terec = entry->type_expression;
         width += entry->width;
+        if (entry->width > max_sz)
+            max_sz = entry->width;
         vec_pushBack(te->prim_or_rec, &terec);
     }
 
@@ -180,10 +188,19 @@ void fillRecInfo(const char *ruid, const uint32_t line_num) {
 
     RecordInfoEntry *entry = malloc(sizeof *entry);
 
+    // if union
+    void **lookup = ht_lookup(unions, &ruid);
+    if (lookup != NULL) {
+        width      = max_sz;
+        te         = NULL;
+        *type_name = NULL;
+    }
+
     *entry = (RecordInfoEntry){
         .width           = width,
         .type_expression = te,
         .type_name       = *type_name,
+        .ruid            = str_dup(ruid),
     };
 
     ht_insert(&rinfo, &ruid, &entry);
@@ -195,8 +212,8 @@ SymbolTable *createSymbolTable(char *scope) {
     *st = (SymbolTable){
         .scope       = str_dup(scope),
         .total_width = 0,
-        .table = ht_init(sizeof(char *), sizeof(RecordInfoEntry *), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr,
-                         NULL, (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE),
+        .table = ht_init(sizeof(char *), sizeof(SymbolTableEntry *), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr,
+                         NULL, (ht_kdtr)str_dtr, (ht_vdtr)ste_dtr, (ht_kequal)str_equal, HT_START_SIZE),
     };
 
     return st;
@@ -204,6 +221,8 @@ SymbolTable *createSymbolTable(char *scope) {
 
 void constructSymbolTables(const AST ast, const bool print_all, const bool print_entry) {
     symbol_tables = vec_init(sizeof(SymbolTable *), NULL, NULL, VEC_START_SIZE);
+    scope_st = ht_init(sizeof(char *), sizeof(SymbolTable *), (ht_hash)ht_polyRollingHash, (ht_kcopy)str_cpyctr, NULL,
+                       (ht_kdtr)str_dtr, NULL, (ht_kequal)str_equal, HT_START_SIZE);
 
     // create the global symbol tables
     SymbolTable *st_global = createSymbolTable("global");
@@ -217,12 +236,14 @@ void constructSymbolTables(const AST ast, const bool print_all, const bool print
         vec_pushBack(symbol_tables, &st);
         fillSymbolTable(st_global, fn, true, print_all, print_entry);
         fillSymbolTable(st, fn, false, print_all, print_entry);
+        ht_insert(&scope_st, &fn->functionName, &st);
     }
 
     st = createSymbolTable(ast->mainFunction->functionName);
     vec_pushBack(symbol_tables, &st);
     fillSymbolTable(st_global, ast->mainFunction, true, print_all, print_entry);
     fillSymbolTable(st, ast->mainFunction, false, print_all, print_entry);
+    ht_insert(&scope_st, &ast->mainFunction->functionName, &st);
 }
 
 SymbolTableEntry *makeSymbolTableEntry(const char *type, const char *id, const bool is_global, const uint32_t offset,
@@ -255,6 +276,7 @@ SymbolTableEntry *makeSymbolTableEntry(const char *type, const char *id, const b
     if (rie == NULL) {
         if (to_print)
             printf(RED "Line: %d - unknown type name %s (symbol table construction)\n" RESET, line_num, type);
+        ste_dtr(&ste);
         return NULL;
     }
 
@@ -289,6 +311,7 @@ void fillSymbolTable(SymbolTable *st, const astFunction *fn, const bool global_t
             // check for multiple declarations
             void **lookup = ht_lookup(st->table, &id);
             if (lookup != NULL) {
+                ste_dtr(&ste);
                 printf(RED "Line %d - multiple declaration of %s\n" RESET, astid->line_num, astid->id);
                 continue;
             }
@@ -316,6 +339,7 @@ void fillSymbolTable(SymbolTable *st, const astFunction *fn, const bool global_t
             // check for multiple declarations
             void **lookup = ht_lookup(st->table, &id);
             if (lookup != NULL) {
+                ste_dtr(&ste);
                 printf(RED "Line %d - multiple declaration of %s\n" RESET, astid->line_num, astid->id);
                 continue;
             }
@@ -350,6 +374,7 @@ void fillSymbolTable(SymbolTable *st, const astFunction *fn, const bool global_t
         // check for multiple declarations
         void **lookup = ht_lookup(st->table, &id);
         if (lookup != NULL) {
+            ste_dtr(&ste);
             printf(RED "Line %d - multiple declaration of %s\n" RESET, line_num, id);
             continue;
         }
@@ -413,6 +438,11 @@ void printSymbolTableEntry(const uint32_t line_num, const char *id, const Symbol
 
 void printTypeExpression(const TypeExpression *te) {
 
+    if (te == NULL) {
+        printf("--- ");
+        return;
+    }
+
     if (te->is_primitive) {
         printf("%s, ", (char *)te->prim_or_rec);
         return;
@@ -432,7 +462,7 @@ void printTypeExpression(const TypeExpression *te) {
 void printSymbolTable(const AST ast) {
     printf("\n-------- SYMBOL TABLE ENTRIES --------\n\n");
     printf("%8s %15s %30s %10s %10s %10s %10s \t %s \t %s\n", "LINE_NUM", "NAME", "SCOPE", "WIDTH", "OFFSET", "USAGE",
-           "ISGLOBAL", "TYPE EXP", "TYPE NAME");
+           "ISGLOBAL", "TYPE NAME", "TYPE EXP");
 
     initRecordInfo(ast);
     constructSymbolTables(ast, true, true);
@@ -478,4 +508,42 @@ void printRecordInfo(const AST ast) {
         printTypeExpression(rie->type_expression);
         printf("\n");
     }
+}
+
+void freeSymbolTable() {
+    vec_free(ruids);
+    ht_free(rinfo);
+    ht_free(rec_defns);
+    ht_free(aliases);
+    ht_free(unions);
+
+    for (int i = 0; i < symbol_tables->size; i++) {
+        SymbolTable *st = *(SymbolTable **)vec_getAt(symbol_tables, i);
+        free(st->scope);
+        ht_free(st->table);
+        free(st);
+    }
+    vec_free(symbol_tables);
+    ht_free(scope_st);
+}
+
+void rie_dtr(RecordInfoEntry **rie) { free(*rie); }
+
+void ste_dtr(SymbolTableEntry **st) { free(*st); }
+
+void te_dtr(TypeExpression **te) {
+
+    if ((*te)->is_primitive)
+        free((*te)->prim_or_rec);
+    else {
+        Vector *tes = (*te)->prim_or_rec;
+        if (tes != NULL) {
+            for (int i = 0; i < tes->size; i++) {
+                TypeExpression **te2 = vec_getAt(tes, i);
+                te_dtr(te2);
+            }
+            vec_free(tes);
+        }
+    }
+    free(*te);
 }

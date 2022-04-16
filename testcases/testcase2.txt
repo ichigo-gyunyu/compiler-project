@@ -1725,6 +1725,9 @@ end
 % The following function computes the function value for the given inputs
 _computeFunctionValue input parameter list[int c3, int c4, int c5]
 output parameter list [real c6];
+        type int: x;
+        type int: y;
+    endrecord
 	type real : d4cbcd5677;
 	type real : c4bbb;
 	c6 <--- 5000.79;

@@ -20,6 +20,7 @@ void printActivationRecordInfo(const AST ast);
 void printRecordInfo(const AST ast);
 void initRecordInfo(const AST ast);
 void constructSymbolTables(const AST ast, const bool print_all, const bool print_entry);
+void freeSymbolTable();
 
 extern Vector    *ruids;         // Vector <char *>
 extern RecordInfo rinfo;         // <char *, RecordInfoEntry *>
@@ -27,5 +28,6 @@ extern Hashtable *rec_defns;     // <char *, astStmtTypeDefinition *>
 extern Hashtable *aliases;       // <char *, Vector<char *>>
 extern Vector    *symbol_tables; // Vector <SymbolTable *>
 extern Hashtable *unions;        // <char *, astStmtTypeDefinition *>
+extern Hashtable *scope_st;      // <char *, SymbolTable *>
 
 #endif // SYMBOLTABLE_H

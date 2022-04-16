@@ -31,17 +31,17 @@ _main
 	endrecord
 	definetype record #one as #point
 	definetype record #two as #line
-	record #four
+	union #four
 		type #line : ln;
 		type #point: pt;
 		type #triangle:tr;
-	endrecord;
+	endunion;
         definetype record #three as #triangle
 	record #three
 		type #line: base;
 		type #line: height;
 	endrecord
-	definetype record #four as #shape
+	definetype union #four as #shape
 	record #variantrecord
 		type int: tag;
 		type #shape: s;
@@ -59,4 +59,5 @@ _main
 	write(b5c6.tag );
 	return;
 end
+
 

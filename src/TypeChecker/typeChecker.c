@@ -13,6 +13,8 @@
 static SymbolTable *st_global;
 static Hashtable   *fn_signature; // <char *, astFunction *>
 
+bool tc_error = false;
+
 void initTypeValidator(const AST ast);
 void typeValidatorFn(const astFunction *fn);
 void typeValidatorID(const astID *id);
@@ -23,12 +25,15 @@ void typeCheckAssignment(const astStmtAssignment *assign, const SymbolTable *st)
 void typeCheckBE(const astBooleanExpression *be, const SymbolTable *st);
 void typeCheckFnCall(const astStmtFunCall *fncall, const SymbolTable *st);
 void typeCheckReturn(const astStmtReturn *ret, const SymbolTable *st);
-void typeCheckParamList(const Vector *expected, const Vector *got, const SymbolTable *st, const uint32_t line_num);
+void typeCheckParamList(const Vector *expected, const Vector *got, const SymbolTable *st, const SymbolTable *st2,
+                        const uint32_t line_num);
 
 char *getTypeSoRI(const astSingleOrRecID *sori, const SymbolTable *st);
 char *getTypeAE(const astArithmeticExpression *ae, const SymbolTable *st, const uint32_t line_num);
 char *getTypeVar(const astVar *var, const SymbolTable *st);
 char *getTypeID(const astID *id, const SymbolTable *st);
+
+void checkUnion(const astID *id);
 
 void initTypeValidator(const AST ast) {
 
@@ -78,8 +83,10 @@ void typeValidatorID(const astID *id) {
         return;
 
     void **lookup = ht_lookup(rinfo, &id->type);
-    if (lookup == NULL)
+    if (lookup == NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Invalid type %s" RESET "\n", id->line_num, id->type);
+    }
 }
 
 void initTypeChecker(const AST ast) {
@@ -118,8 +125,11 @@ void typeCheckerStmts(const Vector *stmts, const SymbolTable *st) {
         switch (stmt->tag_stmt_type) {
         case STMT_TYPEDEFINITION:
         case STMT_DEFINETYPE:
-        case STMT_DECLARATION:
             break;
+        case STMT_DECLARATION:
+            checkUnion(((astStmtDeclaration *)stmt->stmt)->id);
+            break;
+
         case STMT_ASSIGNMENT:
             typeCheckAssignment(stmt->stmt, st);
             break;
@@ -133,7 +143,10 @@ void typeCheckerStmts(const Vector *stmts, const SymbolTable *st) {
             typeCheckerStmts(((astStmtConditional *)stmt->stmt)->elseStatements, st);
             break;
         case STMT_IOREAD:
+            getTypeVar((astVar *)stmt->stmt, st);
+            break;
         case STMT_IOWRITE:
+            getTypeVar((astVar *)stmt->stmt, st);
             break;
         case STMT_FNCALL:
             typeCheckFnCall(stmt->stmt, st);
@@ -151,8 +164,14 @@ void typeCheckAssignment(const astStmtAssignment *assign, const SymbolTable *st)
     char *rhs_type = getTypeAE(assign->rhs, st, assign->lhs->id->line_num);
 
     if (lhs_type && rhs_type && strcmp(lhs_type, rhs_type)) {
+        tc_error = true;
         printf(RED "Line: %d - Type mismatch %s and %s" RESET "\n", assign->lhs->id->line_num, lhs_type, rhs_type);
     }
+
+    if (lhs_type)
+        free(lhs_type);
+    if (rhs_type)
+        free(rhs_type);
 }
 
 void typeCheckBE(const astBooleanExpression *be, const SymbolTable *st) {
@@ -170,8 +189,12 @@ void typeCheckBE(const astBooleanExpression *be, const SymbolTable *st) {
         char *rhs_type = getTypeVar(ber->rhs, st);
 
         if (lhs_type && rhs_type && strcmp(lhs_type, rhs_type)) {
+            tc_error = true;
             printf(RED "Line: %d - Type mismatch %s and %s" RESET "\n", ber->line_num, lhs_type, rhs_type);
         }
+
+        free(lhs_type);
+        free(rhs_type);
 
         break;
     }
@@ -186,41 +209,54 @@ void typeCheckFnCall(const astStmtFunCall *fncall, const SymbolTable *st) {
 
     void **lookup = ht_lookup(fn_signature, &fncall->functionName);
     if (lookup == NULL) {
+        tc_error = true;
         printf(RED "Line: %d - No such function" RESET "\n", fncall->line_num);
         return;
     }
     astFunction *fn = *lookup;
 
+    SymbolTable *st2 = *(SymbolTable **)ht_lookup(scope_st, &fn->functionName);
+
     // check input params
-    if (fncall->inputParams == NULL && fn->inputParams != NULL)
+    if (fncall->inputParams == NULL && fn->inputParams != NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Expected %d input parameters, got 0" RESET "\n", fncall->line_num,
                fn->inputParams->size);
-    if (fncall->inputParams != NULL && fn->inputParams == NULL)
+    }
+    if (fncall->inputParams != NULL && fn->inputParams == NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Expected 0 input parameters, got %d" RESET "\n", fncall->line_num,
                fncall->inputParams->size);
+    }
 
     if (fncall->inputParams != NULL && fn->inputParams != NULL) {
-        if (fncall->inputParams->size != fn->inputParams->size)
+        if (fncall->inputParams->size != fn->inputParams->size) {
+            tc_error = true;
             printf(RED "Line: %d - Expected %d input parameters, got %d" RESET "\n", fncall->line_num,
                    fn->inputParams->size, fncall->inputParams->size);
-        else
-            typeCheckParamList(fn->inputParams, fncall->inputParams, st, fncall->line_num);
+        } else
+            typeCheckParamList(fn->inputParams, fncall->inputParams, st, st2, fncall->line_num);
     }
 
     // check output params
-    if (fncall->outputParams == NULL && fn->outputParams != NULL)
+    if (fncall->outputParams == NULL && fn->outputParams != NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Expected %d output parameters, got 0" RESET "\n", fncall->line_num,
                fn->outputParams->size);
-    if (fncall->outputParams != NULL && fn->outputParams == NULL)
+    }
+    if (fncall->outputParams != NULL && fn->outputParams == NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Expected 0 output parameters, got %d" RESET "\n", fncall->line_num,
                fncall->outputParams->size);
+    }
 
     if (fncall->outputParams != NULL && fn->outputParams != NULL) {
-        if (fncall->outputParams->size != fn->outputParams->size)
+        if (fncall->outputParams->size != fn->outputParams->size) {
+            tc_error = true;
             printf(RED "Line: %d - Expected %d output parameters, got %d" RESET "\n", fncall->line_num,
                    fn->outputParams->size, fncall->outputParams->size);
-        else
-            typeCheckParamList(fn->outputParams, fncall->outputParams, st, fncall->line_num);
+        } else
+            typeCheckParamList(fn->outputParams, fncall->outputParams, st, st2, fncall->line_num);
     }
 }
 
@@ -228,25 +264,31 @@ void typeCheckReturn(const astStmtReturn *ret, const SymbolTable *st) {
 
     astFunction *fn = *(astFunction **)ht_lookup(fn_signature, &st->scope);
 
-    if (ret->returnList == NULL && fn->outputParams != NULL)
+    if (ret->returnList == NULL && fn->outputParams != NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Expected %d parameters, got 0" RESET "\n", ret->line_num, fn->outputParams->size);
-    if (ret->returnList != NULL && fn->outputParams == NULL)
+    }
+    if (ret->returnList != NULL && fn->outputParams == NULL) {
+        tc_error = true;
         printf(RED "Line: %d - Expected 0 parameters, got %d" RESET "\n", ret->line_num, ret->returnList->size);
+    }
     if (ret->returnList == NULL && fn->outputParams == NULL)
         return;
 
     if (ret->returnList != NULL && fn->outputParams != NULL) {
-        if (ret->returnList->size != fn->outputParams->size)
+        if (ret->returnList->size != fn->outputParams->size) {
+            tc_error = true;
             printf(RED "Line: %d - Expected %d parameters, got %d" RESET "\n", ret->line_num, fn->outputParams->size,
                    ret->returnList->size);
-        else
-            typeCheckParamList(fn->outputParams, ret->returnList, st, ret->line_num);
+        } else
+            typeCheckParamList(fn->outputParams, ret->returnList, st, st, ret->line_num);
     }
 
-    typeCheckParamList(fn->outputParams, ret->returnList, st, ret->line_num);
+    typeCheckParamList(fn->outputParams, ret->returnList, st, st, ret->line_num);
 }
 
-void typeCheckParamList(const Vector *expected, const Vector *got, const SymbolTable *st, const uint32_t line_num) {
+void typeCheckParamList(const Vector *expected, const Vector *got, const SymbolTable *st, const SymbolTable *st2,
+                        const uint32_t line_num) {
 
     if (expected->size != got->size)
         return;
@@ -256,12 +298,18 @@ void typeCheckParamList(const Vector *expected, const Vector *got, const SymbolT
         astID *e = *(astID **)vec_getAt(expected, i);
         astID *g = *(astID **)vec_getAt(got, i);
 
-        char *etype = getTypeID(e, st);
+        char *etype = getTypeID(e, st2);
         char *gtype = getTypeID(g, st);
 
         if (etype != NULL && gtype != NULL && strcmp(etype, gtype)) {
+            tc_error = true;
             printf(RED "Line: %d - Type mismatch %s (%s) and %s" RESET "\n", g->line_num, g->id, gtype, etype);
         }
+
+        if (etype != NULL)
+            free(etype);
+        if (gtype != NULL)
+            free(gtype);
     }
 }
 
@@ -276,7 +324,9 @@ char *getTypeSoRI(const astSingleOrRecID *sori, const SymbolTable *st) {
         astFieldID *fid = *(astFieldID **)vec_getAt(sori->fields, i);
 
         if (strcmp(type, "int") == 0 || strcmp(type, "real") == 0) {
+            tc_error = true;
             printf(RED "Line: %d - Primitive type %s cannot have fields" RESET "\n", fid->line_num, type);
+            free(type);
             return NULL;
         }
 
@@ -288,13 +338,24 @@ char *getTypeSoRI(const astSingleOrRecID *sori, const SymbolTable *st) {
             astFieldID *f = *(astFieldID **)vec_getAt(td->fieldDefinitions, j);
             if (strcmp(f->id, fid->id) == 0) {
                 validname = true;
-                type      = f->type;
+                free(type);
+                type = str_dup(f->type);
+
+                if (strcmp(type, "int") != 0 && strcmp(type, "real") != 0) {
+                    // resolve aliases
+                    astStmtTypeDefinition *td = *(astStmtTypeDefinition **)ht_lookup(rec_defns, &type);
+                    free(type);
+                    type = str_dup(td->ruid);
+                }
+
                 break;
             }
         }
 
         if (!validname) {
+            tc_error = true;
             printf(RED "Line: %d - No such field name (%s)" RESET "\n", fid->line_num, fid->id);
+            free(type);
             return NULL;
         }
     }
@@ -310,8 +371,11 @@ char *getTypeAE(const astArithmeticExpression *ae, const SymbolTable *st, const 
     char *lhs_type = getTypeAE(ae->lhs, st, line_num);
     char *rhs_type = getTypeAE(ae->rhs, st, line_num);
 
-    if (lhs_type == NULL || rhs_type == NULL)
+    if (lhs_type == NULL || rhs_type == NULL) {
+        free(lhs_type);
+        free(rhs_type);
         return NULL;
+    }
 
     bool lhs_primitive = false;
     if (strcmp(lhs_type, "int") == 0 || strcmp(lhs_type, "real") == 0)
@@ -325,33 +389,52 @@ char *getTypeAE(const astArithmeticExpression *ae, const SymbolTable *st, const 
     case PLUS:
     case MINUS: {
         if (strcmp(lhs_type, rhs_type) != 0) {
+            tc_error = true;
             printf(RED "Line: %d - Cannot add/subtract %s with %s" RESET "\n", line_num, lhs_type, rhs_type);
+            free(lhs_type);
+            free(rhs_type);
             return NULL;
         }
+        free(rhs_type);
         return lhs_type;
     }
 
     case MUL: {
         if (!lhs_primitive && !rhs_primitive) {
+            tc_error = true;
             printf(RED "Line: %d - Cannot multiply %s with %s" RESET "\n", line_num, lhs_type, rhs_type);
+            free(lhs_type);
+            free(rhs_type);
             return NULL;
         }
 
         if (strcmp(lhs_type, rhs_type) != 0) {
-            if (strcmp(lhs_type, "int") == 0)
+            if (strcmp(lhs_type, "int") == 0) {
+                free(lhs_type);
                 return rhs_type;
-            if (strcmp(rhs_type, "int") == 0)
+            }
+            if (strcmp(rhs_type, "int") == 0) {
+                free(rhs_type);
                 return lhs_type;
+            }
 
+            tc_error = true;
             printf(RED "Line: %d - Cannot multiply %s with %s" RESET "\n", line_num, lhs_type, rhs_type);
+            free(lhs_type);
+            free(rhs_type);
             return NULL;
-        } else
+        } else {
+            free(rhs_type);
             return lhs_type;
+        }
     }
 
     case DIV: {
         if (!lhs_primitive || !rhs_primitive) {
+            tc_error = true;
             printf(RED "Line: %d - Cannot divide %s with %s" RESET "\n", line_num, lhs_type, rhs_type);
+            free(lhs_type);
+            free(rhs_type);
             return NULL;
         }
 
@@ -384,16 +467,10 @@ char *getTypeID(const astID *id, const SymbolTable *st) {
     if (lookup == NULL) {
         lookup = ht_lookup(st_global->table, &id->id); // check the global table
         if (lookup == NULL) {
+            tc_error = true;
             printf(RED "Line: %d - Unknown identifier %s" RESET "\n", id->line_num, id->id);
             return NULL;
         }
-    }
-
-    // union is reported as type error
-    void **lookup2 = ht_lookup(unions, &id->id);
-    if (lookup2 != NULL) {
-        printf(RED "Line: %d - ID of union type is reported an error %s" RESET "\n", id->line_num, id->id);
-        return NULL;
     }
 
     SymbolTableEntry *ste = *lookup;
@@ -408,5 +485,14 @@ char *getTypeID(const astID *id, const SymbolTable *st) {
         ruid                      = td->ruid;
 
         return str_dup(ruid);
+    }
+}
+
+void checkUnion(const astID *id) {
+    // union is reported as type error
+    void **lookup = ht_lookup(unions, &id->type);
+    if (lookup != NULL) {
+        tc_error = true;
+        printf(RED "Line: %d - ID of union type is reported as error %s" RESET "\n", id->line_num, id->id);
     }
 }

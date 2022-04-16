@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "AST/ast.h"
+#include "CodeGen/codegen.h"
 #include "Lexer/lexer.h"
 #include "Parser/parser.h"
 #include "Semantics/semantics.h"
@@ -72,24 +73,6 @@ int main(int argc, char **argv) {
             nary_free(parseInputSourceCode(argv[1]));
             break;
 
-            /* case 4: {
-                clock_t start_time, end_time;
-                double  total_CPU_time, total_CPU_time_in_seconds;
-                start_time = clock();
-
-                nary_free(printParseTree(parseInputSourceCode(argv[1]),
-                                         argv[2])); // utilizes the lexer as well
-
-                end_time                  = clock();
-                total_CPU_time            = (double)(end_time - start_time);
-                total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
-
-                printf("\nTotal CPU time            = %f\nTotal CPU time in "
-                       "seconds = %f\n",
-                       total_CPU_time, total_CPU_time_in_seconds);
-                break;
-            } */
-
         case 3: {
             Nary_tree pt = parseInputSourceCode(argv[1]);
             if (pt == NULL) {
@@ -101,6 +84,9 @@ int main(int argc, char **argv) {
 
             AST ast = constructAST(pt);
             print_astRoot(ast);
+
+            freeAST(ast);
+            nary_free(pt);
 
             break;
         }
@@ -129,6 +115,9 @@ int main(int argc, char **argv) {
             double compression = (mem - ast_mem) / (double)mem * 100.0;
             printf("Compression percentage = %f\n", compression);
 
+            freeAST(ast);
+            nary_free(pt);
+
             break;
         }
 
@@ -142,6 +131,10 @@ int main(int argc, char **argv) {
 
             AST ast = constructAST(pt);
             printSymbolTable(ast);
+
+            freeSymbolTable();
+            freeAST(ast);
+            nary_free(pt);
 
             break;
         }
@@ -157,6 +150,10 @@ int main(int argc, char **argv) {
             AST ast = constructAST(pt);
             printGlobalVars(ast);
 
+            freeSymbolTable();
+            freeAST(ast);
+            nary_free(pt);
+
             break;
         }
 
@@ -170,6 +167,10 @@ int main(int argc, char **argv) {
 
             AST ast = constructAST(pt);
             printActivationRecordInfo(ast);
+
+            freeSymbolTable();
+            freeAST(ast);
+            nary_free(pt);
 
             break;
         }
@@ -185,10 +186,18 @@ int main(int argc, char **argv) {
             AST ast = constructAST(pt);
             printRecordInfo(ast);
 
+            freeSymbolTable();
+            freeAST(ast);
+            nary_free(pt);
+
             break;
         }
 
         case 9: {
+            clock_t start_time, end_time;
+            double  total_CPU_time, total_CPU_time_in_seconds;
+            start_time = clock();
+
             Nary_tree pt = parseInputSourceCode(argv[1]);
             if (pt == NULL) {
                 printf("source code is not syntatically correct\n");
@@ -196,7 +205,7 @@ int main(int argc, char **argv) {
                 break;
             }
 
-            printf("\n");
+            printf(BLU "\n------- SEMANTIC ANALYSIS AND TYPE CHECKING -------" RESET "\n");
 
             AST ast = constructAST(pt);
             initRecordInfo(ast);
@@ -205,12 +214,62 @@ int main(int argc, char **argv) {
             checkSemantics(ast);
             initTypeChecker(ast);
 
+            if (!tc_error && !semantic_error) {
+                printf(GRN "Input source code is lexically, syntatically and semantically correct and has been type "
+                           "checked" RESET "\n");
+                printf(GRN "Code compiles successfully" RESET "\n");
+            }
+
+            freeSymbolTable();
+            freeAST(ast);
+            nary_free(pt);
+
+            end_time                  = clock();
+            total_CPU_time            = (double)(end_time - start_time);
+            total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
+
+            printf("\nTotal CPU time            = %f\nTotal CPU time in "
+                   "seconds = %f\n",
+                   total_CPU_time, total_CPU_time_in_seconds);
+
             break;
         }
 
-        case 10:
-            printf("TODO\n");
+        case 10: {
+            Nary_tree pt = parseInputSourceCode(argv[1]);
+            if (pt == NULL) {
+                printf("source code is not syntatically correct\n");
+
+                break;
+            }
+
+            AST ast = constructAST(pt);
+            initRecordInfo(ast);
+            constructSymbolTables(ast, false, false);
+            initTypeValidator(ast);
+            checkSemantics(ast);
+            initTypeChecker(ast);
+
+            if (tc_error || semantic_error) {
+                printf(RED "Errors found, not generating asm" RESET "\n");
+                break;
+            }
+
+            printf(GRN "Code compiles successfully" RESET "\n\n");
+
+            genCode(ast, argv[2]);
+
+            printf("Assembly code has been generated\nCompile and execute with: \n");
+            printf("nasm -f elf64 code.asm && gcc code.o && ./a.out\n");
+            printf("or\n");
+            printf("nasm -f elf64 code.asm && gcc -no-pie code.o && ./a.out\n");
+
+            freeSymbolTable();
+            freeAST(ast);
+            nary_free(pt);
+
             break;
+        }
 
         default:
             printf(RED "\nInvalid choice" RESET "\n");

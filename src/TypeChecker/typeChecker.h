@@ -17,4 +17,6 @@
 void initTypeValidator(const AST ast);
 void initTypeChecker(const AST ast);
 
+extern bool tc_error;
+
 #endif // TYPECHECKER_H

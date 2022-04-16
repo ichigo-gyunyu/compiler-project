@@ -166,6 +166,7 @@ struct astStmtFunCall {
 };
 
 struct astStmtIterative {
+    uint32_t              line_num;
     astBooleanExpression *precondition;
     Vector               *statements; // Vector<genericStatement *>
 };

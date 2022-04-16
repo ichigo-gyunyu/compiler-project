@@ -56,6 +56,23 @@ void mem_astAE(const astArithmeticExpression *ae, uint32_t *mem, uint32_t *nodes
 void mem_astBE(const astBooleanExpression *be, uint32_t *mem, uint32_t *nodes);
 void mem_astVar(const astVar *var, uint32_t *mem, uint32_t *nodes);
 
+void free_astFn(astFunction *fn);
+void free_astID(astID *id);
+void free_genStmt(genericStatement *stmt);
+void free_astTD(astStmtTypeDefinition *td);
+void free_astDT(astStmtDefineType *dt);
+void free_astDec(astStmtDeclaration *dec);
+void free_astAssign(astStmtAssignment *assign);
+void free_astIter(astStmtIterative *iter);
+void free_astCond(astStmtConditional *cond);
+void free_astVar(astVar *var);
+void free_astFnCall(astStmtFunCall *funcall);
+void free_astRet(astStmtReturn *ret);
+void free_astFID(astFieldID *fid);
+void free_astSoRI(astSingleOrRecID *sori);
+void free_astAE(astArithmeticExpression *ae);
+void free_astBE(astBooleanExpression *be);
+
 AST constructAST(const Nary_tree pt) { return (AST)constructRecursively(pt); }
 
 void *constructRecursively(const Nary_tree pt) {
@@ -579,6 +596,7 @@ void *constructRecursively(const Nary_tree pt) {
         astStmtIterative *stmt = malloc(sizeof *stmt);
 
         *stmt = (astStmtIterative){
+            .line_num     = pt->CHILD1->t_info.line_no,
             .precondition = constructRecursively(pt->CHILD3),
             .statements   = vec_init(sizeof(genericStatement *), NULL, NULL, VEC_START_SIZE),
         };
@@ -649,10 +667,8 @@ void *constructRecursively(const Nary_tree pt) {
 
         *stmt = (genericStatement){
             .tag_stmt_type = STMT_IOREAD,
-            .stmt          = malloc(sizeof(astVar)),
+            .stmt          = constructRecursively(pt->CHILD3),
         };
-
-        stmt->stmt = constructRecursively(pt->CHILD3);
 
         return stmt;
     }
@@ -663,10 +679,8 @@ void *constructRecursively(const Nary_tree pt) {
 
         *stmt = (genericStatement){
             .tag_stmt_type = STMT_IOWRITE,
-            .stmt          = malloc(sizeof(astVar)),
+            .stmt          = constructRecursively(pt->CHILD3),
         };
-
-        stmt->stmt = constructRecursively(pt->CHILD3);
 
         return stmt;
     }
@@ -1747,4 +1761,253 @@ void mem_astVar(const astVar *var, uint32_t *mem, uint32_t *nodes) {
 
     if (var->tag_var_or_const == VAR)
         mem_astSingleOrRecID((astSingleOrRecID *)var->var, mem, nodes);
+}
+
+void freeAST(AST ast) {
+
+    // go through all scopes (functions)
+    for (int i = 0; i < ast->otherFunctions->size; i++) {
+        astFunction *fn = *(astFunction **)vec_getAt(ast->otherFunctions, i);
+        free_astFn(fn);
+    }
+
+    // main function
+    free_astFn(ast->mainFunction);
+
+    vec_free(ast->otherFunctions);
+    free(ast);
+}
+
+void free_astFn(astFunction *fn) {
+
+    free(fn->functionName);
+
+    if (fn->outputParams != NULL) {
+        for (int i = 0; i < fn->outputParams->size; i++) {
+            astID *id = *(astID **)vec_getAt(fn->outputParams, i);
+            free_astID(id);
+        }
+        vec_free(fn->outputParams);
+    }
+
+    if (fn->inputParams != NULL) {
+        for (int i = 0; i < fn->inputParams->size; i++) {
+            astID *id = *(astID **)vec_getAt(fn->inputParams, i);
+            free_astID(id);
+        }
+        vec_free(fn->inputParams);
+    }
+
+    for (int i = 0; i < fn->statements->size; i++) {
+        genericStatement *stmt = *(genericStatement **)vec_getAt(fn->statements, i);
+        free_genStmt(stmt);
+    }
+    vec_free(fn->statements);
+
+    free(fn);
+}
+
+void free_astID(astID *id) {
+    free(id->type);
+    free(id->id);
+    free(id);
+}
+
+void free_genStmt(genericStatement *stmt) {
+
+    switch (stmt->tag_stmt_type) {
+    case STMT_TYPEDEFINITION:
+        free_astTD(stmt->stmt);
+        break;
+    case STMT_DEFINETYPE:
+        free_astDT(stmt->stmt);
+        break;
+    case STMT_DECLARATION:
+        free_astDec(stmt->stmt);
+        break;
+    case STMT_ASSIGNMENT:
+        free_astAssign(stmt->stmt);
+        break;
+    case STMT_ITERATIVE:
+        free_astIter(stmt->stmt);
+        break;
+    case STMT_CONDITIONAL:
+        free_astCond(stmt->stmt);
+        break;
+    case STMT_IOREAD:
+        free_astVar(stmt->stmt);
+        break;
+    case STMT_IOWRITE:
+        free_astVar(stmt->stmt);
+        break;
+    case STMT_FNCALL:
+        free_astFnCall(stmt->stmt);
+        break;
+    case STMT_RETURN:
+        free_astRet(stmt->stmt);
+        break;
+    }
+
+    free(stmt);
+}
+
+void free_astTD(astStmtTypeDefinition *td) {
+
+    free(td->ruid);
+
+    for (int i = 0; i < td->fieldDefinitions->size; i++) {
+        astFieldID *fid = *(astFieldID **)vec_getAt(td->fieldDefinitions, i);
+        free_astFID(fid);
+    }
+    vec_free(td->fieldDefinitions);
+
+    free(td);
+}
+
+void free_astDT(astStmtDefineType *dt) {
+    free(dt->ruid);
+    free(dt->ruid_as);
+    free(dt);
+}
+
+void free_astDec(astStmtDeclaration *dec) {
+    free_astID(dec->id);
+    free(dec);
+}
+
+void free_astAssign(astStmtAssignment *assign) {
+    free_astSoRI(assign->lhs);
+    free_astAE(assign->rhs);
+    free(assign);
+}
+
+void free_astIter(astStmtIterative *iter) {
+    free_astBE(iter->precondition);
+
+    for (int i = 0; i < iter->statements->size; i++) {
+        genericStatement *stmt = *(genericStatement **)vec_getAt(iter->statements, i);
+        free_genStmt(stmt);
+    }
+    vec_free(iter->statements);
+
+    free(iter);
+}
+
+void free_astCond(astStmtConditional *cond) {
+    free_astBE(cond->condition);
+
+    for (int i = 0; i < cond->ifStatements->size; i++) {
+        genericStatement *stmt = *(genericStatement **)vec_getAt(cond->ifStatements, i);
+        free_genStmt(stmt);
+    }
+    vec_free(cond->ifStatements);
+
+    if (cond->elseStatements) {
+        for (int i = 0; i < cond->elseStatements->size; i++) {
+            genericStatement *stmt = *(genericStatement **)vec_getAt(cond->elseStatements, i);
+            free_genStmt(stmt);
+        }
+        vec_free(cond->elseStatements);
+    }
+
+    free(cond);
+}
+
+void free_astVar(astVar *var) {
+
+    if (var->tag_var_or_const == VAR)
+        free_astSoRI(var->var);
+    else
+        free(var->var);
+
+    free(var);
+}
+
+void free_astFnCall(astStmtFunCall *funcall) {
+
+    free(funcall->functionName);
+
+    if (funcall->outputParams != NULL) {
+        for (int i = 0; i < funcall->outputParams->size; i++) {
+            astID *id = *(astID **)vec_getAt(funcall->outputParams, i);
+            free_astID(id);
+        }
+        vec_free(funcall->outputParams);
+    }
+
+    if (funcall->inputParams != NULL) {
+        for (int i = 0; i < funcall->inputParams->size; i++) {
+            astID *id = *(astID **)vec_getAt(funcall->inputParams, i);
+            free_astID(id);
+        }
+        vec_free(funcall->inputParams);
+    }
+
+    free(funcall);
+}
+
+void free_astRet(astStmtReturn *ret) {
+
+    if (ret->returnList != NULL) {
+        for (int i = 0; i < ret->returnList->size; i++) {
+            astID *id = *(astID **)vec_getAt(ret->returnList, i);
+            free_astID(id);
+        }
+        vec_free(ret->returnList);
+    }
+
+    free(ret);
+}
+
+void free_astFID(astFieldID *fid) {
+    free(fid->type);
+    free(fid->id);
+    free(fid);
+}
+
+void free_astSoRI(astSingleOrRecID *sori) {
+    free_astID(sori->id);
+
+    if (sori->fields) {
+        for (int i = 0; i < sori->fields->size; i++) {
+            astFieldID *fid = *(astFieldID **)vec_getAt(sori->fields, i);
+            free_astFID(fid);
+        }
+        vec_free(sori->fields);
+    }
+
+    free(sori);
+}
+
+void free_astAE(astArithmeticExpression *ae) {
+
+    if (ae->isVar) {
+        free_astVar(ae->var);
+        free(ae);
+        return;
+    }
+
+    free_astAE(ae->lhs);
+    free_astAE(ae->rhs);
+    free(ae);
+}
+
+void free_astBE(astBooleanExpression *be) {
+
+    switch (be->tag_be_type) {
+    case LOGICAL:
+        free_astBE(((astBooleanExpressionLogical *)be->be)->lhs);
+        free_astBE(((astBooleanExpressionLogical *)be->be)->rhs);
+        break;
+    case RELATIONAL:
+        free_astVar(((astBooleanExpressionRelational *)be->be)->lhs);
+        free_astVar(((astBooleanExpressionRelational *)be->be)->rhs);
+        break;
+    case NEGATION:
+        free_astBE(((astBooleanExpressionNegation *)be->be)->exp);
+        break;
+    }
+
+    free(be->be);
+    free(be);
 }

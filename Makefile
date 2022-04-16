@@ -1,6 +1,6 @@
 CC = gcc
-# CFLAGS = -O2 -w
-CFLAGS = -Wall -g -fsanitize=address
+CFLAGS = -O2 -w
+# CFLAGS = -Wall -g -fsanitize=address
 # CFLAGS = -Wall -g
 LDFLAGS = -lm
 INC = -I./src
@@ -20,6 +20,7 @@ OBJS = lexer.o \
 	  symbolTable.o \
 	  typeChecker.o \
 	  semantics.o \
+	  codegen.o \
 	  driver.o
 
 TXT = $(wildcard output_*.txt)
@@ -46,6 +47,9 @@ typeChecker.o: $(wildcard src/TypeChecker/*)
 semantics.o: $(wildcard src/Semantics/*)
 	$(CC) $(CFLAGS) $(INC) -c src/Semantics/semantics.c
 
+codegen.o: $(wildcard src/CodeGen/*)
+	$(CC) $(CFLAGS) $(INC) -c src/CodeGen/codegen.c
+
 utils.o: $(wildcard src/Utils/utils*)
 	$(CC) $(CFLAGS) $(INC) -c src/Utils/utils.c
 
@@ -71,8 +75,8 @@ driver.o: src/driver.c
 	$(CC) $(CFLAGS) $(INC) -c src/driver.c
 
 leakcheck: $(OUT)
-	valgrind --leak-check=full --show-leak-kinds=all -s ./compiler testcases/t2.txt output_pt.txt
+	valgrind --leak-check=full --show-leak-kinds=all -s ./compiler testcases/t3.txt output_pt.txt
 	@echo Remove address sanitizer before using valgrind
 
 clean:
-	rm -rf $(EXE) $(OUT) $(OBJS) $(TXT)
+	rm -rf $(EXE) $(OUT) $(OBJS) $(TXT) a.out code.o

@@ -47,6 +47,7 @@ typedef struct RecordInfoEntry {
     Vector         *type_name; // Vector<char *>
     TypeExpression *type_expression;
     uint32_t        width;
+    char           *ruid;
 } RecordInfoEntry;
 
 typedef Hashtable *RecordInfo; // <char *, RecordInfoEntry *>
