@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -O2 -w
+# CFLAGS = -O2 -w
 # CFLAGS = -Wall -g -fsanitize=address
-# CFLAGS = -Wall -g
+CFLAGS = -Wall -g
 LDFLAGS = -lm
 INC = -I./src
 EXE = $(wildcard *.exe)
@@ -75,7 +75,7 @@ driver.o: src/driver.c
 	$(CC) $(CFLAGS) $(INC) -c src/driver.c
 
 leakcheck: $(OUT)
-	valgrind --leak-check=full --show-leak-kinds=all -s ./compiler testcases/t3.txt output_pt.txt
+	valgrind --leak-check=full --show-leak-kinds=all -s ./compiler testcases/s3.txt output_pt.txt
 	@echo Remove address sanitizer before using valgrind
 
 clean:
