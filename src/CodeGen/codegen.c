@@ -397,6 +397,8 @@ int genBE(const astBooleanExpression *be, const bool invert) {
         return genBE(((astBooleanExpressionNegation *)be->be)->exp, !invert);
         break;
     }
+
+    return -1; // -Wall
 }
 
 int genBELog(const astBooleanExpressionLogical *be, const bool invert) {
@@ -568,6 +570,8 @@ RelationalOps invertRelopMaybe(const RelationalOps op, const bool invert) {
     case NE:
         return EQ;
     }
+
+    return -1; // -Wall
 }
 
 LogicalOps invertLogopMaybe(const LogicalOps op, const bool invert) {
@@ -580,4 +584,6 @@ LogicalOps invertLogopMaybe(const LogicalOps op, const bool invert) {
     case OR:
         return AND;
     }
+
+    return -1; // -Wall
 }
