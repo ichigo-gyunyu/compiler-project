@@ -1,5 +1,5 @@
 # Compiler
-A simple compiler for the language specifications provided in [Language Specifications.pdf](docs/Language\ Specifications.pdf)
+A simple compiler for the language specifications provided in [Language Specifications.pdf](docs/Language%20Specifications.pdf)
 
 ## Requirements
 * gcc
