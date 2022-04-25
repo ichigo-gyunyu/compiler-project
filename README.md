@@ -22,5 +22,5 @@ All instructions for compiling are defined in the Makefile. Simply run `make`
 ### Running on a Testcase
 `./compiler <path_to_testcase_file> code.asm`
 
-### Generating Machine code from
+### Generating Machine code from .asm source
 `nasm -f elf64 code.asm && gcc -no-pie code.o && ./a.out`
