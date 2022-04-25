@@ -17,7 +17,7 @@ A simple compiler for the language specifications provided in [Language Specific
 All libraries and data structures used in any of the modules can be found in [Utils](src/Utils)
 
 ## Compiling the Compiler
-All instructions for compiling are defined in the Makefile. Simply run `make`
+All instructions for compiling are defined in the [Makefile](Makefile). Simply run `make`
 
 ### Running on a Testcase
 `./compiler <path_to_testcase_file> code.asm`
