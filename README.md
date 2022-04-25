@@ -1,5 +1,5 @@
 # Compiler
-A simple compiler for the language specifications provided in [Language Specifications.pdf](docs/Language%20Specifications.pdf)
+A simple compiler for the language specifications provided in [Language Specifications.pdf](docs/Language%20Specifications.pdf).
 
 ## Requirements
 * gcc
@@ -14,10 +14,11 @@ A simple compiler for the language specifications provided in [Language Specific
 * Semantic Analyzer
 * Code Generator (WIP (Krappa))
 
-All libraries and data structures used in any of the modules can be found in [Utils](src/Utils)
+All libraries and data structures used in any of the modules can be found in [Utils](src/Utils).
+The header files for each module contains relevant documentation.
 
 ## Compiling the Compiler
-All instructions for compiling are defined in the [Makefile](Makefile). Simply run `make`
+All instructions for compiling are defined in the [Makefile](Makefile). Simply run `make`.
 
 ### Running on a Testcase
 `./compiler <path_to_testcase_file> code.asm`

@@ -31,12 +31,9 @@ int main(int argc, char **argv) {
         usageError();
 
     printf("***************** Compiler Stage 1 - Group 2 *****************\n\n");
-    printf(GRN "Status:" RESET "\n");
-    printf("Both lexical and syntax analyzer modules implemented\n");
-    printf("FIRST and FOLLOW sets automated\n");
-    printf("Module works with all 6 testcases\n");
-    printf("Error handling and recovery implemented\n");
-    printf("Parse tree can be constructed\n");
+    printf(GRN "Level 4:" RESET "\n");
+    printf("Symbol Table, Semantic Analysis and Type Checking Implemented (static type checking)\n");
+    printf("Code generation partially implemented (refer codegen.h for limitations)\n");
 
     int choice;
     for (;;) {
